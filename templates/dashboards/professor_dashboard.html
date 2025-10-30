@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Dashboard do Professor{% endblock %}
+
+{% block page_title %}Dashboard do Professor{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+
+    <p class="text-muted mb-4">Bem-vindo de volta! Aqui está o resumo das suas turmas.</p>
+
+    <div class="row g-4 mb-5">
+        
+        <div class="col-md-3">
+            <div class="card p-3 shadow-sm border-start border-4 border-senai-red h-100">
+                <h2 class="display-6 fw-bold text-senai-red mb-0">4</h2>
+                <small class="text-muted">Turmas Ativas</small>
+                <i class="fas fa-users fa-2x text-senai-red position-absolute top-0 end-0 me-3 mt-3 opacity-50"></i>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card p-3 shadow-sm border-start border-4 border-warning h-100">
+                <h2 class="display-6 fw-bold text-warning mb-0">7</h2>
+                <small class="text-muted">Pendências</small>
+                <i class="fas fa-exclamation-triangle fa-2x text-warning position-absolute top-0 end-0 me-3 mt-3 opacity-50"></i>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card p-3 shadow-sm border-start border-4 border-success h-100">
+                <h2 class="display-6 fw-bold text-success mb-0">15:30</h2>
+                <small class="text-muted">Próxima Aula</small>
+                <i class="fas fa-clock fa-2x text-success position-absolute top-0 end-0 me-3 mt-3 opacity-50"></i>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="card p-3 shadow-sm border-start border-4 border-primary h-100">
+                <h2 class="display-6 fw-bold text-primary mb-0">127</h2>
+                <small class="text-muted">Total Alunos</small>
+                <i class="fas fa-user-graduate fa-2x text-primary position-absolute top-0 end-0 me-3 mt-3 opacity-50"></i>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row g-4">
+        
+        <div class="col-lg-8">
+            <h5 class="fw-bold mb-3 text-senai-dark">Turma em Destaque: EI-2023A - Eletrotécnica Industrial</h5>
+            <div class="card shadow-sm p-4 h-100">
+                
+                <div class="row text-center mb-4">
+                    <div class="col-4 border-end">
+                        <h4 class="fw-bold text-primary">32</h4>
+                        <small class="text-muted">Alunos Matriculados</small>
+                    </div>
+                    <div class="col-4 border-end">
+                        <h4 class="fw-bold text-success">87%</h4>
+                        <small class="text-muted">Frequência Média</small>
+                    </div>
+                    <div class="col-4">
+                        <h4 class="fw-bold text-senai-red">8.2</h4>
+                        <small class="text-muted">Nota Média</small>
+                    </div>
+                </div>
+                
+                <h6 class="mt-4">Evolução da Nota Média (Últimas 4 Semanas)</h6>
+                <div style="height: 300px;">
+                    <img src="{% static 'img/placeholder_line_chart.png' %}" alt="Gráfico de Linha" class="img-fluid">
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4">
+            
+            <div class="card shadow-sm p-4 mb-4 bg-light">
+                <h5 class="fw-bold mb-3 text-senai-dark border-bottom pb-2">Lançamento Rápido</h5>
+                <a href="#" class="btn bg-senai-red text-white w-100 mb-3"><i class="fas fa-edit me-2"></i> Lançar Notas</a>
+                <a href="#" class="btn btn-warning text-dark w-100 mb-3"><i class="fas fa-user-check me-2"></i> Registrar Presença</a>
+                <a href="#" class="btn btn-outline-secondary w-100"><i class="fas fa-book me-2"></i> Conteúdo da Aula</a>
+            </div>
+
+            <div class="card shadow-sm p-4">
+                <h5 class="fw-bold mb-3 text-danger border-bottom pb-2">Alunos em Risco</h5>
+                
+                <div class="alert alert-danger p-2 mb-2" role="alert">
+                    <span class="fw-bold">Maria Santos</span> - Frequência: 69%
+                    <i class="fas fa-exclamation-circle float-end mt-1 text-danger"></i>
+                </div>
+                
+                <div class="alert alert-warning p-2 mb-2" role="alert">
+                    <span class="fw-bold">Joana Oliveira</span> - Nota: 5.8
+                    <i class="fas fa-exclamation-triangle float-end mt-1 text-warning"></i>
+                </div>
+                
+                <div class="alert alert-danger p-2 mb-2" role="alert">
+                    <span class="fw-bold">Ana Costa</span> - Múltiplas faltas
+                    <i class="fas fa-exclamation-circle float-end mt-1 text-danger"></i>
+                </div>
+
+                <a href="#" class="btn btn-link text-senai-red small mt-2">Ver todos os alunos →</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,131 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Cadastro de Aluno - SENAI School Manager{% endblock %}
+
+{% block page_title %}Cadastro de Aluno{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <p class="text-muted mb-4">Preencha os dados abaixo para matricular um novo estudante no SENAI.</p>
+
+    <form method="post" action="{% url 'salvar_aluno' %}">
+        {% csrf_token %}
+        
+        {% if messages %}
+            <div class="alert alert-success" role="alert">
+                Novo aluno cadastrado com sucesso!
+            </div>
+        {% endif %}
+
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-light fw-bold text-senai-dark">
+                <i class="fas fa-user me-2"></i> 1. Informações Pessoais
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label for="id_nome" class="form-label small fw-bold">Nome Completo</label>
+                        <input type="text" class="form-control" id="id_nome" name="nome" required>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="id_cpf" class="form-label small fw-bold">CPF</label>
+                        <input type="text" class="form-control" id="id_cpf" name="cpf" required>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="id_nascimento" class="form-label small fw-bold">Data de Nascimento</label>
+                        <input type="date" class="form-control" id="id_nascimento" name="nascimento" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="id_email" class="form-label small fw-bold">E-mail</label>
+                        <input type="email" class="form-control" id="id_email" name="email" required>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="id_telefone" class="form-label small fw-bold">Telefone Principal</label>
+                        <input type="tel" class="form-control" id="id_telefone" name="telefone">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="id_sexo" class="form-label small fw-bold">Sexo</label>
+                        <select class="form-select" id="id_sexo" name="sexo">
+                            <option value="M">Masculino</option>
+                            <option value="F">Feminino</option>
+                            <option value="O">Outro</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-light fw-bold text-senai-dark">
+                <i class="fas fa-map-marker-alt me-2"></i> 2. Endereço
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <label for="id_cep" class="form-label small fw-bold">CEP</label>
+                        <input type="text" class="form-control" id="id_cep" name="cep">
+                    </div>
+                    <div class="col-md-6">
+                        <label for="id_logradouro" class="form-label small fw-bold">Rua / Avenida</label>
+                        <input type="text" class="form-control" id="id_logradouro" name="logradouro" required>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="id_numero" class="form-label small fw-bold">Número</label>
+                        <input type="text" class="form-control" id="id_numero" name="numero" required>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="id_bairro" class="form-label small fw-bold">Bairro</label>
+                        <input type="text" class="form-control" id="id_bairro" name="bairro" required>
+                    </div>
+                    <div class="col-md-5">
+                        <label for="id_cidade" class="form-label small fw-bold">Cidade</label>
+                        <input type="text" class="form-control" id="id_cidade" name="cidade" required>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="id_estado" class="form-label small fw-bold">Estado (UF)</label>
+                        <input type="text" class="form-control" id="id_estado" name="estado" required>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-senai-red text-white fw-bold">
+                <i class="fas fa-graduation-cap me-2"></i> 3. Dados do Curso
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label for="id_curso" class="form-label small fw-bold">Curso</label>
+                        <select class="form-select" id="id_curso" name="curso" required>
+                            <option value="">Selecione o Curso</option>
+                            <option value="1">Técnico em Automação Industrial</option>
+                            <option value="2">Superior em Análise e Desenvolvimento</option>
+                            </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="id_turma" class="form-label small fw-bold">Turma</label>
+                        <select class="form-select" id="id_turma" name="turma" required>
+                            <option value="">Selecione a Turma</option>
+                            <option value="A">T301A</option>
+                            <option value="B">G102B</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="id_data_matricula" class="form-label small fw-bold">Data de Matrícula</label>
+                        <input type="date" class="form-control" id="id_data_matricula" name="data_matricula" required value="{% now "Y-m-d" %}">
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="text-end mb-5">
+            <button type="button" class="btn btn-outline-secondary me-2">Limpar Formulário</button>
+            <button type="submit" class="btn bg-senai-red text-white btn-lg fw-bold">
+                <i class="fas fa-save me-2"></i> Cadastrar Aluno
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

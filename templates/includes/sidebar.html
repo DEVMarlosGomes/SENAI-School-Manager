@@ -1,0 +1,93 @@
+{% load static %}
+
+<nav id="sidebar" class="bg-senai-red text-white fixed-top" style="width: 250px; height: 100vh; padding-top: 0;">
+    
+    <div class="sidebar-header text-center py-4 bg-senai-dark">
+        <i class="fas fa-user-circle fa-3x mb-2 text-white"></i>
+        <h5 class="fw-bold mb-0">
+            {% if user.is_authenticated %}
+                {{ user.first_name|default:'Usuário' }}
+            {% else %}
+                Visitante
+            {% endif %}
+        </h5>
+        <small class="text-muted">
+            {% if user.profile.is_secretaria %}
+                Perfil: Secretária
+            {% elif user.profile.is_professor %}
+                Perfil: Professor
+            {% else %}
+                SENAI Manager
+            {% endif %}
+        </small>
+    </div>
+
+    <ul class="list-unstyled components p-3">
+        
+        {% if user.profile.is_secretaria %}
+            <li class="active mb-1">
+                <a href="{% url 'secretaria_dashboard' %}" class="btn bg-senai-dark text-white w-100 text-start rounded-0">
+                    <i class="fas fa-tachometer-alt me-2"></i> Dashboard
+                </a>
+            </li>
+            
+            <li class="mb-1">
+                <a href="{% url 'gestao_alunos' %}" class="btn btn-block text-white w-100 text-start rounded-0">
+                    <i class="fas fa-user-graduate me-2"></i> Gestão de Alunos
+                </a>
+            </li>
+            
+            <li class="mb-1">
+                <a href="{% url 'controle_financeiro' %}" class="btn btn-block text-white w-100 text-start rounded-0">
+                    <i class="fas fa-dollar-sign me-2"></i> Controle Financeiro
+                </a>
+            </li>
+            
+            <li class="mb-1">
+                <a href="{% url 'gestao_documentos' %}" class="btn btn-block text-white w-100 text-start rounded-0">
+                    <i class="fas fa-file-alt me-2"></i> Documentos
+                </a>
+            </li>
+            
+            <li class="mb-1">
+                <a href="{% url 'comunicacao_secretaria' %}" class="btn btn-block text-white w-100 text-start rounded-0">
+                    <i class="fas fa-comments me-2"></i> Comunicação
+                </a>
+            </li>
+
+        {% elif user.profile.is_professor %}
+            <li class="active mb-1">
+                <a href="{% url 'professor_dashboard' %}" class="btn bg-senai-dark text-white w-100 text-start rounded-0">
+                    <i class="fas fa-tachometer-alt me-2"></i> Dashboard
+                </a>
+            </li>
+            
+            <li class="mb-1">
+                <a href="#" class="btn btn-block text-white w-100 text-start rounded-0">
+                    <i class="fas fa-edit me-2"></i> Lance Dados
+                </a>
+            </li>
+            
+            <li class="mb-1">
+                <a href="#" class="btn btn-block text-white w-100 text-start rounded-0">
+                    <i class="fas fa-calendar-alt me-2"></i> Agenda
+                </a>
+            </li>
+            
+            <li class="mb-1">
+                <a href="#" class="btn btn-block text-white w-100 text-start rounded-0">
+                    <i class="fas fa-comments me-2"></i> Comunicação
+                </a>
+            </li>
+            
+            <li class="mb-1">
+                <a href="#" class="btn btn-block text-white w-100 text-start rounded-0">
+                    <i class="fas fa-chart-bar me-2"></i> Relatórios
+                </a>
+            </li>
+
+        {% endif %}
+        
+        </ul>
+
+</nav>
