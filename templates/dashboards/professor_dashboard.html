@@ -3,106 +3,252 @@
 
 {% block title %}Dashboard do Professor{% endblock %}
 
-{% block page_title %}Dashboard do Professor{% endblock %}
+{% block page_title %}
+    <div class="d-flex align-items-center">
+        <i class="fas fa-chalkboard-teacher me-2"></i>
+        Dashboard do Professor
+    </div>
+{% endblock %}
 
 {% block content %}
 <div class="container-fluid">
-
-    <p class="text-muted mb-4">Bem-vindo de volta! Aqui está o resumo das suas turmas.</p>
-
-    <div class="row g-4 mb-5">
-        
-        <div class="col-md-3">
-            <div class="card p-3 shadow-sm border-start border-4 border-senai-red h-100">
-                <h2 class="display-6 fw-bold text-senai-red mb-0">4</h2>
-                <small class="text-muted">Turmas Ativas</small>
-                <i class="fas fa-users fa-2x text-senai-red position-absolute top-0 end-0 me-3 mt-3 opacity-50"></i>
+    <div class="row g-4 mb-4">
+        <!-- Cards de Informações Principais -->
+        <div class="col-xl-3 col-sm-6">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <div class="d-flex align-items-center">
+                            <div class="rounded-circle bg-senai-red p-2 me-3">
+                                <i class="fas fa-users text-white"></i>
+                            </div>
+                            <h6 class="mb-0">Turmas Ativas</h6>
+                        </div>
+                        <span class="badge bg-success">Atual</span>
+                    </div>
+                    <h3 class="mb-0">4</h3>
+                    <div class="progress mt-3" style="height: 4px;">
+                        <div class="progress-bar bg-senai-red" style="width: 75%"></div>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <div class="col-md-3">
-            <div class="card p-3 shadow-sm border-start border-4 border-warning h-100">
-                <h2 class="display-6 fw-bold text-warning mb-0">7</h2>
-                <small class="text-muted">Pendências</small>
-                <i class="fas fa-exclamation-triangle fa-2x text-warning position-absolute top-0 end-0 me-3 mt-3 opacity-50"></i>
+        <div class="col-xl-3 col-sm-6">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <div class="d-flex align-items-center">
+                            <div class="rounded-circle bg-warning p-2 me-3">
+                                <i class="fas fa-exclamation-circle text-white"></i>
+                            </div>
+                            <h6 class="mb-0">Pendências</h6>
+                        </div>
+                        <span class="badge bg-danger">7 novas</span>
+                    </div>
+                    <h3 class="mb-0">7</h3>
+                    <div class="progress mt-3" style="height: 4px;">
+                        <div class="progress-bar bg-warning" style="width: 65%"></div>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <div class="col-md-3">
-            <div class="card p-3 shadow-sm border-start border-4 border-success h-100">
-                <h2 class="display-6 fw-bold text-success mb-0">15:30</h2>
-                <small class="text-muted">Próxima Aula</small>
-                <i class="fas fa-clock fa-2x text-success position-absolute top-0 end-0 me-3 mt-3 opacity-50"></i>
+        <div class="col-xl-3 col-sm-6">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <div class="d-flex align-items-center">
+                            <div class="rounded-circle bg-success p-2 me-3">
+                                <i class="fas fa-clock text-white"></i>
+                            </div>
+                            <h6 class="mb-0">Próxima Aula</h6>
+                        </div>
+                        <span class="badge bg-info">Hoje</span>
+                    </div>
+                    <h3 class="mb-0">15:30</h3>
+                    <small class="text-muted">Turma EI-2023A</small>
+                </div>
             </div>
         </div>
-        
-        <div class="col-md-3">
-            <div class="card p-3 shadow-sm border-start border-4 border-primary h-100">
-                <h2 class="display-6 fw-bold text-primary mb-0">127</h2>
-                <small class="text-muted">Total Alunos</small>
-                <i class="fas fa-user-graduate fa-2x text-primary position-absolute top-0 end-0 me-3 mt-3 opacity-50"></i>
+
+        <div class="col-xl-3 col-sm-6">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <div class="d-flex align-items-center">
+                            <div class="rounded-circle bg-primary p-2 me-3">
+                                <i class="fas fa-user-graduate text-white"></i>
+                            </div>
+                            <h6 class="mb-0">Total Alunos</h6>
+                        </div>
+                        <span class="badge bg-success">+2.3%</span>
+                    </div>
+                    <h3 class="mb-0">127</h3>
+                    <div class="progress mt-3" style="height: 4px;">
+                        <div class="progress-bar bg-primary" style="width: 85%"></div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
     
     <div class="row g-4">
-        
-        <div class="col-lg-8">
-            <h5 class="fw-bold mb-3 text-senai-dark">Turma em Destaque: EI-2023A - Eletrotécnica Industrial</h5>
-            <div class="card shadow-sm p-4 h-100">
-                
-                <div class="row text-center mb-4">
-                    <div class="col-4 border-end">
-                        <h4 class="fw-bold text-primary">32</h4>
-                        <small class="text-muted">Alunos Matriculados</small>
+        <!-- Área principal com gráfico -->
+        <div class="col-xl-8">
+            <div class="card h-100">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
+                    <div>
+                        <h5 class="mb-0">Turma em Destaque</h5>
+                        <small class="text-muted">EI-2023A - Eletrotécnica Industrial</small>
                     </div>
-                    <div class="col-4 border-end">
-                        <h4 class="fw-bold text-success">87%</h4>
-                        <small class="text-muted">Frequência Média</small>
-                    </div>
-                    <div class="col-4">
-                        <h4 class="fw-bold text-senai-red">8.2</h4>
-                        <small class="text-muted">Nota Média</small>
+                    <div class="btn-group">
+                        <button class="btn btn-sm btn-outline-secondary">Semana</button>
+                        <button class="btn btn-sm btn-outline-secondary active">Mês</button>
+                        <button class="btn btn-sm btn-outline-secondary">Ano</button>
                     </div>
                 </div>
-                
-                <h6 class="mt-4">Evolução da Nota Média (Últimas 4 Semanas)</h6>
-                <div style="height: 300px;">
-                    <img src="{% static 'img/placeholder_line_chart.png' %}" alt="Gráfico de Linha" class="img-fluid">
+                <div class="card-body">
+                    <div class="row mb-4">
+                        <div class="col-md-4 text-center border-end">
+                            <h4 class="fw-bold text-primary mb-0">32</h4>
+                            <small class="text-muted">Alunos Matriculados</small>
+                        </div>
+                        <div class="col-md-4 text-center border-end">
+                            <h4 class="fw-bold text-success mb-0">87%</h4>
+                            <small class="text-muted">Frequência Média</small>
+                        </div>
+                        <div class="col-md-4 text-center">
+                            <h4 class="fw-bold text-senai-red mb-0">8.2</h4>
+                            <small class="text-muted">Nota Média</small>
+                        </div>
+                    </div>
+                    <div style="height: 300px;">
+                        <!-- Área do Gráfico -->
+                        <canvas id="evolutionChart"></canvas>
+                    </div>
                 </div>
             </div>
         </div>
-        
-        <div class="col-lg-4">
-            
-            <div class="card shadow-sm p-4 mb-4 bg-light">
-                <h5 class="fw-bold mb-3 text-senai-dark border-bottom pb-2">Lançamento Rápido</h5>
-                <a href="#" class="btn bg-senai-red text-white w-100 mb-3"><i class="fas fa-edit me-2"></i> Lançar Notas</a>
-                <a href="#" class="btn btn-warning text-dark w-100 mb-3"><i class="fas fa-user-check me-2"></i> Registrar Presença</a>
-                <a href="#" class="btn btn-outline-secondary w-100"><i class="fas fa-book me-2"></i> Conteúdo da Aula</a>
+
+        <!-- Sidebar direita -->
+        <div class="col-xl-4">
+            <!-- Ações Rápidas -->
+            <div class="card mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">Ações Rápidas</h5>
+                </div>
+                <div class="card-body">
+                    <button class="btn bg-senai-red text-white w-100 mb-3">
+                        <i class="fas fa-edit me-2"></i> Lançar Notas
+                    </button>
+                    <button class="btn btn-dark w-100 mb-3">
+                        <i class="fas fa-user-check me-2"></i> Registrar Presença
+                    </button>
+                    <button class="btn btn-outline-secondary w-100">
+                        <i class="fas fa-book me-2"></i> Conteúdo da Aula
+                    </button>
+                </div>
             </div>
 
-            <div class="card shadow-sm p-4">
-                <h5 class="fw-bold mb-3 text-danger border-bottom pb-2">Alunos em Risco</h5>
-                
-                <div class="alert alert-danger p-2 mb-2" role="alert">
-                    <span class="fw-bold">Maria Santos</span> - Frequência: 69%
-                    <i class="fas fa-exclamation-circle float-end mt-1 text-danger"></i>
+            <!-- Alunos em Risco -->
+            <div class="card">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Alunos em Risco</h5>
+                    <span class="badge bg-danger">3 alunos</span>
                 </div>
-                
-                <div class="alert alert-warning p-2 mb-2" role="alert">
-                    <span class="fw-bold">Joana Oliveira</span> - Nota: 5.8
-                    <i class="fas fa-exclamation-triangle float-end mt-1 text-warning"></i>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                        <div class="list-group-item">
+                            <div class="d-flex w-100 justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="mb-1">Maria Santos</h6>
+                                    <small class="text-danger">
+                                        <i class="fas fa-exclamation-circle me-1"></i>
+                                        Frequência: 69%
+                                    </small>
+                                </div>
+                                <button class="btn btn-sm btn-outline-danger">
+                                    <i class="fas fa-envelope"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="list-group-item">
+                            <div class="d-flex w-100 justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="mb-1">João Oliveira</h6>
+                                    <small class="text-warning">
+                                        <i class="fas fa-exclamation-triangle me-1"></i>
+                                        Nota: 5.8
+                                    </small>
+                                </div>
+                                <button class="btn btn-sm btn-outline-danger">
+                                    <i class="fas fa-envelope"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="list-group-item">
+                            <div class="d-flex w-100 justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="mb-1">Ana Costa</h6>
+                                    <small class="text-danger">
+                                        <i class="fas fa-exclamation-circle me-1"></i>
+                                        Múltiplas faltas
+                                    </small>
+                                </div>
+                                <button class="btn btn-sm btn-outline-danger">
+                                    <i class="fas fa-envelope"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                
-                <div class="alert alert-danger p-2 mb-2" role="alert">
-                    <span class="fw-bold">Ana Costa</span> - Múltiplas faltas
-                    <i class="fas fa-exclamation-circle float-end mt-1 text-danger"></i>
+                <div class="card-footer bg-white">
+                    <a href="#" class="btn btn-link text-senai-red btn-sm p-0">
+                        Ver todos os alunos <i class="fas fa-arrow-right ms-1"></i>
+                    </a>
                 </div>
-
-                <a href="#" class="btn btn-link text-senai-red small mt-2">Ver todos os alunos →</a>
             </div>
         </div>
     </div>
 </div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var ctx = document.getElementById('evolutionChart').getContext('2d');
+    var chart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: ['Semana 1', 'Semana 2', 'Semana 3', 'Semana 4'],
+            datasets: [{
+                label: 'Evolução da Nota Média',
+                data: [7.8, 8.1, 8.0, 8.2],
+                borderColor: '#FF0000',
+                tension: 0.4,
+                fill: false
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: false,
+                    min: 6,
+                    max: 10
+                }
+            }
+        }
+    });
+});
+</script>
 {% endblock %}

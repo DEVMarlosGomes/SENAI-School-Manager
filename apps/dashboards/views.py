@@ -14,7 +14,25 @@ def aluno_dashboard_view(request):
 @login_required
 def professor_dashboard_view(request):
     # Lógica de obtenção de dados do professor
-    return render(request, 'dashboards/professor_dashboard.html')
+    context = {
+        'turmas_ativas': 4,
+        'pendencias': 7,
+        'proxima_aula': '15:30',
+        'total_alunos': 127,
+        'turma_destaque': {
+            'nome': 'EI-2023A - Eletrotécnica Industrial',
+            'alunos_matriculados': 32,
+            'frequencia_media': 87,
+            'nota_media': 8.2,
+        },
+        'alunos_em_risco': [
+            {'nome': 'Maria Santos', 'motivo': 'Frequência: 69%', 'cor': 'danger'},
+            {'nome': 'Joana Oliveira', 'motivo': 'Nota: 5.8', 'cor': 'warning'},
+            {'nome': 'Ana Costa', 'motivo': 'Múltiplas faltas', 'cor': 'danger'},
+        ],
+    }
+    return render(request, 'dashboards/professor_dashboard.html', context)
+
 
 @login_required
 def secretaria_dashboard_view(request):
@@ -24,10 +42,20 @@ def secretaria_dashboard_view(request):
 @login_required
 def coordenacao_dashboard_view(request):
     # Lógica de obtenção de dados do coordenador
-    return render(request, 'dashboards/coodenacao_dashboard.html')
+    return render(request, 'dashboards/coordenacao_dashboard.html')
 
-# Exemplo de view para o cadastro (será usada em apps/academico/urls.py)
-# Recomendado mover esta função para apps/academico/views.py
-def cadastro_aluno_view(request):
-    # Renderiza o formulário de cadastro de aluno
-    return render(request, 'academico/cadastro_aluno.html')
+# Views placeholders para links que aparecem na sidebar/templates
+def gestao_alunos_view(request):
+    return render(request, 'not_implemented.html', {'title': 'Gestão de Alunos'})
+
+def controle_financeiro_view(request):
+    return render(request, 'not_implemented.html', {'title': 'Controle Financeiro'})
+
+def gestao_documentos_view(request):
+    return render(request, 'not_implemented.html', {'title': 'Gestão de Documentos'})
+
+def comunicacao_secretaria_view(request):
+    return render(request, 'not_implemented.html', {'title': 'Comunicação - Secretaria'})
+
+def perfil_view(request):
+    return render(request, 'not_implemented.html', {'title': 'Meu Perfil'})

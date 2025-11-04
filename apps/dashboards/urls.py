@@ -6,20 +6,28 @@ from .views import (
     aluno_dashboard_view, 
     professor_dashboard_view, 
     secretaria_dashboard_view, 
-    coordenacao_dashboard_view 
-        # Importe a nova view
+    coordenacao_dashboard_view,
+    gestao_alunos_view,
+    controle_financeiro_view,
+    gestao_documentos_view,
+    comunicacao_secretaria_view,
+    perfil_view,
 )
 
 urlpatterns = [
     # Rota da Home (Funciona na raiz do site '/')
     path('', home, name='home'),
     
-    # Rota do Dashboard do Professor
-    # Este 'name' deve ser idêntico ao que está no template: 'professor_dashboard'
+    # Rotas dos Dashboards
     path('aluno/dashboard/', aluno_dashboard_view, name='aluno_dashboard'),
     path('professor/dashboard/', professor_dashboard_view, name='professor_dashboard'),
     path('secretaria/dashboard/', secretaria_dashboard_view, name='secretaria_dashboard'),
     path('coordenacao/dashboard/', coordenacao_dashboard_view, name='coordenacao_dashboard'),
     
-    # ... (outras rotas: aluno_dashboard, secretaria_dashboard, etc.)
+    # Rotas auxiliares/placeholder usadas nos templates
+    path('gestao/alunos/', gestao_alunos_view, name='gestao_alunos'),
+    path('gestao/documentos/', gestao_documentos_view, name='gestao_documentos'),
+    path('controle/financeiro/', controle_financeiro_view, name='controle_financeiro'),
+    path('comunicacao/secretaria/', comunicacao_secretaria_view, name='comunicacao_secretaria'),
+    path('perfil/', perfil_view, name='perfil'),
 ]

@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block title %}Em Desenvolvimento{% endblock %}
+
+{% block page_title %}Em Desenvolvimento{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="card shadow-sm">
+        <div class="card-body text-center">
+            <h3 class="mb-3">{{ title|default:'Página em desenvolvimento' }}</h3>
+            <p class="text-muted">Esta funcionalidade ainda não foi implementada. Você pode voltar para a <a href="{% url 'home' %}">home</a>.</p>
+            <a href="{% url 'home' %}" class="btn bg-senai-red text-white">Voltar para Home</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
