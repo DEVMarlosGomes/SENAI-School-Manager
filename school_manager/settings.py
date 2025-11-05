@@ -10,7 +10,17 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 import os
+import environ
 from pathlib import Path
+
+
+env = environ.Env()
+environ.Env.read_env()
+
+# load Supabase settings if present in environment; provide defaults so
+# local development can run without an .env file
+SUPABASE_URL = env('SUPABASE_URL', default='')
+SUPABASE_KEY = env('SUPABASE_KEY', default='')
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -86,12 +96,29 @@ WSGI_APPLICATION = 'school_manager.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+# Database
+# By default the project used a Postgres database hosted on Supabase.
+# For local development you can set the environment variable LOCAL_SQLITE=1
+# to use a local sqlite3 DB (useful when the remote DB host is not reachable).
+if os.getenv('LOCAL_SQLITE', '0') == '1':
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql_psycopg2',
+            'NAME': os.getenv('POSTGRES_DB', 'postgres'),
+            'USER': os.getenv('POSTGRES_USER', 'postgres'),
+            'PASSWORD': os.getenv('POSTGRES_PASSWORD', 'Senaischooltcc'),
+            'HOST': os.getenv('POSTGRES_HOST', 'db.fbbdfdqjlnvijrgfcvza.supabase.co'),
+            'PORT': os.getenv('POSTGRES_PORT', '5432'),
+        }
+    }
+
 
 
 # Password validation
