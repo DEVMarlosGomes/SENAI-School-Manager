@@ -1,0 +1,198 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Detalhes do Aluno - SENAI{% endblock %}
+
+{% block page_title %}
+    <div class="d-flex align-items-center">
+        <i class="fas fa-user-graduate me-2"></i>
+        Detalhes do Aluno
+    </div>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="row g-4">
+        <!-- Informações Principais -->
+        <div class="col-lg-4">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <div class="text-center mb-4">
+                        <i class="fas fa-user-circle fa-5x text-senai-red mb-3"></i>
+                        <h4 class="mb-0">{{ aluno.user.get_full_name }}</h4>
+                        <p class="text-muted small mb-0">Matrícula: {{ aluno.matricula }}</p>
+                        {% with status=aluno.matriculas.first.status %}
+                            {% if status == 'ativa' %}
+                                <span class="badge bg-success">Ativo</span>
+                            {% elif status == 'trancada' %}
+                                <span class="badge bg-warning">Trancado</span>
+                            {% elif status == 'cancelada' %}
+                                <span class="badge bg-danger">Cancelado</span>
+                            {% endif %}
+                        {% endwith %}
+                    </div>
+
+                    <hr>
+
+                    <div class="mb-3">
+                        <label class="text-muted small d-block">E-mail</label>
+                        <p class="mb-0">{{ aluno.user.email }}</p>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="text-muted small d-block">CPF</label>
+                        <p class="mb-0">{{ aluno.user.profile.cpf }}</p>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="text-muted small d-block">Telefone</label>
+                        <p class="mb-0">{{ aluno.user.profile.telefone }}</p>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="text-muted small d-block">Data de Nascimento</label>
+                        <p class="mb-0">{{ aluno.user.profile.data_nascimento|date:"d/m/Y" }}</p>
+                    </div>
+
+                    <div>
+                        <label class="text-muted small d-block">Endereço</label>
+                        <p class="mb-0">{{ aluno.user.profile.endereco }}</p>
+                    </div>
+
+                    <hr>
+
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'editar_aluno' aluno.pk %}" class="btn btn-outline-primary">
+                            <i class="fas fa-edit me-1"></i> Editar Informações
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Histórico e Detalhes -->
+        <div class="col-lg-8">
+            <div class="row g-4">
+                <!-- Cards de Status -->
+                <div class="col-md-4">
+                    <div class="card bg-light">
+                        <div class="card-body">
+                            <h6 class="card-title text-muted">Turmas Cursadas</h6>
+                            <h3 class="mb-0">{{ matriculas.count }}</h3>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card bg-light">
+                        <div class="card-body">
+                            <h6 class="card-title text-muted">Faltas Totais</h6>
+                            <h3 class="mb-0">{{ faltas }}</h3>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card bg-light">
+                        <div class="card-body">
+                            <h6 class="card-title text-muted">Média Geral</h6>
+                            <h3 class="mb-0">8.5</h3>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Histórico de Notas -->
+                <div class="col-12">
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-white">
+                            <h5 class="mb-0">Últimas Notas</h5>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Data</th>
+                                        <th>Descrição</th>
+                                        <th>Nota</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for nota in notas %}
+                                    <tr>
+                                        <td>{{ nota.data|date:"d/m/Y" }}</td>
+                                        <td>{{ nota.descricao }}</td>
+                                        <td>
+                                            <span class="badge {% if nota.valor >= 7 %}bg-success{% elif nota.valor >= 5 %}bg-warning{% else %}bg-danger{% endif %}">
+                                                {{ nota.valor }}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td colspan="3" class="text-center py-3 text-muted">
+                                            Nenhuma nota registrada
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Histórico de Matrículas -->
+                <div class="col-12">
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-white">
+                            <h5 class="mb-0">Histórico de Matrículas</h5>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Turma</th>
+                                        <th>Data Matrícula</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for matricula in matriculas %}
+                                    <tr>
+                                        <td>{{ matricula.turma.codigo }} - {{ matricula.turma.curso.nome }}</td>
+                                        <td>{{ matricula.data_matricula|date:"d/m/Y" }}</td>
+                                        <td>
+                                            <span class="badge 
+                                                {% if matricula.status == 'ativa' %}bg-success
+                                                {% elif matricula.status == 'trancada' %}bg-warning
+                                                {% elif matricula.status == 'cancelada' %}bg-danger
+                                                {% else %}bg-secondary{% endif %}">
+                                                {{ matricula.get_status_display }}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td colspan="3" class="text-center py-3 text-muted">
+                                            Nenhuma matrícula registrada
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

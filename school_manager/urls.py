@@ -14,23 +14,21 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-# school_manager/urls.py (Principal)
-
 from django.contrib import admin
 from django.urls import path, include
-# ... outras importações ...
+from django.conf import settings
+from django.conf.urls.static import static
+from django.contrib.auth import views as auth_views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    
-    # URLs de Autenticação (IMPORTANTE para 'login', 'logout')
+    path('contas/login/', auth_views.LoginView.as_view(template_name='registration/login.html'), name='login'),
+    path('contas/logout/', auth_views.LogoutView.as_view(), name='logout'),
     path('contas/', include('django.contrib.auth.urls')),
-    
-    # URLs dos Dashboards (Home e Painéis Internos)
     path('', include('apps.dashboards.urls')),
-    
-    # URLs do Módulo Acadêmico/Gestão (Onde está o cadastro de aluno)
-    path('academico/', include('apps.academico.urls')), 
-    
-    # ... Se você mantiver o path('entrar/', login_view, name='login'), ele irá sobrescrever a rota padrão do Django
+    path('academico/', include('apps.academico.urls')),
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
