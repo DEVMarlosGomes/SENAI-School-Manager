@@ -99,8 +99,8 @@ Marlos Gomes
 
 Matheus Rodrigues
 
-https://bird-toothpaste-81f.notion.site/Documenta-o-Sistema-de-Gest-o-Escolar-Avan-ado-SENAI-School-Manager-2a595238c1de808c8d64d80f480810dc
-
 Romulo Famiglietti
 
 Este projeto está em desenvolvimento ativo. Para contribuir, clone o repositório e consulte a Documentação Técnica e Funcional completa.
+
+https://bird-toothpaste-81f.notion.site/Documenta-o-Sistema-de-Gest-o-Escolar-Avan-ado-SENAI-School-Manager-2a595238c1de808c8d64d80f480810dc
