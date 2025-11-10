@@ -1,0 +1,131 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Boletim Escolar - SENAI{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="card shadow-sm">
+        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+            <div>
+                <a href="{% url 'aluno_dashboard' %}" class="btn btn-sm btn-outline-primary me-2">
+                    <i class="fas fa-arrow-left me-1"></i> Voltar
+                </a>
+                <a href="{% url 'home' %}" class="btn btn-sm btn-outline-secondary me-2">
+                    <i class="fas fa-home me-1"></i> Portal
+                </a>
+            </div>
+            <div>
+                <a href="?export=csv" class="btn btn-outline-secondary me-2"><i class="fas fa-file-csv me-1"></i>Exportar CSV</a>
+                <button class="btn btn-primary" onclick="window.print()"><i class="fas fa-print me-1"></i>Imprimir</button>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <h5>Dados do Aluno</h5>
+                    <p class="mb-1"><strong>Nome:</strong> {{ aluno.user.get_full_name }}</p>
+                    <p class="mb-1"><strong>Matrícula:</strong> {{ aluno.matricula }}</p>
+                </div>
+                    <div class="col-md-6 text-md-end">
+                    <p class="mb-1"><strong>Relatório gerado em:</strong> {{ timezone.now|date:"d/m/Y H:i" }}</p>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Turma</th>
+                            <th>Curso</th>
+                            <th class="text-center">Média</th>
+                            <th class="text-center">Faltas</th>
+                            <th class="text-center">Frequência</th>
+                            <th class="text-center">Status</th>
+                            <th class="text-center">Detalhes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in boletim %}
+                        <tr>
+                            <td>{{ item.turma.codigo }}</td>
+                            <td>{{ item.curso.nome }}</td>
+                            <td class="text-center">
+                                {% if item.media is not None %}
+                                    <span class="fw-bold">{{ item.media }}</span>
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </td>
+                            <td class="text-center">{{ item.faltas }}</td>
+                            <td class="text-center">{% if item.frequencia is not None %}{{ item.frequencia }}%{% else %}-{% endif %}</td>
+                            <td class="text-center">
+                                {% if item.status == 'Aprovado' %}
+                                    <span class="badge bg-success">{{ item.status }}</span>
+                                {% elif item.status == 'Recuperação' %}
+                                    <span class="badge bg-warning text-dark">{{ item.status }}</span>
+                                {% elif item.status == 'Reprovado' %}
+                                    <span class="badge bg-danger">{{ item.status }}</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">{{ item.status }}</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-center">
+                                <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#detalhesModal{{ forloop.counter }}">
+                                    <i class="fas fa-info-circle"></i>
+                                </button>
+
+                                <!-- Modal -->
+                                <div class="modal fade" id="detalhesModal{{ forloop.counter }}" tabindex="-1">
+                                    <div class="modal-dialog modal-lg">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title">Detalhes - {{ item.turma.codigo }}</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <h6>Notas</h6>
+                                                <ul class="list-group mb-3">
+                                                    {% for n in item.notas %}
+                                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                            <div>
+                                                                <strong>{{ n.descricao }}</strong>
+                                                                <div class="small text-muted">{{ n.data }}</div>
+                                                            </div>
+                                                            <span class="badge {% if n.valor|floatformat:1 >= 7 %}bg-success{% elif n.valor|floatformat:1 >= 5 %}bg-warning text-dark{% else %}bg-danger{% endif %}">{{ n.valor }}</span>
+                                                        </li>
+                                                    {% empty %}
+                                                        <li class="list-group-item">Nenhuma nota registrada</li>
+                                                    {% endfor %}
+                                                </ul>
+
+                                                <h6>Frequência (últimas aulas)</h6>
+                                                <p class="small text-muted">Total de faltas: {{ item.faltas }}</p>
+                                                <p class="small text-muted">Frequência: {% if item.frequencia is not None %}{{ item.frequencia }}%{% else %}-{% endif %}</p>
+
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="mt-4">
+                <h5>Observações</h5>
+                <ul class="small text-muted">
+                    <li>Média mínima para aprovação: 7,0</li>
+                    <li>Frequência mínima exigida: 75%</li>
+                    <li>As notas podem ser atualizadas pelos professores durante o período letivo</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

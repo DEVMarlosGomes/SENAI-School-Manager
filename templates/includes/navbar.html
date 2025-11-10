@@ -37,7 +37,7 @@
                         {% if user.is_authenticated %}
                             <li><a class="dropdown-item" href="{% url 'perfil' %}">Meu Perfil</a></li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="{% url 'logout' %}">Sair</a></li>
+                            <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#logoutModal">Sair</a></li>
                         {% else %}
                             <li><a class="dropdown-item" href="{% url 'login' %}">Login</a></li>
                         {% endif %}

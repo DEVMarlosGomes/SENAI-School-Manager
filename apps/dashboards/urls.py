@@ -12,6 +12,10 @@ from .views import (
     gestao_documentos_view,
     comunicacao_secretaria_view,
     perfil_view,
+    materiais_estudo_view,
+    boletim_view,
+    calendario_view,
+    avisos_eventos_view,
 )
 
 urlpatterns = [
@@ -20,9 +24,13 @@ urlpatterns = [
     
     # Rotas dos Dashboards
     path('aluno/dashboard/', aluno_dashboard_view, name='aluno_dashboard'),
+    path('aluno/materiais/', materiais_estudo_view, name='materiais_estudo'),
+    path('aluno/boletim/', boletim_view, name='boletim'),
     path('professor/dashboard/', professor_dashboard_view, name='professor_dashboard'),
     path('secretaria/dashboard/', secretaria_dashboard_view, name='secretaria_dashboard'),
     path('coordenacao/dashboard/', coordenacao_dashboard_view, name='coordenacao_dashboard'),
+    path('aluno/calendario/', calendario_view, name='calendario'),
+    path('aluno/avisos-eventos/', avisos_eventos_view, name='avisos_eventos'),
     
     # Rotas auxiliares/placeholder usadas nos templates
     path('gestao/alunos/', gestao_alunos_view, name='gestao_alunos'),
