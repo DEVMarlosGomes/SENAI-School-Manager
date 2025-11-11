@@ -1,0 +1,39 @@
+name: Deploy no PythonAnywhere
+
+on:
+  push:
+    branches:
+      - main  # ATENÇÃO: Mude para 'master' se esse for o nome do seu branch principal
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fazer o deploy no PythonAnywhere
+        # Esta é uma "Action" oficial do PythonAnywhere
+        uses: pythonanywhere/github-action@v1
+        with:
+          api_token: ${{ secrets.PA_API_TOKEN }}
+          python_version: '3.13' # A versão do Python que você usa (pelo seu log)
+          virtualenv_dir: '/home/romulofamiglietti/SENAI-School-Manager/venv'
+          repo_dir: '/home/romulofamiglietti/SENAI-School-Manager'
+          reload_webapp: 'romulofamiglietti.pythonanywhere.com' # Seu domínioname: Deploy no PythonAnywhere
+
+on:
+  push:
+    branches:
+      - main  # ATENÇÃO: Mude para 'master' se esse for o nome do seu branch principal
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fazer o deploy no PythonAnywhere
+        # Esta é uma "Action" oficial do PythonAnywhere
+        uses: pythonanywhere/github-action@v1
+        with:
+          api_token: ${{ secrets.PA_API_TOKEN }}
+          python_version: '3.13' # A versão do Python que você usa (pelo seu log)
+          virtualenv_dir: '/home/romulofamiglietti/SENAI-School-Manager/venv'
+          repo_dir: '/home/romulofamiglietti/SENAI-School-Manager'
+          reload_webapp: 'romulofamiglietti.pythonanywhere.com' # Seu domínio
