@@ -19,23 +19,37 @@ from .views import (
 )
 
 urlpatterns = [
-    # Rota da Home (Funciona na raiz do site '/')
+    # -------------------------
+    # Página inicial
+    # -------------------------
     path('', home, name='home'),
     
-    # Rotas dos Dashboards
+    # -------------------------
+    # Dashboards principais
+    # -------------------------
     path('aluno/dashboard/', aluno_dashboard_view, name='aluno_dashboard'),
-    path('aluno/materiais/', materiais_estudo_view, name='materiais_estudo'),
-    path('aluno/boletim/', boletim_view, name='boletim'),
     path('professor/dashboard/', professor_dashboard_view, name='professor_dashboard'),
     path('secretaria/dashboard/', secretaria_dashboard_view, name='secretaria_dashboard'),
     path('coordenacao/dashboard/', coordenacao_dashboard_view, name='coordenacao_dashboard'),
+
+    # -------------------------
+    # Funcionalidades do aluno
+    # -------------------------
+    path('aluno/materiais/', materiais_estudo_view, name='materiais_estudo'),
+    path('aluno/boletim/', boletim_view, name='boletim'),
     path('aluno/calendario/', calendario_view, name='calendario'),
     path('aluno/avisos-eventos/', avisos_eventos_view, name='avisos_eventos'),
-    
-    # Rotas auxiliares/placeholder usadas nos templates
+
+    # -------------------------
+    # Funções administrativas
+    # -------------------------
     path('gestao/alunos/', gestao_alunos_view, name='gestao_alunos'),
     path('gestao/documentos/', gestao_documentos_view, name='gestao_documentos'),
     path('controle/financeiro/', controle_financeiro_view, name='controle_financeiro'),
     path('comunicacao/secretaria/', comunicacao_secretaria_view, name='comunicacao_secretaria'),
+
+    # -------------------------
+    # Perfil do usuário
+    # -------------------------
     path('perfil/', perfil_view, name='perfil'),
 ]

@@ -12,21 +12,19 @@
 <!-- ================================
      HERO SECTION
      ================================ -->
-<section class="hero-banner hero-with-bg text-white">
-    <div style="position: absolute; inset: 0; background: linear-gradient(135deg, rgba(196, 30, 58, 0.92) 0%, rgba(231, 76, 60, 0.88) 100%); z-index: 1;"></div>
-    
-    <div class="container-fluid" style="position: relative; z-index: 2;">
+<section class="hero-banner text-white">
+    <div class="container-fluid">
         <div class="row align-items-center">
             <!-- Left Side: Welcome Content -->
             <div class="col-lg-6 hero-content px-4 px-lg-5">
-                <div class="logo-section mb-4">
-                    <img src="{% static '\img\senai-logo.png' %}" alt="SENAI" class="me-3" style="height: 50px;">
+                <div class="logo-section">
+                    <img src="{% static 'img/senai_logo_white.png' %}" alt="SENAI" class="me-2">
                     <div class="badge">Sistema Educacional</div>
                 </div>
                 
-                <h1 class="display-3 fw-bold mb-3">Bem-vindo ao SENAI</h1>
+                <h1 class="display-4 fw-bold mb-3">Bem-vindo ao SENAI</h1>
                 <p class="lead mb-4">
-                    Transformando vidas através da <strong>educação profissional de qualidade</strong> 
+                    Transformando vidas através da educação profissional de <strong>qualidade</strong> 
                     e <strong>inovação tecnológica</strong>. Acesse seu dashboard e continue sua jornada de aprendizado.
                 </p>
 
@@ -288,125 +286,51 @@
 
 
 <!-- ================================
-     COMUNICADOS GERAIS SECTION
+     MAIN CONTENT AREA
      ================================ -->
-<section class="full-width-section bg-light">
+<section class="main-content-section">
     <div class="container-fluid">
-        <div class="content-card">
-            <div class="card-header-custom">
-                <h3 class="mb-0"><i class="fas fa-megaphone text-senai-red me-2"></i> Comunicados Gerais</h3>
-            </div>
-            <div class="card-body-custom">
-                <div class="comunicado-item">
-                    <div class="comunicado-badge bg-danger">URGENTE</div>
-                    <h6 class="fw-bold">Início do Período Letivo 2024</h6>
-                    <p class="text-muted small mb-2">Publicado em 23/07/2024</p>
-                    <p class="comunicado-text">Comunicamos o início oficial do período letivo. Todos os alunos devem estar presentes no primeiro dia de aula.</p>
-                    <a href="#" class="btn-link-small">Ler mais <i class="fas fa-arrow-right small"></i></a>
-                </div>
-
-                <div class="comunicado-item border-top pt-3">
-                    <div class="comunicado-badge bg-success">IMPORTANTE</div>
-                    <h6 class="fw-bold">Novas Vagas para Cursos Técnicos</h6>
-                    <p class="text-muted small mb-2">Publicado em 20/07/2024</p>
-                    <p class="comunicado-text">Estamos com inscrições abertas para novos cursos técnicos. Confira os requisitos e inscreva-se agora!</p>
-                    <a href="#" class="btn-link-small">Ler mais <i class="fas fa-arrow-right small"></i></a>
-                </div>
-
-                <div class="comunicado-item border-top pt-3">
-                    <div class="comunicado-badge bg-info">INFORMATIVO</div>
-                    <h6 class="fw-bold">Calendário do Processo de 1º Semestre</h6>
-                    <p class="text-muted small mb-2">Publicado em 05/07/2024</p>
-                    <p class="comunicado-text">Confira as datas importantes do semestre como avaliações, feriados e recesso escolar.</p>
-                    <a href="#" class="btn-link-small">Ler mais <i class="fas fa-arrow-right small"></i></a>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-
-<!-- ================================
-     DASHBOARD INSTITUCIONAL SECTION
-     ================================ -->
-<section class="full-width-section bg-white">
-    <div class="container-fluid">
-        <div class="content-card">
-            <div class="card-header-custom">
-                <h3 class="mb-0"><i class="fas fa-chart-bar text-senai-red me-2"></i> Dashboard Institucional</h3>
-            </div>
-            <div class="card-body-custom">
-                <div class="row">
-                    <div class="col-lg-3 col-md-6">
-                        <div class="dashboard-stat">
-                            <div class="stat-label">
-                                <span>Alunos Ativos</span>
-                                <span class="badge bg-success">+0.2%</span>
-                            </div>
-                            <div class="stat-value">3.847</div>
-                            <div class="stat-bar">
-                                <div class="stat-bar-fill" style="width: 92%"></div>
-                            </div>
-                        </div>
+        <div class="row g-4">
+            <!-- LEFT COLUMN: Comunicados e Eventos -->
+            <div class="col-lg-8">
+                <!-- COMUNICADOS GERAIS -->
+                <div class="content-card mb-4">
+                    <div class="card-header-custom">
+                        <h3 class="mb-0"><i class="fas fa-megaphone text-senai-red me-2"></i> Comunicados Gerais</h3>
                     </div>
-
-                    <div class="col-lg-3 col-md-6">
-                        <div class="dashboard-stat">
-                            <div class="stat-label">
-                                <span>Professores</span>
-                                <span class="badge bg-success">+2.3%</span>
-                            </div>
-                            <div class="stat-value">89</div>
-                            <div class="stat-bar">
-                                <div class="stat-bar-fill" style="width: 88%"></div>
-                            </div>
+                    <div class="card-body-custom">
+                        <div class="comunicado-item">
+                            <div class="comunicado-badge bg-danger">URGENTE</div>
+                            <h6 class="fw-bold">Início do Período Letivo 2024</h6>
+                            <p class="text-muted small mb-2">Publicado em 23/07/2024</p>
+                            <p class="comunicado-text">Comunicamos o início oficial do período letivo. Todos os alunos devem estar presentes no primeiro dia de aula.</p>
+                            <a href="#" class="btn-link-small">Ler mais <i class="fas fa-arrow-right small"></i></a>
                         </div>
-                    </div>
 
-                    <div class="col-lg-3 col-md-6">
-                        <div class="dashboard-stat">
-                            <div class="stat-label">
-                                <span>Cursos Ativos</span>
-                                <span class="badge bg-danger">-0.3%</span>
-                            </div>
-                            <div class="stat-value">24</div>
-                            <div class="stat-bar">
-                                <div class="stat-bar-fill" style="width: 75%"></div>
-                            </div>
+                        <div class="comunicado-item border-top pt-3">
+                            <div class="comunicado-badge bg-success">IMPORTANTE</div>
+                            <h6 class="fw-bold">Novas Vagas para Cursos Técnicos</h6>
+                            <p class="text-muted small mb-2">Publicado em 20/07/2024</p>
+                            <p class="comunicado-text">Estamos com inscrições abertas para novos cursos técnicos. Confira os requisitos e inscreva-se agora!</p>
+                            <a href="#" class="btn-link-small">Ler mais <i class="fas fa-arrow-right small"></i></a>
                         </div>
-                    </div>
 
-                    <div class="col-lg-3 col-md-6">
-                        <div class="dashboard-stat">
-                            <div class="stat-label">
-                                <span>Taxa de Aprovação</span>
-                                <span class="badge bg-success">+1.1%</span>
-                            </div>
-                            <div class="stat-value">94,2%</div>
-                            <div class="stat-bar">
-                                <div class="stat-bar-fill" style="width: 94.2%"></div>
-                            </div>
+                        <div class="comunicado-item border-top pt-3">
+                            <div class="comunicado-badge bg-info">INFORMATIVO</div>
+                            <h6 class="fw-bold">Calendário do Processo de 1º Semestre</h6>
+                            <p class="text-muted small mb-2">Publicado em 05/07/2024</p>
+                            <p class="comunicado-text">Confira as datas importantes do semestre como avaliações, feriados e recesso escolar.</p>
+                            <a href="#" class="btn-link-small">Ler mais <i class="fas fa-arrow-right small"></i></a>
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
-    </div>
-</section>
 
-
-<!-- ================================
-     PRÓXIMOS EVENTOS SECTION
-     ================================ -->
-<section class="full-width-section bg-light">
-    <div class="container-fluid">
-        <div class="content-card">
-            <div class="card-header-custom">
-                <h3 class="mb-0"><i class="fas fa-calendar-alt text-senai-red me-2"></i> Próximos Eventos</h3>
-            </div>
-            <div class="card-body-custom">
-                <div class="row">
-                    <div class="col-lg-4 col-md-6">
+                <!-- PRÓXIMOS EVENTOS -->
+                <div class="content-card">
+                    <div class="card-header-custom">
+                        <h3 class="mb-0"><i class="fas fa-calendar-alt text-senai-red me-2"></i> Próximos Eventos</h3>
+                    </div>
+                    <div class="card-body-custom">
                         <div class="event-item">
                             <div class="event-date">
                                 <div class="date-day">22</div>
@@ -417,10 +341,8 @@
                                 <p class="text-muted small mb-0">14:00 - 16:00 • Sala 101</p>
                             </div>
                         </div>
-                    </div>
 
-                    <div class="col-lg-4 col-md-6">
-                        <div class="event-item">
+                        <div class="event-item border-top pt-3">
                             <div class="event-date">
                                 <div class="date-day">24</div>
                                 <div class="date-month">NOV</div>
@@ -430,10 +352,8 @@
                                 <p class="text-muted small mb-0">09:00 - 12:00 • Laboratório de Tecnologia</p>
                             </div>
                         </div>
-                    </div>
 
-                    <div class="col-lg-4 col-md-6">
-                        <div class="event-item">
+                        <div class="event-item border-top pt-3">
                             <div class="event-date">
                                 <div class="date-day">28</div>
                                 <div class="date-month">NOV</div>
@@ -441,6 +361,60 @@
                             <div class="event-info">
                                 <h6 class="fw-bold mb-1">Apresentação de Projetos Finais</h6>
                                 <p class="text-muted small mb-0">15:00 - 18:00 • Auditório Principal</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RIGHT COLUMN: Dashboard Institucional -->
+            <div class="col-lg-4">
+                <div class="content-card sticky-top" style="top: 90px;">
+                    <div class="card-header-custom">
+                        <h3 class="mb-0"><i class="fas fa-chart-bar text-senai-red me-2"></i> Dashboard Institucional</h3>
+                    </div>
+                    <div class="card-body-custom">
+                        <div class="dashboard-stat">
+                            <div class="stat-label">
+                                <span>Alunos Ativos</span>
+                                <span class="badge bg-success">+0.2%</span>
+                            </div>
+                            <div class="stat-value">3.847</div>
+                            <div class="stat-bar">
+                                <div class="stat-bar-fill" style="width: 92%"></div>
+                            </div>
+                        </div>
+
+                        <div class="dashboard-stat">
+                            <div class="stat-label">
+                                <span>Professores</span>
+                                <span class="badge bg-success">+2.3%</span>
+                            </div>
+                            <div class="stat-value">89</div>
+                            <div class="stat-bar">
+                                <div class="stat-bar-fill" style="width: 88%"></div>
+                            </div>
+                        </div>
+
+                        <div class="dashboard-stat">
+                            <div class="stat-label">
+                                <span>Cursos Ativos</span>
+                                <span class="badge bg-danger">-0.3%</span>
+                            </div>
+                            <div class="stat-value">24</div>
+                            <div class="stat-bar">
+                                <div class="stat-bar-fill" style="width: 75%"></div>
+                            </div>
+                        </div>
+
+                        <div class="dashboard-stat">
+                            <div class="stat-label">
+                                <span>Taxa de Aprovação</span>
+                                <span class="badge bg-success">+1.1%</span>
+                            </div>
+                            <div class="stat-value">94,2%</div>
+                            <div class="stat-bar">
+                                <div class="stat-bar-fill" style="width: 94.2%"></div>
                             </div>
                         </div>
                     </div>
@@ -531,111 +505,52 @@
         </div>
         
         <div class="row g-4 justify-content-center">
-            <!-- Petrobras -->
-            <div class="col-lg-4 col-md-6">
-                <div class="partner-card">
-                    <div class="partner-img-container">
-                        <img src="{% static 'img/Logo_petrobras.gif' %}" alt="Petrobras" class="partner-logo-img">
-                    </div>
-                    <div class="partner-info">
-                        <h5>Petrobras</h5>
-                    </div>
+            <div class="col-lg-2 col-md-3 col-sm-4 col-6">
+                <div class="partner-logo">
+                    <div class="partner-placeholder">PETROBRAS</div>
                 </div>
             </div>
-
-            <!-- Vale -->
-            <div class="col-lg-4 col-md-6">
-                <div class="partner-card">
-                    <div class="partner-img-container">
-                        <img src="{% static 'img/vale-logo.png' %}" alt="Vale" class="partner-logo-img">
-                    </div>
-                    <div class="partner-info">
-                        <h5>Vale</h5>
-                    </div>
+            <div class="col-lg-2 col-md-3 col-sm-4 col-6">
+                <div class="partner-logo">
+                    <div class="partner-placeholder">VALE</div>
                 </div>
             </div>
-
-            <!-- Embraer -->
-            <div class="col-lg-4 col-md-6">
-                <div class="partner-card">
-                    <div class="partner-img-container">
-                        <img src="{% static 'img/embraer-logo.png' %}" alt="Embraer" class="partner-logo-img">
-                    </div>
-                    <div class="partner-info">
-                        <h5>Embraer</h5>
-                    </div>
+            <div class="col-lg-2 col-md-3 col-sm-4 col-6">
+                <div class="partner-logo">
+                    <div class="partner-placeholder">EMBRAER</div>
                 </div>
             </div>
-
-            <!-- Volkswagen -->
-            <div class="col-lg-4 col-md-6">
-                <div class="partner-card">
-                    <div class="partner-img-container">
-                        <img src="{% static 'img/Volkswagen_logo.png' %}" alt="Volkswagen" class="partner-logo-img">
-                    </div>
-                    <div class="partner-info">
-                        <h5>Volkswagen</h5>
-                    </div>
+            <div class="col-lg-2 col-md-3 col-sm-4 col-6">
+                <div class="partner-logo">
+                    <div class="partner-placeholder">VOLKSWAGEN</div>
                 </div>
             </div>
-
-            <!-- Bosch -->
-            <div class="col-lg-4 col-md-6">
-                <div class="partner-card">
-                    <div class="partner-img-container">
-                        <img src="{% static 'img/Bosch-Logo.png' %}" alt="Bosch" class="partner-logo-img">
-                    </div>
-                    <div class="partner-info">
-                        <h5>Bosch</h5>
-                    </div>
+            <div class="col-lg-2 col-md-3 col-sm-4 col-6">
+                <div class="partner-logo">
+                    <div class="partner-placeholder">BOSCH</div>
                 </div>
             </div>
-
-            <!-- Ambev -->
-            <div class="col-lg-4 col-md-6">
-                <div class="partner-card">
-                    <div class="partner-img-container">
-                        <img src="{% static 'img/ambev-logo.png' %}" alt="Ambev" class="partner-logo-img">
-                    </div>
-                    <div class="partner-info">
-                        <h5>Ambev</h5>
-                    </div>
+            <div class="col-lg-2 col-md-3 col-sm-4 col-6">
+                <div class="partner-logo">
+                    <div class="partner-placeholder">AMBEV</div>
                 </div>
             </div>
+        </div>
 
-            <!-- Siemens -->
-            <div class="col-lg-4 col-md-6">
-                <div class="partner-card">
-                    <div class="partner-img-container">
-                        <img src="{% static 'img/siemens-logo.png' %}" alt="Siemens" class="partner-logo-img">
-                    </div>
-                    <div class="partner-info">
-                        <h5>Siemens</h5>
-                    </div>
+        <div class="row g-4 justify-content-center mt-2">
+            <div class="col-lg-2 col-md-3 col-sm-4 col-6">
+                <div class="partner-logo">
+                    <div class="partner-placeholder">SIEMENS</div>
                 </div>
             </div>
-
-            <!-- ABB -->
-            <div class="col-lg-4 col-md-6">
-                <div class="partner-card">
-                    <div class="partner-img-container">
-                        <img src="{% static 'img/abb-logo.png' %}" alt="ABB" class="partner-logo-img">
-                    </div>
-                    <div class="partner-info">
-                        <h5>ABB</h5>
-                    </div>
+            <div class="col-lg-2 col-md-3 col-sm-4 col-6">
+                <div class="partner-logo">
+                    <div class="partner-placeholder">ABB</div>
                 </div>
             </div>
-
-            <!-- Fiat -->
-            <div class="col-lg-4 col-md-6">
-                <div class="partner-card">
-                    <div class="partner-img-container">
-                        <img src="{% static 'img/fiat-logo.png' %}" alt="Fiat" class="partner-logo-img">
-                    </div>
-                    <div class="partner-info">
-                        <h5>Fiat</h5>
-                    </div>
+            <div class="col-lg-2 col-md-3 col-sm-4 col-6">
+                <div class="partner-logo">
+                    <div class="partner-placeholder">FIAT</div>
                 </div>
             </div>
         </div>

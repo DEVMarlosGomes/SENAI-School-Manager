@@ -36,6 +36,7 @@
     
     <form method="post" action="{% url 'login' %}">
         {% csrf_token %}
+        <input type="hidden" name="next" value="{{ request.GET.next }}">
         
         {% if form.errors %}
         <div class="alert alert-danger" role="alert">

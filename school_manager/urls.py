@@ -1,34 +1,33 @@
 """
 URL configuration for school_manager project.
-
-The `urlpatterns` list routes URLs to views. For more information please see:
-    https://docs.djangoproject.com/en/5.2/topics/http/urls/
-Examples:
-Function views
-    1. Add an import:  from my_app import views
-    2. Add a URL to urlpatterns:  path('', views.home, name='home')
-Class-based views
-    1. Add an import:  from other_app.views import Home
-    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
-Including another URLconf
-    1. Import the include() function: from django.urls import include, path
-    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+
 from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
-from django.contrib.auth import views as auth_views
+from apps.usuarios.views import redirecionar_dashboard, home_view
 
 urlpatterns = [
+    # Painel administrativo
     path('admin/', admin.site.urls),
-    path('contas/login/', auth_views.LoginView.as_view(template_name='registration/login.html'), name='login'),
-    path('contas/logout/', auth_views.LogoutView.as_view(), name='logout'),
-    path('contas/', include('django.contrib.auth.urls')),
-    path('', include('apps.dashboards.urls')),
+
+    # Redirecionamento padrão após login (para o dashboard correto)
+    path('accounts/profile/', redirecionar_dashboard, name='redirecionar_dashboard'),
+
+    # URLs de autenticação padrão do Django (login, logout, password reset, etc.)
+    path('accounts/', include('django.contrib.auth.urls')),
+
+    # Apps
+    path('usuarios/', include('apps.usuarios.urls')),
     path('academico/', include('apps.academico.urls')),
+    path('dashboards/', include('apps.dashboards.urls')),
+
+    # Página inicial (landing page com login e cadastro)
+    path('', home_view, name='home'),
 ]
 
+# Servir arquivos estáticos e de mídia no ambiente local
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
