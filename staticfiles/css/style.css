@@ -1,0 +1,74 @@
+/* Variáveis de cores */
+:root {
+    --primary-color: #FF0000;      /* Vermelho SENAI */
+    --primary-dark: #CC0000;       /* Vermelho SENAI escuro */
+    --secondary-color: #FF3333;    /* Vermelho secundário */
+    --accent-color: #FFF5F5;       /* Vermelho claro para destaque */
+    --text-light: #FFFFFF;         /* Texto claro */
+    --text-dark: #333333;          /* Texto escuro */
+}
+
+/* Classes de cores personalizadas */
+.bg-senai-red {
+    background-color: var(--primary-color) !important;
+}
+
+.bg-senai-dark {
+    background-color: var(--primary-dark) !important;
+}
+
+.text-senai-red {
+    color: var(--primary-color) !important;
+}
+
+/* Estilo do Sidebar */
+#sidebar {
+    background-color: var(--primary-color) !important;
+}
+
+#sidebar .sidebar-header {
+    background-color: var(--primary-dark) !important;
+}
+
+#sidebar .list-unstyled.components .btn:hover {
+    background-color: var(--secondary-color) !important;
+}
+
+/* Estilo dos botões */
+.btn-primary {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.btn-primary:hover {
+    background-color: var(--primary-dark);
+    border-color: var(--primary-dark);
+}
+
+/* Links */
+a {
+    color: var(--primary-color);
+}
+
+a:hover {
+    color: var(--primary-dark);
+}
+
+/* Cards e elementos de destaque */
+.card-header {
+    background-color: var(--accent-color);
+}
+
+/* Navbar */
+.navbar .text-senai-blue i {
+    color: var(--primary-color);
+}
+
+/* Outros elementos personalizados */
+.border-senai {
+    border-color: var(--primary-color) !important;
+}
+
+.bg-light-blue {
+    background-color: var(--accent-color) !important;
+}
