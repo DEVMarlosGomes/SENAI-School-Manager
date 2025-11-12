@@ -88,7 +88,7 @@ WSGI_APPLICATION = 'school_manager.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'senai.db',  # <-- Alterado de 'db.sqlite3' para 'senai.db'
+        'NAME': BASE_DIR / 'senai.db',
     }
 }
 
