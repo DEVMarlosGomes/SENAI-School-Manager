@@ -1,5 +1,6 @@
 /* ================================
    HOME PAGE - Custom Styles
+   Fully Responsive & Auto-Adaptive
    ================================ */
 
 :root {
@@ -9,6 +10,19 @@
     --gradient-primary: linear-gradient(135deg, #c41e3a 0%, #e74c3c 100%);
     --gradient-secondary: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
     --transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    
+    /* Responsive spacing */
+    --spacing-xs: clamp(0.5rem, 2vw, 1rem);
+    --spacing-sm: clamp(1rem, 2.5vw, 1.5rem);
+    --spacing-md: clamp(1.5rem, 3vw, 2rem);
+    --spacing-lg: clamp(2rem, 4vw, 3rem);
+    --spacing-xl: clamp(3rem, 5vw, 4rem);
+    
+    /* Responsive typography */
+    --font-size-h1: clamp(1.8rem, 6vw, 3.5rem);
+    --font-size-h2: clamp(1.4rem, 4vw, 2.5rem);
+    --font-size-h5: clamp(1rem, 2.5vw, 1.3rem);
+    --font-size-body: clamp(0.85rem, 1.5vw, 1rem);
 }
 
 /* ================================
@@ -16,8 +30,13 @@
    ================================ */
 
 .full-width-section {
-    width: 100%;
-    padding: 60px 0;
+    width: 100vw;
+    position: relative;
+    left: 50%;
+    right: 50%;
+    margin-left: -50vw;
+    margin-right: -50vw;
+    padding: var(--spacing-lg) var(--spacing-md);
 }
 
 .full-width-section.bg-light {
@@ -43,17 +62,17 @@ body.home-page {
     background: var(--gradient-primary);
     position: relative;
     overflow: hidden;
-    min-height: 600px;
+    min-height: clamp(300px, 80vh, 600px);
     display: flex;
     align-items: center;
-    padding: 60px 0;
+    padding: var(--spacing-lg) 0;
 }
 
 .hero-banner.hero-with-bg {
     background-image: url('../img/students_studying.jpg');
     background-size: cover;
     background-position: center;
-    background-attachment: fixed;
+    background-attachment: scroll;
 }
 
 .hero-banner::before {
@@ -77,33 +96,36 @@ body.home-page {
     position: relative;
     z-index: 2;
     animation: fadeInUp 0.8s ease-out;
+    padding: var(--spacing-md);
 }
 
 .hero-content h1 {
-    font-size: 3.5rem;
+    font-size: var(--font-size-h1);
     font-weight: 800;
-    margin-bottom: 20px;
+    margin-bottom: var(--spacing-sm);
     text-shadow: 0 2px 10px rgba(0,0,0,0.3);
     line-height: 1.2;
+    word-break: break-word;
 }
 
 .hero-content .lead {
-    font-size: 1.3rem;
-    margin-bottom: 30px;
+    font-size: clamp(0.9rem, 2vw, 1.3rem);
+    margin-bottom: var(--spacing-md);
     opacity: 0.95;
     line-height: 1.6;
 }
 
 .logo-section {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
-    margin-bottom: 30px;
+    margin-bottom: var(--spacing-md);
     animation: fadeInDown 0.6s ease-out;
+    gap: var(--spacing-sm);
 }
 
 .logo-section img {
-    height: 50px;
-    margin-right: 15px;
+    height: clamp(35px, 8vw, 50px);
     filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
 }
 
@@ -111,18 +133,19 @@ body.home-page {
     background: rgba(255,255,255,0.2);
     backdrop-filter: blur(10px);
     border: 1px solid rgba(255,255,255,0.3);
-    padding: 8px 16px;
+    padding: clamp(6px, 1vw, 8px) clamp(12px, 2vw, 16px);
     border-radius: 50px;
-    font-size: 0.85rem;
+    font-size: clamp(0.7rem, 1.5vw, 0.85rem);
     font-weight: 600;
+    white-space: nowrap;
 }
 
-/* Stats */
+/* Stats - Fully Responsive Grid */
 .hero-stats {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 30px;
-    margin-top: 50px;
+    grid-template-columns: repeat(auto-fit, minmax(clamp(120px, 20vw, 180px), 1fr));
+    gap: clamp(15px, 3vw, 30px);
+    margin-top: var(--spacing-lg);
 }
 
 .stat-item {
@@ -137,27 +160,29 @@ body.home-page {
 .stat-item:nth-child(4) { animation-delay: 0.4s; }
 
 .stat-item h3 {
-    font-size: 2.5rem;
+    font-size: clamp(1.5rem, 4vw, 2.5rem);
     font-weight: 800;
     margin: 0;
     text-shadow: 0 2px 8px rgba(0,0,0,0.2);
 }
 
 .stat-item p {
-    font-size: 0.95rem;
-    margin: 8px 0 0 0;
+    font-size: clamp(0.7rem, 1.5vw, 0.95rem);
+    margin: clamp(4px, 1vw, 8px) 0 0 0;
     opacity: 0.9;
     font-weight: 500;
 }
 
-/* Auth Card */
+/* Auth Card - Fully Responsive */
 .auth-card {
     background: rgba(255, 255, 255, 0.97);
     backdrop-filter: blur(10px);
     border: 1px solid rgba(255,255,255,0.2);
-    border-radius: 15px;
+    border-radius: clamp(10px, 3vw, 15px);
     box-shadow: 0 20px 60px rgba(0,0,0,0.3);
     animation: fadeInRight 0.8s ease-out;
+    width: 100%;
+    max-width: 100%;
 }
 
 .auth-card .card-header {
@@ -167,6 +192,7 @@ body.home-page {
 
 .auth-card .nav-tabs {
     border-bottom: 2px solid #f0f0f0 !important;
+    flex-wrap: wrap;
 }
 
 .auth-card .nav-link {
@@ -174,6 +200,10 @@ body.home-page {
     border: none;
     transition: var(--transition);
     position: relative;
+    font-size: clamp(0.8rem, 1.5vw, 1rem);
+    padding: clamp(12px, 2vw, 16px) clamp(8px, 1.5vw, 12px);
+    flex: 1;
+    word-break: break-word;
 }
 
 .auth-card .nav-link:hover {
@@ -187,26 +217,33 @@ body.home-page {
     border-bottom: 3px solid var(--senai-red) !important;
 }
 
-.auth-card .form-control {
-    border-radius: 8px;
-    border: 1px solid #e0e0e0;
-    padding: 10px 15px;
-    transition: var(--transition);
+.auth-card .tab-content {
+    padding: clamp(12px, 3vw, 25px);
 }
 
-.auth-card .form-control:focus {
-    border-color: var(--senai-red);
-    box-shadow: 0 0 0 0.2rem rgba(196,30,58,0.25);
-}
-
+.auth-card .form-control,
 .auth-card .form-select {
     border-radius: 8px;
     border: 1px solid #e0e0e0;
+    padding: clamp(8px, 1.5vw, 12px) clamp(10px, 1.5vw, 15px);
+    font-size: clamp(0.8rem, 1vw, 1rem);
+    transition: var(--transition);
 }
 
+.auth-card .form-control:focus,
 .auth-card .form-select:focus {
     border-color: var(--senai-red);
     box-shadow: 0 0 0 0.2rem rgba(196,30,58,0.25);
+}
+
+.auth-card .form-label {
+    font-size: clamp(0.75rem, 1vw, 0.9rem);
+    margin-bottom: clamp(4px, 1vw, 6px);
+}
+
+.auth-card .btn {
+    font-size: clamp(0.85rem, 1.5vw, 1rem);
+    padding: clamp(10px, 1.5vw, 14px) clamp(16px, 2vw, 24px);
 }
 
 /* ================================
@@ -214,14 +251,14 @@ body.home-page {
    ================================ */
 
 .portals-section {
-    padding: 80px 0;
+    padding: var(--spacing-xl) 0;
     background: linear-gradient(180deg, #f8f9fa 0%, #fff 100%);
 }
 
 .portals-section h2 {
-    font-size: 2.5rem;
+    font-size: var(--font-size-h2);
     font-weight: 800;
-    margin-bottom: 50px;
+    margin-bottom: var(--spacing-lg);
     text-align: center;
     color: var(--senai-dark);
 }
@@ -229,7 +266,7 @@ body.home-page {
 .portal-card {
     background: white;
     border: none;
-    border-radius: 12px;
+    border-radius: clamp(8px, 2vw, 12px);
     overflow: hidden;
     transition: var(--transition);
     box-shadow: 0 5px 20px rgba(0,0,0,0.08);
@@ -243,31 +280,32 @@ body.home-page {
 
 .portal-card i {
     transition: var(--transition);
-    font-size: 3rem;
+    font-size: clamp(2.5rem, 6vw, 3rem);
 }
 
 .portal-card .card-body {
-    padding: 30px 20px;
+    padding: clamp(15px, 3vw, 30px);
 }
 
 .portal-card h5 {
-    font-size: 1.2rem;
+    font-size: var(--font-size-h5);
     font-weight: 700;
-    margin-bottom: 15px;
+    margin-bottom: clamp(10px, 1.5vw, 15px);
     color: var(--senai-dark);
 }
 
 .portal-card .card-text {
-    font-size: 0.95rem;
+    font-size: var(--font-size-body);
     line-height: 1.6;
     color: #666;
-    margin-bottom: 20px;
+    margin-bottom: var(--spacing-sm);
 }
 
 .portal-card .btn-link {
     font-weight: 600;
     text-decoration: none;
     transition: var(--transition);
+    font-size: clamp(0.75rem, 1vw, 0.95rem);
 }
 
 .portal-card:hover i {
@@ -550,14 +588,14 @@ body.home-page {
    ================================ */
 
 .main-content-section {
-    padding: 80px 0;
+    padding: var(--spacing-xl) 0;
     background: white;
 }
 
 .content-card {
     background: white;
     border: 1px solid #e0e0e0;
-    border-radius: 12px;
+    border-radius: clamp(8px, 2vw, 12px);
     overflow: hidden;
     box-shadow: 0 5px 15px rgba(0,0,0,0.08);
     transition: var(--transition);
@@ -569,26 +607,27 @@ body.home-page {
 
 .card-header-custom {
     background: linear-gradient(135deg, rgba(196,30,58,0.05), rgba(231,76,60,0.05));
-    padding: 20px 25px;
+    padding: clamp(12px, 2.5vw, 20px) clamp(15px, 2.5vw, 25px);
     border-bottom: 2px solid #f0f0f0;
 }
 
 .card-header-custom h3 {
-    font-size: 1.3rem;
+    font-size: clamp(1rem, 2vw, 1.3rem);
     font-weight: 700;
     color: var(--senai-dark);
     margin: 0;
 }
 
 .card-body-custom {
-    padding: 25px;
+    padding: clamp(15px, 2.5vw, 25px);
 }
 
 /* COMUNICADOS */
 
 .comunicado-item {
     position: relative;
-    padding-left: 20px;
+    padding-left: clamp(15px, 2vw, 20px);
+    margin-bottom: var(--spacing-md);
 }
 
 .comunicado-item:before {
@@ -604,23 +643,23 @@ body.home-page {
 
 .comunicado-badge {
     display: inline-block;
-    padding: 4px 10px;
+    padding: clamp(3px, 0.5vw, 5px) clamp(8px, 1.5vw, 12px);
     border-radius: 20px;
-    font-size: 0.7rem;
+    font-size: clamp(0.6rem, 0.9vw, 0.75rem);
     font-weight: 700;
     color: white;
-    margin-bottom: 10px;
+    margin-bottom: var(--spacing-xs);
 }
 
 .comunicado-text {
-    font-size: 0.95rem;
+    font-size: clamp(0.85rem, 1vw, 0.95rem);
     line-height: 1.6;
     color: #666;
-    margin-bottom: 10px;
+    margin-bottom: var(--spacing-xs);
 }
 
 .btn-link-small {
-    font-size: 0.9rem;
+    font-size: clamp(0.75rem, 0.9vw, 0.9rem);
     color: var(--senai-red);
     text-decoration: none;
     font-weight: 600;
@@ -636,28 +675,29 @@ body.home-page {
 
 .event-item {
     display: flex;
-    gap: 20px;
+    gap: clamp(12px, 2vw, 20px);
     align-items: flex-start;
+    margin-bottom: var(--spacing-md);
 }
 
 .event-date {
     background: linear-gradient(135deg, #c41e3a, #e74c3c);
     color: white;
     border-radius: 8px;
-    padding: 12px 16px;
+    padding: clamp(10px, 1.5vw, 12px) clamp(12px, 1.5vw, 16px);
     text-align: center;
-    min-width: 70px;
+    min-width: clamp(55px, 12vw, 70px);
     flex-shrink: 0;
 }
 
 .event-date .date-day {
-    font-size: 1.5rem;
+    font-size: clamp(1.2rem, 2vw, 1.5rem);
     font-weight: 800;
     line-height: 1;
 }
 
 .event-date .date-month {
-    font-size: 0.75rem;
+    font-size: clamp(0.6rem, 0.9vw, 0.75rem);
     font-weight: 700;
     opacity: 0.9;
 }
@@ -666,31 +706,44 @@ body.home-page {
     flex: 1;
 }
 
+.event-info h6 {
+    font-size: clamp(0.85rem, 1.2vw, 1rem);
+    font-weight: 700;
+    margin-bottom: clamp(4px, 0.5vw, 6px);
+}
+
+.event-info p {
+    font-size: clamp(0.75rem, 0.9vw, 0.85rem);
+}
+
 /* DASHBOARD STATS */
 
 .dashboard-stat {
-    margin-bottom: 25px;
+    margin-bottom: var(--spacing-lg);
 }
 
 .stat-label {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 8px;
+    margin-bottom: var(--spacing-xs);
     font-weight: 600;
     color: var(--senai-dark);
+    font-size: clamp(0.75rem, 1vw, 0.9rem);
+    flex-wrap: wrap;
+    gap: var(--spacing-xs);
 }
 
 .stat-label .badge {
-    font-size: 0.7rem;
-    padding: 4px 8px;
+    font-size: clamp(0.6rem, 0.8vw, 0.7rem);
+    padding: clamp(3px, 0.5vw, 4px) clamp(6px, 0.8vw, 8px);
 }
 
 .stat-value {
-    font-size: 1.8rem;
+    font-size: clamp(1.3rem, 2.5vw, 1.8rem);
     font-weight: 800;
     color: var(--senai-red);
-    margin-bottom: 8px;
+    margin-bottom: var(--spacing-xs);
 }
 
 .stat-bar {
@@ -712,18 +765,19 @@ body.home-page {
    ================================ */
 
 .section-header {
-    margin-bottom: 50px;
+    margin-bottom: var(--spacing-lg);
 }
 
 .section-header h2 {
-    font-size: 2.5rem;
+    font-size: var(--font-size-h2);
     font-weight: 800;
     color: var(--senai-dark);
-    margin-bottom: 15px;
+    margin-bottom: var(--spacing-sm);
 }
 
 .section-header p {
-    font-size: 1.1rem;
+    font-size: clamp(0.9rem, 1.5vw, 1.1rem);
+    color: #666;
 }
 
 /* ================================
@@ -731,15 +785,31 @@ body.home-page {
    ================================ */
 
 .testimonials-section {
-    padding: 80px 0;
+    padding: var(--spacing-xl) 0;
     background: linear-gradient(180deg, #f8f9fa 0%, #fff 100%);
+}
+
+.testimonials-section h2 {
+    font-size: var(--font-size-h2);
+    font-weight: 800;
+    margin-bottom: var(--spacing-sm);
+    text-align: center;
+    color: var(--senai-dark);
+}
+
+.testimonials-section > .section-header > p,
+.testimonials-section > p {
+    text-align: center;
+    font-size: clamp(0.9rem, 1.5vw, 1.1rem);
+    color: #666;
+    margin-bottom: var(--spacing-lg);
 }
 
 .testimonial-card {
     background: white;
     border: none;
-    border-radius: 12px;
-    padding: 30px;
+    border-radius: clamp(8px, 2vw, 12px);
+    padding: clamp(15px, 2.5vw, 30px);
     transition: var(--transition);
     box-shadow: 0 5px 20px rgba(0,0,0,0.08);
     height: 100%;
@@ -753,127 +823,372 @@ body.home-page {
 }
 
 .stars {
-    margin-bottom: 15px;
-    font-size: 1.1rem;
+    margin-bottom: var(--spacing-sm);
+    font-size: clamp(0.9rem, 1.5vw, 1.1rem);
 }
 
 .testimonial-card .fst-italic {
     flex-grow: 1;
-    margin-bottom: 20px;
+    margin-bottom: var(--spacing-md);
     color: #666;
     line-height: 1.8;
-    font-size: 0.95rem;
+    font-size: clamp(0.8rem, 1.2vw, 0.95rem);
 }
 
 .testimonial-author h6 {
     margin: 0;
     font-weight: 700;
     color: var(--senai-dark);
+    font-size: clamp(0.85rem, 1.2vw, 1rem);
 }
 
 .testimonial-author small {
     color: #999;
+    font-size: clamp(0.7rem, 0.9vw, 0.85rem);
 }
 
 /* ================================
    RESPONSIVE ADJUSTMENTS
    ================================ */
 
-
-@media (max-width: 1024px) {
-    .main-content-section {
-        padding: 60px 0;
-    }
-
-    .card-header-custom h3 {
-        font-size: 1.15rem;
+/* Tablets and small desktops */
+@media (max-width: 1200px) {
+    .container-fluid {
+        padding-left: var(--spacing-sm);
+        padding-right: var(--spacing-sm);
     }
 }
 
+/* Tablets */
+@media (max-width: 992px) {
+    .hero-banner {
+        min-height: 70vh;
+    }
+
+    .auth-card {
+        max-width: 100%;
+        margin-top: var(--spacing-lg);
+    }
+
+    .portals-section,
+    .testimonials-section,
+    .partners-section {
+        padding: var(--spacing-lg) 0;
+    }
+
+    .full-width-section {
+        padding: var(--spacing-lg) var(--spacing-md);
+    }
+}
+
+/* Small tablets */
 @media (max-width: 768px) {
-    .section-header h2 {
-        font-size: 1.8rem;
+    :root {
+        --font-size-h1: clamp(1.5rem, 5vw, 2.5rem);
+        --font-size-h2: clamp(1.2rem, 4vw, 2rem);
+        --spacing-lg: clamp(1.5rem, 3vw, 2.5rem);
+        --spacing-xl: clamp(2rem, 3.5vw, 3rem);
     }
 
-    .section-header p {
-        font-size: 1rem;
+    .hero-banner {
+        min-height: 60vh;
+        padding: var(--spacing-lg) var(--spacing-md);
     }
 
-    .card-header-custom {
-        padding: 15px 20px;
+    .hero-stats {
+        grid-template-columns: repeat(2, 1fr);
+        gap: clamp(12px, 2vw, 20px);
+        margin-top: var(--spacing-md);
     }
 
-    .card-body-custom {
-        padding: 20px;
+    .logo-section {
+        flex-direction: column;
+        gap: var(--spacing-xs);
+        margin-bottom: var(--spacing-md);
     }
 
-    .event-date {
-        min-width: 60px;
-        padding: 10px 12px;
+    .auth-card .nav-link {
+        padding: clamp(10px, 1.5vw, 12px) clamp(6px, 1vw, 10px);
+        font-size: clamp(0.7rem, 1.2vw, 0.85rem);
     }
 
-    .event-date .date-day {
-        font-size: 1.2rem;
+    .portals-section h2,
+    .testimonials-section h2,
+    .partners-section h2 {
+        margin-bottom: var(--spacing-md);
     }
 
-    .partner-card {
-        border-radius: 12px;
-    }
-
-    .partner-img-container {
-        padding: 30px 15px;
-        min-height: 150px;
-    }
-
-    .partner-logo-img {
-        max-height: 100px;
-    }
-
-    .partner-info h5 {
-        font-size: 1rem;
-    }
-
-    .partner-logo {
-        height: 120px;
-    }
-
+    .portal-card .card-body,
     .testimonial-card {
-        padding: 20px;
-    }
-}
-
-@media (max-width: 576px) {
-    .section-header h2 {
-        font-size: 1.5rem;
-    }
-
-    .card-header-custom h3 {
-        font-size: 1rem;
-    }
-
-    .card-body-custom {
-        padding: 15px;
-    }
-
-    .partner-logo {
-        height: 100px;
-    }
-
-    .partner-placeholder {
-        font-size: 0.8rem;
+        padding: clamp(12px, 2vw, 20px);
     }
 
     .event-item {
-        gap: 15px;
+        gap: clamp(10px, 1.5vw, 15px);
+    }
+
+    .partner-img-container {
+        min-height: clamp(100px, 15vw, 150px);
+        padding: clamp(15px, 2vw, 25px);
+    }
+
+    .dashboard-stat {
+        margin-bottom: var(--spacing-md);
+    }
+
+    .full-width-section {
+        padding: var(--spacing-md) var(--spacing-sm);
+    }
+}
+
+/* Mobile phones - medium */
+@media (max-width: 576px) {
+    :root {
+        --font-size-h1: clamp(1.2rem, 5vw, 1.8rem);
+        --font-size-h2: clamp(1rem, 3.5vw, 1.4rem);
+        --font-size-h5: clamp(0.85rem, 2vw, 1.1rem);
+        --font-size-body: clamp(0.8rem, 1.2vw, 0.9rem);
+        --spacing-lg: clamp(1rem, 2.5vw, 1.5rem);
+        --spacing-xl: clamp(1.5rem, 3vw, 2rem);
+    }
+
+    .hero-banner {
+        min-height: 50vh;
+        padding: var(--spacing-md) var(--spacing-sm);
+    }
+
+    .hero-content h1 {
+        margin-bottom: clamp(8px, 1.5vw, 12px);
+    }
+
+    .hero-content .lead {
+        margin-bottom: var(--spacing-sm);
+    }
+
+    .hero-stats {
+        grid-template-columns: 1fr 1fr;
+        gap: clamp(10px, 1.5vw, 15px);
+        margin-top: var(--spacing-sm);
+    }
+
+    .stat-item h3 {
+        font-size: clamp(1.2rem, 3.5vw, 1.8rem);
+    }
+
+    .logo-section img {
+        height: clamp(30px, 6vw, 40px);
+    }
+
+    .logo-section .badge {
+        font-size: clamp(0.6rem, 1vw, 0.7rem);
+        padding: clamp(4px, 0.5vw, 6px) clamp(8px, 1vw, 10px);
+    }
+
+    .auth-card {
+        border-radius: clamp(8px, 2.5vw, 12px);
+    }
+
+    .auth-card .tab-content {
+        padding: clamp(10px, 2vw, 15px);
+    }
+
+    .auth-card .nav-link {
+        padding: clamp(8px, 1.2vw, 10px) clamp(4px, 0.8vw, 6px);
+        font-size: clamp(0.65rem, 1vw, 0.75rem);
+    }
+
+    .auth-card .form-control,
+    .auth-card .form-select {
+        padding: clamp(6px, 1.2vw, 8px) clamp(8px, 1vw, 10px);
+        font-size: clamp(0.75rem, 1vw, 0.85rem);
+    }
+
+    .auth-card .form-label {
+        font-size: clamp(0.65rem, 0.9vw, 0.75rem);
+        margin-bottom: clamp(3px, 0.5vw, 4px);
+    }
+
+    .portals-section h2,
+    .testimonials-section h2,
+    .partners-section h2 {
+        margin-bottom: var(--spacing-md);
+    }
+
+    .portal-card .card-body {
+        padding: clamp(10px, 1.5vw, 15px);
+    }
+
+    .portal-card i {
+        font-size: clamp(1.8rem, 5vw, 2.5rem);
+    }
+
+    .portal-card h5 {
+        font-size: clamp(0.85rem, 1.8vw, 1rem);
+    }
+
+    .portal-card .card-text {
+        font-size: clamp(0.75rem, 1vw, 0.85rem);
     }
 
     .testimonial-card {
-        padding: 15px;
+        padding: clamp(10px, 1.5vw, 15px);
     }
 
     .testimonial-card .fst-italic {
-        font-size: 0.9rem;
+        font-size: clamp(0.75rem, 1vw, 0.85rem);
+        margin-bottom: var(--spacing-sm);
     }
+
+    .testimonial-author h6 {
+        font-size: clamp(0.75rem, 1.2vw, 0.85rem);
+    }
+
+    .event-item {
+        flex-direction: column;
+        gap: clamp(10px, 1.5vw, 12px);
+        margin-bottom: var(--spacing-md);
+    }
+
+    .event-date {
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: clamp(8px, 1.2vw, 10px) clamp(10px, 1.5vw, 12px);
+        text-align: left;
+        min-width: auto;
+    }
+
+    .event-date .date-day {
+        font-size: clamp(1rem, 2vw, 1.2rem);
+    }
+
+    .event-date .date-month {
+        font-size: clamp(0.55rem, 0.8vw, 0.65rem);
+        margin-left: clamp(10px, 1.5vw, 15px);
+    }
+
+    .partner-card {
+        border-radius: clamp(8px, 2vw, 12px);
+    }
+
+    .partner-img-container {
+        min-height: clamp(80px, 12vw, 120px);
+        padding: clamp(12px, 1.5vw, 20px);
+    }
+
+    .partner-logo-img {
+        max-height: clamp(60px, 10vw, 90px);
+    }
+
+    .partner-info h5 {
+        font-size: clamp(0.75rem, 1.2vw, 0.9rem);
+    }
+
+    .card-header-custom h3 {
+        font-size: clamp(0.85rem, 1.5vw, 1rem);
+    }
+
+    .card-body-custom {
+        padding: clamp(10px, 1.5vw, 15px);
+    }
+
+    .comunicado-item {
+        padding-left: clamp(12px, 1.5vw, 15px);
+    }
+
+    .comunicado-badge {
+        font-size: clamp(0.55rem, 0.7vw, 0.65rem);
+        padding: clamp(2px, 0.4vw, 3px) clamp(6px, 1vw, 8px);
+    }
+
+    .comunicado-text {
+        font-size: clamp(0.75rem, 0.9vw, 0.85rem);
+    }
+
+    .stat-label {
+        font-size: clamp(0.65rem, 0.9vw, 0.75rem);
+        gap: clamp(6px, 0.8vw, 8px);
+    }
+
+    .stat-value {
+        font-size: clamp(1rem, 2vw, 1.4rem);
+    }
+
+    .cta-section {
+        padding: var(--spacing-md) var(--spacing-sm);
+    }
+
+    .cta-section h2 {
+        margin-bottom: var(--spacing-sm);
+    }
+
+    .cta-section .btn {
+        padding: clamp(8px, 1.2vw, 10px) clamp(16px, 2vw, 20px);
+        font-size: clamp(0.7rem, 1vw, 0.8rem);
+        margin: clamp(4px, 0.5vw, 6px);
+    }
+
+    footer h5 {
+        font-size: clamp(0.85rem, 1.2vw, 0.95rem);
+        margin-bottom: var(--spacing-sm);
+    }
+
+    .social-links {
+        gap: clamp(8px, 1vw, 10px);
+    }
+
+    .social-links a {
+        width: clamp(30px, 5vw, 35px);
+        height: clamp(30px, 5vw, 35px);
+    }
+
+    .full-width-section {
+        padding: var(--spacing-md) var(--spacing-xs);
+    }
+
+    .container-fluid {
+        padding-left: var(--spacing-xs);
+        padding-right: var(--spacing-xs);
+    }
+}
+
+/* Very small mobile phones */
+@media (max-width: 360px) {
+    :root {
+        --spacing-xs: 0.5rem;
+        --spacing-sm: 0.8rem;
+        --spacing-md: 1rem;
+    }
+
+    .hero-stats {
+        grid-template-columns: 1fr;
+        gap: clamp(8px, 1.2vw, 10px);
+    }
+
+    .portals-section h2,
+    .testimonials-section h2,
+    .partners-section h2 {
+        font-size: clamp(1rem, 3vw, 1.3rem);
+    }
+
+    .auth-card .nav-link {
+        font-size: clamp(0.6rem, 0.8vw, 0.7rem);
+        padding: clamp(6px, 1vw, 8px) clamp(3px, 0.5vw, 4px);
+    }
+}
+
+/* ================================
+   CTA SECTION
+   ================================ */
+
+.cta-section {
+    background: var(--gradient-primary);
+    padding: var(--spacing-xl) var(--spacing-md);
+    position: relative;
+    overflow: hidden;
+    text-align: center;
+    color: white;
 }
 
 .cta-section::before {
@@ -881,8 +1196,8 @@ body.home-page {
     position: absolute;
     top: -50%;
     right: -10%;
-    width: 500px;
-    height: 500px;
+    width: clamp(300px, 40vw, 500px);
+    height: clamp(300px, 40vw, 500px);
     background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
     border-radius: 50%;
 }
@@ -892,23 +1207,23 @@ body.home-page {
     position: absolute;
     bottom: -50%;
     left: -10%;
-    width: 500px;
-    height: 500px;
+    width: clamp(300px, 40vw, 500px);
+    height: clamp(300px, 40vw, 500px);
     background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
     border-radius: 50%;
 }
 
 .cta-section h2 {
-    font-size: 2.8rem;
+    font-size: clamp(1.5rem, 4vw, 2.8rem);
     font-weight: 800;
-    margin-bottom: 20px;
+    margin-bottom: var(--spacing-sm);
     position: relative;
     z-index: 2;
 }
 
 .cta-section p {
-    font-size: 1.15rem;
-    margin-bottom: 40px;
+    font-size: clamp(0.9rem, 2vw, 1.15rem);
+    margin-bottom: var(--spacing-lg);
     position: relative;
     z-index: 2;
     opacity: 0.95;
@@ -917,9 +1232,12 @@ body.home-page {
 .cta-section .btn {
     position: relative;
     z-index: 2;
-    padding: 12px 30px;
+    padding: clamp(10px, 1.5vw, 14px) clamp(20px, 2.5vw, 30px);
     font-weight: 600;
     transition: var(--transition);
+    font-size: clamp(0.8rem, 1.2vw, 1rem);
+    margin: clamp(5px, 1vw, 10px);
+    display: inline-block;
 }
 
 .cta-section .btn-light:hover {
@@ -940,13 +1258,14 @@ body.home-page {
 footer {
     background: var(--senai-dark);
     color: #bbb;
-    padding: 60px 0 20px;
+    padding: var(--spacing-lg) 0 var(--spacing-sm);
 }
 
 footer h5 {
     color: white;
     font-weight: 700;
-    margin-bottom: 20px;
+    margin-bottom: var(--spacing-md);
+    font-size: clamp(0.9rem, 1.5vw, 1.1rem);
 }
 
 footer a {
@@ -954,7 +1273,8 @@ footer a {
     text-decoration: none;
     transition: var(--transition);
     display: block;
-    margin-bottom: 10px;
+    margin-bottom: clamp(6px, 1vw, 10px);
+    font-size: clamp(0.8rem, 1vw, 0.95rem);
 }
 
 footer a:hover {
@@ -965,25 +1285,37 @@ footer a:hover {
 .footer-links {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: clamp(4px, 0.8vw, 8px);
+}
+
+footer p {
+    font-size: clamp(0.75rem, 1vw, 0.9rem);
+    margin-bottom: clamp(6px, 1vw, 10px);
+}
+
+footer i {
+    color: var(--senai-red);
+    margin-right: clamp(6px, 1vw, 10px);
 }
 
 .social-links {
     display: flex;
-    gap: 15px;
-    margin-top: 20px;
+    gap: clamp(10px, 1.5vw, 15px);
+    margin-top: var(--spacing-md);
+    flex-wrap: wrap;
 }
 
 .social-links a {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 40px;
-    height: 40px;
+    width: clamp(35px, 6vw, 40px);
+    height: clamp(35px, 6vw, 40px);
     background: rgba(255,255,255,0.1);
     border-radius: 50%;
     margin-bottom: 0;
     transition: var(--transition);
+    font-size: clamp(0.8rem, 1.5vw, 1rem);
 }
 
 .social-links a:hover {
@@ -993,10 +1325,17 @@ footer a:hover {
 
 .footer-bottom {
     border-top: 1px solid rgba(255,255,255,0.1);
-    margin-top: 40px;
-    padding-top: 20px;
+    margin-top: var(--spacing-lg);
+    padding-top: var(--spacing-md);
     text-align: center;
     color: #999;
+    font-size: clamp(0.7rem, 0.9vw, 0.85rem);
+}
+
+.footer-bottom a {
+    display: inline;
+    margin: 0 clamp(4px, 0.5vw, 6px);
+    padding-left: 0;
 }
 
 /* ================================
@@ -1036,87 +1375,15 @@ footer a:hover {
     }
 }
 
-/* ================================
-   RESPONSIVE
-   ================================ */
-
-@media (max-width: 768px) {
-    .hero-banner {
-        min-height: 400px;
-        padding: 40px 0;
+/* Reduz animações para dispositivos com preferência por movimento reduzido */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
     }
 
-    .hero-content h1 {
-        font-size: 2rem;
-    }
-
-    .hero-content .lead {
-        font-size: 1rem;
-    }
-
-    .hero-stats {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 20px;
-    }
-
-    .stat-item h3 {
-        font-size: 1.8rem;
-    }
-
-    .portals-section h2,
-    .courses-section h2,
-    .testimonials-section h2,
-    .partners-section h2 {
-        font-size: 1.8rem;
-    }
-
-    .cta-section h2 {
-        font-size: 1.8rem;
-    }
-
-    .cta-section p {
-        font-size: 1rem;
-    }
-
-    .auth-card {
-        margin-top: 30px;
-    }
-}
-
-@media (max-width: 576px) {
-    .hero-banner {
-        min-height: 300px;
-    }
-
-    .hero-content h1 {
-        font-size: 1.5rem;
-        margin-bottom: 10px;
-    }
-
-    .hero-content .lead {
-        font-size: 0.9rem;
-        margin-bottom: 20px;
-    }
-
-    .hero-stats {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 15px;
-        margin-top: 30px;
-    }
-
-    .stat-item h3 {
-        font-size: 1.5rem;
-    }
-
-    .stat-item p {
-        font-size: 0.8rem;
-    }
-
-    .logo-section {
-        margin-bottom: 15px;
-    }
-
-    .logo-section img {
-        height: 35px;
+    .slideBackground {
+        animation: none !important;
     }
 }
