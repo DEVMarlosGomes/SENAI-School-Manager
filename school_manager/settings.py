@@ -82,13 +82,10 @@ TEMPLATES = [
 WSGI_APPLICATION = 'school_manager.wsgi.application'
 
 # ==============================
-# Banco de Dados (somente local)
-# ==============================
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'NAME': BASE_DIR / 'senai.db',
     }
 }
 
@@ -127,7 +124,8 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # Autenticação e Sessões
 # ==============================
 
-LOGIN_REDIRECT_URL = 'home'
+
+# LOGIN_REDIRECT_URL = 'home' # Esta linha é sobrescrita pela de baixo
 LOGOUT_REDIRECT_URL = 'home'
 LOGIN_URL = 'login'
 
@@ -147,4 +145,6 @@ SESSION_COOKIE_AGE = 86400  # 24 horas
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 CRISPY_TEMPLATE_PACK = 'bootstrap5'
 
+
+# Esta é a URL de redirecionamento de login que está valendo (sobrescreve a anterior)
 LOGIN_REDIRECT_URL = 'redirecionar_dashboard'
