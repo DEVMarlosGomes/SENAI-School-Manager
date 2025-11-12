@@ -18,6 +18,7 @@ SECRET_KEY = 'django-insecure-7q()hy)04l-36t=dzf+k%@d9p^bh4#z_hdoqmx9-317*)v#wk#
 DEBUG = True
 ALLOWED_HOSTS = ['romulofamiglietti.pythonanywhere.com', '127.0.0.1', 'localhost']
 
+
 # ==============================
 # Aplicações
 # ==============================
