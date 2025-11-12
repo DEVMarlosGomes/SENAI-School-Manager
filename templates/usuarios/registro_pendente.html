@@ -1,0 +1,156 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Cadastro de Usuário{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="card shadow-lg">
+                <div class="card-body p-5">
+                    <h2 class="card-title mb-4 text-center">Criar Conta</h2>
+                    
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    <form method="POST">
+                        {% csrf_token %}
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="primeiro_nome" class="form-label">Primeiro Nome <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="primeiro_nome" name="primeiro_nome" 
+                                       value="{{ primeiro_nome }}" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="sobrenome" class="form-label">Sobrenome <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="sobrenome" name="sobrenome" 
+                                       value="{{ sobrenome }}" required>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
+                            <input type="email" class="form-control" id="email" name="email" 
+                                   value="{{ email }}" required>
+                            <small class="text-muted">Você receberá a confirmação de cadastro neste email.</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="username" class="form-label">Usuário (Login) <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="username" name="username" 
+                                   value="{{ username }}" required>
+                            <small class="text-muted">Deve conter apenas letras, números e underscore.</small>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="cpf" class="form-label">CPF</label>
+                                <input type="text" class="form-control" id="cpf" name="cpf" 
+                                       value="{{ cpf }}" placeholder="000.000.000-00">
+                                <small class="text-muted">Opcional para alguns perfis.</small>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="telefone" class="form-label">Telefone</label>
+                                <input type="tel" class="form-control" id="telefone" name="telefone" 
+                                       value="{{ telefone }}" placeholder="(00) 00000-0000">
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="tipo_solicitado" class="form-label">Tipo de Perfil <span class="text-danger">*</span></label>
+                            <select class="form-select" id="tipo_solicitado" name="tipo_solicitado" required>
+                                <option value="">-- Selecione um perfil --</option>
+                                <option value="aluno" {% if tipo_solicitado == 'aluno' %}selected{% endif %}>Aluno</option>
+                                <option value="professor" {% if tipo_solicitado == 'professor' %}selected{% endif %}>Professor</option>
+                                <option value="secretaria" {% if tipo_solicitado == 'secretaria' %}selected{% endif %}>Secretaria</option>
+                                <option value="coordenacao" {% if tipo_solicitado == 'coordenacao' %}selected{% endif %}>Coordenação</option>
+                            </select>
+                            <small class="text-muted">
+                                A sua conta será ativada após análise pelo administrador.
+                            </small>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="senha" class="form-label">Senha <span class="text-danger">*</span></label>
+                                <input type="password" class="form-control" id="senha" name="senha" required>
+                                <small class="text-muted">Mínimo 8 caracteres.</small>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="senha_confirmar" class="form-label">Confirmar Senha <span class="text-danger">*</span></label>
+                                <input type="password" class="form-control" id="senha_confirmar" name="senha_confirmar" required>
+                            </div>
+                        </div>
+
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="checkbox" id="aceitar_termos" required>
+                            <label class="form-check-label" for="aceitar_termos">
+                                Aceito os <a href="#" target="_blank">termos e condições</a> <span class="text-danger">*</span>
+                            </label>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100 mb-2">Cadastrar</button>
+                        
+                        <p class="text-center text-muted mt-3">
+                            Já tem conta? <a href="{% url 'login' %}">Faça login aqui</a>
+                        </p>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Máscara para CPF
+document.getElementById('cpf').addEventListener('input', function(e) {
+    let value = e.target.value.replace(/\D/g, '');
+    if (value.length > 11) value = value.slice(0, 11);
+    if (value.length > 8) {
+        value = value.slice(0, 3) + '.' + value.slice(3, 6) + '.' + value.slice(6, 9) + '-' + value.slice(9);
+    } else if (value.length > 5) {
+        value = value.slice(0, 3) + '.' + value.slice(3, 6) + '.' + value.slice(6);
+    } else if (value.length > 2) {
+        value = value.slice(0, 3) + '.' + value.slice(3);
+    }
+    e.target.value = value;
+});
+
+// Máscara para Telefone
+document.getElementById('telefone').addEventListener('input', function(e) {
+    let value = e.target.value.replace(/\D/g, '');
+    if (value.length > 11) value = value.slice(0, 11);
+    if (value.length > 7) {
+        value = '(' + value.slice(0, 2) + ') ' + value.slice(2, 7) + '-' + value.slice(7);
+    } else if (value.length > 2) {
+        value = '(' + value.slice(0, 2) + ') ' + value.slice(2);
+    }
+    e.target.value = value;
+});
+
+// Validação de senhas
+document.querySelector('form').addEventListener('submit', function(e) {
+    const senha = document.getElementById('senha').value;
+    const confirmar = document.getElementById('senha_confirmar').value;
+    
+    if (senha !== confirmar) {
+        e.preventDefault();
+        alert('As senhas não coincidem!');
+    }
+    if (senha.length < 8) {
+        e.preventDefault();
+        alert('A senha deve ter pelo menos 8 caracteres!');
+    }
+});
+</script>
+{% endblock %}

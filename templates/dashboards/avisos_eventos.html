@@ -1,0 +1,138 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Avisos e Eventos - SENAI{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Avisos e Eventos</h1>
+    </div>
+
+    <div class="row">
+        <!-- Avisos -->
+        <div class="col-lg-8">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 font-weight-bold text-senai-red">Avisos Importantes</h6>
+                    <div class="btn-group">
+                        <button class="btn btn-sm btn-outline-secondary active">Todos</button>
+                        <button class="btn btn-sm btn-outline-secondary">Curso</button>
+                        <button class="btn btn-sm btn-outline-secondary">Gerais</button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    {% for aviso in avisos %}
+                    <div class="mb-4 pb-3 border-bottom">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <div>
+                                <h5 class="mb-1">{{ aviso.titulo }}</h5>
+                                <span class="badge {% if aviso.tipo == 'Urgente' %}bg-danger{% elif aviso.tipo == 'Importante' %}bg-warning text-dark{% else %}bg-info{% endif %} mb-2">
+                                    {{ aviso.tipo }}
+                                </span>
+                            </div>
+                            <small class="text-muted">{{ aviso.data_publicacao|date:"d/m/Y" }}</small>
+                        </div>
+                        <p class="mb-2">{{ aviso.conteudo }}</p>
+                        {% if aviso.anexos %}
+                        <div class="d-flex gap-2">
+                            {% for anexo in aviso.anexos %}
+                            <a href="{{ anexo.url }}" class="btn btn-sm btn-light border">
+                                <i class="fas fa-paperclip me-1"></i> {{ anexo.nome }}
+                            </a>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Eventos -->
+        <div class="col-lg-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-senai-red">Próximos Eventos</h6>
+                </div>
+                <div class="card-body">
+                    {% for evento in eventos %}
+                    <div class="d-flex align-items-start mb-4">
+                        <div class="me-3 text-center bg-senai-red text-white p-2 rounded" style="width: 60px;">
+                            <small class="d-block fw-bold">{{ evento.data|date:"d" }}</small>
+                            <small>{{ evento.data|date:"M" }}</small>
+                        </div>
+                        <div>
+                            <h6 class="mb-1">{{ evento.titulo }}</h6>
+                            <p class="mb-1 small text-muted">{{ evento.descricao }}</p>
+                            <div class="d-flex align-items-center small text-muted">
+                                <i class="fas fa-clock me-1"></i> {{ evento.hora_inicio }} - {{ evento.hora_fim }}
+                                <i class="fas fa-map-marker-alt ms-3 me-1"></i> {{ evento.local }}
+                            </div>
+                            {% if evento.link_inscricao %}
+                            <a href="{{ evento.link_inscricao }}" class="btn btn-sm btn-outline-danger mt-2">
+                                Inscrever-se
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                <div class="card-footer bg-light">
+                    <a href="{% url 'calendario' %}" class="btn btn-link text-senai-red">
+                        Ver Calendário Completo <i class="fas fa-arrow-right small"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Filtros e Notificações -->
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-senai-red">Configurações</h6>
+                </div>
+                <div class="card-body">
+                    <h6 class="mb-3">Filtrar Notificações</h6>
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="checkbox" id="notif_curso" checked>
+                        <label class="form-check-label" for="notif_curso">
+                            Avisos do Curso
+                        </label>
+                    </div>
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="checkbox" id="notif_eventos" checked>
+                        <label class="form-check-label" for="notif_eventos">
+                            Eventos
+                        </label>
+                    </div>
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="checkbox" id="notif_gerais" checked>
+                        <label class="form-check-label" for="notif_gerais">
+                            Comunicados Gerais
+                        </label>
+                    </div>
+
+                    <h6 class="mb-3">Receber por E-mail</h6>
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="checkbox" id="email_urgente" checked>
+                        <label class="form-check-label" for="email_urgente">
+                            Avisos Urgentes
+                        </label>
+                    </div>
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="checkbox" id="email_eventos">
+                        <label class="form-check-label" for="email_eventos">
+                            Novos Eventos
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="email_resumo">
+                        <label class="form-check-label" for="email_resumo">
+                            Resumo Semanal
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -90,6 +90,7 @@ Boletim	N:1 com Turma; Finalizado por Coordenação.	Consolidação final de res
 
 Exportar para as Planilhas
 🤝 Colaboradores
+
 Isabella Oliveira
 
 Leonardo Santos
@@ -101,3 +102,5 @@ Matheus Rodrigues
 Romulo Famiglietti
 
 Este projeto está em desenvolvimento ativo. Para contribuir, clone o repositório e consulte a Documentação Técnica e Funcional completa.
+
+https://bird-toothpaste-81f.notion.site/Documenta-o-Sistema-de-Gest-o-Escolar-Avan-ado-SENAI-School-Manager-2a595238c1de808c8d64d80f480810dc

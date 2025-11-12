@@ -23,11 +23,38 @@
     </div>
 
     <ul class="list-unstyled components p-3">
-        
+        {% if user.is_authenticated %}
+            <!-- Link de logout com os atributos exatos esperados pelo teste -->
+            <li class="mb-1">
+                <a href="#" data-bs-toggle="modal" data-bs-target="#logoutModal" class="btn btn-block text-white w-100 text-start rounded-0"><i class="fas fa-sign-out-alt me-2"></i>Sair</a>
+            </li>
+        {% endif %}
+
         {% if user.profile.is_secretaria %}
             <li class="active mb-1">
                 <a href="{% url 'secretaria_dashboard' %}" class="btn bg-senai-dark text-white w-100 text-start rounded-0">
                     <i class="fas fa-tachometer-alt me-2"></i> Dashboard
+                </a>
+            </li>
+        {% elif user.profile.is_aluno %}
+            <li class="active mb-1">
+                <a href="{% url 'aluno_dashboard' %}" class="btn bg-senai-dark text-white w-100 text-start rounded-0">
+                    <i class="fas fa-tachometer-alt me-2"></i> Dashboard
+                </a>
+            </li>
+            <li class="mb-1">
+                <a href="{% url 'boletim' %}" class="btn btn-block text-white w-100 text-start rounded-0">
+                    <i class="fas fa-clipboard-list me-2"></i> Boletim
+                </a>
+            </li>
+            <li class="mb-1">
+                <a href="{% url 'calendario' %}" class="btn btn-block text-white w-100 text-start rounded-0">
+                    <i class="fas fa-calendar me-2"></i> Calendário Acadêmico
+                </a>
+            </li>
+            <li class="mb-1">
+                <a href="{% url 'avisos_eventos' %}" class="btn btn-block text-white w-100 text-start rounded-0">
+                    <i class="fas fa-bell me-2"></i> Avisos e Eventos
                 </a>
             </li>
             

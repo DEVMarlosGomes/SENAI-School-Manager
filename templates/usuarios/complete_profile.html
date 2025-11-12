@@ -1,0 +1,39 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Completar Perfil</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+<div class="container mt-5">
+    <div class="card p-4 mx-auto" style="max-width:520px;">
+        <h4 class="mb-3">Completar Perfil</h4>
+        <p>Antes de acessar o sistema, complete seu perfil.</p>
+        <form method="post">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label for="id_tipo" class="form-label">Tipo de Perfil</label>
+                <select name="tipo" id="id_tipo" class="form-control" required>
+                    <option value="aluno">Aluno</option>
+                    <option value="professor">Professor</option>
+                    <option value="secretaria">Secretaria</option>
+                    <option value="coordenacao">Coordenação</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="id_telefone" class="form-label">Telefone</label>
+                <input type="text" name="telefone" id="id_telefone" class="form-control">
+            </div>
+            <div class="mb-3">
+                <label for="id_cpf" class="form-label">CPF</label>
+                <input type="text" name="cpf" id="id_cpf" class="form-control">
+            </div>
+            <button class="btn bg-senai-red text-white">Salvar e ir para o Dashboard</button>
+        </form>
+    </div>
+</div>
+</body>
+</html>
