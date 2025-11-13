@@ -11,6 +11,8 @@ import csv
 
 from apps.academico.models import Turma, Aluno, Matricula, Nota, Frequencia
 from .models import Material
+from django.db.models import Avg, Count
+from django.http import JsonResponse
 
 # ---------------------------------------------------------------------
 # 🔒 Decorator personalizado para restringir acesso por tipo de usuário
@@ -178,24 +180,167 @@ def coordenacao_dashboard_view(request):
     return render(request, 'dashboards/coordenacao_dashboard.html', context)
 
 
+@role_required('coordenacao')
+def api_coordenacao_kpis(request):
+    """Retorna KPIs para o dashboard da coordenação."""
+    total_turmas = Turma.objects.count()
+    professores_ativos = Turma.objects.values('professor').distinct().count()
+    total_alunos = Aluno.objects.count()
+    # Alunos em risco: 
+    # - média de notas < 5 => risco crítico
+    # - frequência < 60% => risco crítico
+    risco_count = 0
+    total_matriculas = Matricula.objects.count() or 1
+    for m in Matricula.objects.all():
+        # calcular média de notas
+        notas_qs = Nota.objects.filter(matricula=m)
+        notas_vals = [float(n.valor) for n in notas_qs]
+        media = round(sum(notas_vals)/len(notas_vals), 1) if notas_vals else 0
+        # calcular frequência
+        total_sessions = Frequencia.objects.filter(matricula=m).count()
+        faltas = Frequencia.objects.filter(matricula=m, presenca=False).count()
+        frequencia_pct = round(((total_sessions - faltas) / total_sessions) * 100, 1) if total_sessions > 0 else 100
+        # critério: média < 5 ou frequência < 60% => risco
+        if media < 5 or frequencia_pct < 60:
+            risco_count += 1
+    risco_pct = f"{round((risco_count/total_matriculas)*100,1)}%"
+
+    return JsonResponse({
+        'total_turmas': total_turmas,
+        'professores_ativos': professores_ativos,
+        'total_alunos': total_alunos,
+        'alunos_risco_pct': risco_pct,
+    })
+
+
+@role_required('coordenacao')
+def api_coordenacao_desempenho(request):
+    """Retorna desempenho médio por turma (média das notas) para TODAS as turmas."""
+    results = []
+    turmas = Turma.objects.all().order_by('codigo')
+    for turma in turmas:
+        avg = Nota.objects.filter(matricula__turma=turma).aggregate(v=Avg('valor'))['v']
+        value = round(float(avg), 1) if avg is not None else None
+        results.append({'codigo': turma.codigo, 'valor': value})
+
+    return JsonResponse({'results': results})
+
+
+@role_required('coordenacao')
+def api_coordenacao_aprovacao(request):
+    """Retorna índices de aprovação (aprovados, recuperacao, reprovados)."""
+    total_alunos = Aluno.objects.count()
+    aprovados = 0
+    recuperacao = 0
+    reprovados = 0
+    for aluno in Aluno.objects.all():
+        matriculas = Matricula.objects.filter(aluno=aluno)
+        # determinar status por aluno: se qualquer matrícula ativa com media>=7 e freq>=75 -> aprovado
+        status_final = None
+        for m in matriculas:
+            notas_qs = Nota.objects.filter(matricula=m)
+            notas_vals = [float(n.valor) for n in notas_qs]
+            media = round(sum(notas_vals)/len(notas_vals), 1) if notas_vals else None
+            total_sessions = Frequencia.objects.filter(matricula=m).count()
+            faltas = Frequencia.objects.filter(matricula=m, presenca=False).count()
+            frequencia_pct = round(((total_sessions - faltas) / total_sessions) * 100, 1) if total_sessions > 0 else None
+
+            if media is None:
+                continue
+            if media >= 7 and (frequencia_pct is None or frequencia_pct >= 75):
+                status_final = 'aprovado'
+                break
+            elif media < 7 and (frequencia_pct is None or frequencia_pct >= 75):
+                status_final = 'recuperacao'
+            else:
+                status_final = 'reprovado'
+
+        if status_final == 'aprovado':
+            aprovados += 1
+        elif status_final == 'recuperacao':
+            recuperacao += 1
+        elif status_final == 'reprovado':
+            reprovados += 1
+
+    total = aprovados + recuperacao + reprovados
+    if total == 0:
+        total = 1
+    return JsonResponse({
+        'total': total_alunos,
+        'aprovados_pct': round((aprovados/total)*100),
+        'recuperacao_pct': round((recuperacao/total)*100),
+        'reprovados_pct': round((reprovados/total)*100),
+    })
+
+
+@role_required('coordenacao')
+def api_coordenacao_atividades(request):
+    # Gerar atividades recentes simples a partir das últimas matrículas / notas
+    items = []
+    recentes_matriculas = Matricula.objects.order_by('-created_at')[:3]
+    for m in recentes_matriculas:
+        items.append({
+            'tipo': 'novo',
+            'titulo': f'Nova matrícula: {m.turma.codigo if m.turma else "—"}',
+            'detalhe': f'{m.aluno.user.get_full_name()} • há pouco',
+            'badge': 'Novo'
+        })
+    # Complementar com eventos estáticos se necessário
+    if len(items) < 3:
+        items.extend([
+            {'tipo': 'aprovado', 'titulo': 'Comunicado aprovado para Turma TI-2023A', 'detalhe': 'Prof. João Santos • há 2 horas', 'badge': 'Aprovado'},
+            {'tipo': 'atencao', 'titulo': 'Frequência baixa detectada na Turma ELE-2023B', 'detalhe': 'Sistema • há 6 horas', 'badge': 'Atenção'},
+        ])
+
+    return JsonResponse({'results': items[:3]})
+
+
 # ---------------------------------------------------------------------
-# 🔧 Placeholders (em construção)
+# 🔧 Páginas da Secretaria (implementações iniciais)
 # ---------------------------------------------------------------------
 @login_required
 def gestao_alunos_view(request):
-    return render(request, 'not_implemented.html', {'title': 'Gestão de Alunos'})
+    # Contexto mínimo: total de alunos e matrículas ativas (usado nos cards)
+    total_alunos = 0
+    matriculas_ativas = 0
+    try:
+        total_alunos = Aluno.objects.count()
+        matriculas_ativas = Matricula.objects.filter(status='ativa').count()
+    except Exception:
+        # Em ambientes sem DB populado, fallback para 0
+        total_alunos = 0
+        matriculas_ativas = 0
+
+    return render(request, 'dashboards/gestao_alunos.html', {
+        'total_alunos': total_alunos,
+        'matriculas_ativas': matriculas_ativas,
+    })
+
 
 @login_required
 def controle_financeiro_view(request):
-    return render(request, 'not_implemented.html', {'title': 'Controle Financeiro'})
+    # Contexto inicial pode ser estendido com dados reais do backend
+    context = {
+        'titulo': 'Controle Financeiro',
+    }
+    return render(request, 'dashboards/controle_financeiro.html', context)
+
 
 @login_required
 def gestao_documentos_view(request):
-    return render(request, 'not_implemented.html', {'title': 'Gestão de Documentos'})
+    context = {
+        'titulo': 'Gestão de Documentos',
+    }
+    return render(request, 'dashboards/gestao_documentos.html', context)
+
 
 @login_required
 def comunicacao_secretaria_view(request):
-    return render(request, 'not_implemented.html', {'title': 'Comunicação - Secretaria'})
+    context = {
+        'titulo': 'Comunicação - Secretaria',
+    }
+    return render(request, 'dashboards/comunicacao_secretaria.html', context)
+
 
 @login_required
 def perfil_view(request):
@@ -286,3 +431,51 @@ def avisos_eventos_view(request):
         {'titulo': 'Palestra Indústria 4.0', 'data': '2025-11-25', 'hora_inicio': '14:00', 'hora_fim': '16:00', 'local': 'Auditório Principal'},
     ]
     return render(request, 'dashboards/avisos_eventos.html', {'titulo': 'Avisos e Eventos', 'avisos': avisos, 'eventos': eventos})
+
+
+# =====================================================================
+# COORDENAÇÃO - PÁGINAS INTERATIVAS
+# =====================================================================
+
+@role_required('coordenacao')
+def coordenacao_desempenho_view(request):
+    """Página de Desempenho Acadêmico para Coordenador"""
+    turmas = Turma.objects.all()
+    context = {
+        'titulo': 'Desempenho Acadêmico',
+        'turmas': turmas,
+    }
+    return render(request, 'dashboards/coordenacao_desempenho.html', context)
+
+
+@role_required('coordenacao')
+def coordenacao_gestao_view(request):
+    """Página de Gestão para Coordenador"""
+    total_alunos = Aluno.objects.count()
+    alunos_ativos = Matricula.objects.filter(status='ativa').count()
+    turmas = Turma.objects.all()
+    context = {
+        'titulo': 'Gestão Acadêmica',
+        'total_alunos': total_alunos,
+        'alunos_ativos': alunos_ativos,
+        'turmas': turmas,
+    }
+    return render(request, 'dashboards/coordenacao_gestao.html', context)
+
+
+@role_required('coordenacao')
+def coordenacao_comunicacao_view(request):
+    """Página de Comunicação para Coordenador"""
+    context = {
+        'titulo': 'Comunicação',
+    }
+    return render(request, 'dashboards/coordenacao_comunicacao.html', context)
+
+
+@role_required('coordenacao')
+def coordenacao_relatorios_view(request):
+    """Página de Relatórios para Coordenador"""
+    context = {
+        'titulo': 'Relatórios da Unidade',
+    }
+    return render(request, 'dashboards/coordenacao_relatorios.html', context)

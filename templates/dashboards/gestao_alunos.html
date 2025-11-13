@@ -1,0 +1,161 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Gestão de Alunos - Secretaria{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="mb-0">Gestão de Alunos</h2>
+    <div>
+        <button class="btn btn-primary" id="btnNovoAluno"><i class="fas fa-user-plus me-2"></i>Novo Aluno</button>
+    </div>
+</div>
+
+<!-- Cards de status -->
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="card p-3 shadow-sm h-100">
+            <h6 class="text-muted">Total de Alunos</h6>
+            <h3 class="fw-bold" id="totalAlunos">{{ total_alunos|default:0 }}</h3>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card p-3 shadow-sm h-100">
+            <h6 class="text-muted">Matrículas Pendentes</h6>
+            <h3 class="fw-bold text-warning">8</h3>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card p-3 shadow-sm h-100">
+            <h6 class="text-muted">Alunos Ativos</h6>
+            <h3 class="fw-bold text-success" id="alunosAtivos">{{ matriculas_ativas|default:0 }}</h3>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card p-3 shadow-sm h-100">
+            <h6 class="text-muted">Alunos Inativos</h6>
+            <h3 class="fw-bold text-danger">5</h3>
+        </div>
+    </div>
+</div>
+
+<!-- Filtros -->
+<div class="card p-3 mb-4">
+    <form id="filtrosAlunos" class="row g-2">
+        <div class="col-md-4">
+            <input type="text" id="f_nome" class="form-control" placeholder="Nome">
+        </div>
+        <div class="col-md-2">
+            <input type="text" id="f_matricula" class="form-control" placeholder="Matrícula">
+        </div>
+        <div class="col-md-3">
+            <select id="f_turma" class="form-select">
+                <option value="">Todas as turmas</option>
+                <option>Automação Industrial</option>
+                <option>Programação Web</option>
+            </select>
+        </div>
+        <div class="col-md-2">
+            <select id="f_status" class="form-select">
+                <option value="">Todos os status</option>
+                <option value="ativa">Ativa</option>
+                <option value="pendente">Pendente</option>
+                <option value="inativa">Inativa</option>
+            </select>
+        </div>
+        <div class="col-md-1 text-end">
+            <button type="button" class="btn btn-outline-secondary" id="btnFiltrar">Filtrar</button>
+        </div>
+    </form>
+</div>
+
+<!-- Tabela -->
+<div class="card shadow-sm">
+    <div class="table-responsive">
+        <table class="table table-hover mb-0" id="tableAlunos">
+            <thead class="table-light">
+                <tr>
+                    <th>Nome</th>
+                    <th>Matrícula</th>
+                    <th>Curso</th>
+                    <th>Status</th>
+                    <th>Último Pagamento</th>
+                    <th class="text-end">Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Exemplo de linhas estáticas; JS permite adicionar dinamicamente -->
+                <tr data-nome="Ana Silva" data-matricula="2023001" data-turma="Programação Web" data-status="ativa">
+                    <td>Ana Silva</td>
+                    <td>2023001</td>
+                    <td>Programação Web</td>
+                    <td><span class="badge bg-success">Ativa</span></td>
+                    <td>2025-10-10</td>
+                    <td class="text-end">
+                        <button class="btn btn-sm btn-primary btn-editar me-1">Editar</button>
+                        <button class="btn btn-sm btn-outline-primary btn-detalhe me-1">Detalhar</button>
+                        <button class="btn btn-sm btn-danger btn-excluir">Excluir</button>
+                    </td>
+                </tr>
+                <tr data-nome="Carlos Pereira" data-matricula="2022995" data-turma="Automação Industrial" data-status="pendente">
+                    <td>Carlos Pereira</td>
+                    <td>2022995</td>
+                    <td>Automação Industrial</td>
+                    <td><span class="badge bg-warning text-dark">Pendente</span></td>
+                    <td>—</td>
+                    <td class="text-end">
+                        <button class="btn btn-sm btn-primary btn-editar me-1">Editar</button>
+                        <button class="btn btn-sm btn-outline-primary btn-detalhe me-1">Detalhar</button>
+                        <button class="btn btn-sm btn-danger btn-excluir">Excluir</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Modal Novo/Editar -->
+<div class="modal fade" id="modalAluno" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalAlunoTitle">Novo Aluno</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formAluno">
+                    <div class="mb-3">
+                        <label class="form-label">Nome</label>
+                        <input type="text" class="form-control" id="alunoNome" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Matrícula</label>
+                        <input type="text" class="form-control" id="alunoMatricula" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Curso/Turma</label>
+                        <input type="text" class="form-control" id="alunoTurma">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Status</label>
+                        <select id="alunoStatus" class="form-select">
+                            <option value="ativa">Ativa</option>
+                            <option value="pendente">Pendente</option>
+                            <option value="inativa">Inativa</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="salvarAluno">Salvar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/secretaria.js' %}"></script>
+{% endblock %}

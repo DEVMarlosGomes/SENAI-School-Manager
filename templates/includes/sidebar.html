@@ -14,6 +14,8 @@
         <small class="text-muted">
             {% if user.profile.is_secretaria %}
                 Perfil: Secretária
+            {% elif user.profile.is_coordenacao %}
+                Perfil: Coordenador
             {% elif user.profile.is_professor %}
                 Perfil: Professor
             {% else %}
@@ -31,11 +33,31 @@
         {% endif %}
 
         {% if user.profile.is_secretaria %}
-            <li class="active mb-1">
-                <a href="{% url 'secretaria_dashboard' %}" class="btn bg-senai-dark text-white w-100 text-start rounded-0">
-                    <i class="fas fa-tachometer-alt me-2"></i> Dashboard
-                </a>
-            </li>
+                <li class="active mb-1">
+                    <a href="{% url 'secretaria_dashboard' %}" class="btn bg-senai-dark text-white w-100 text-start rounded-0">
+                        <i class="fas fa-tachometer-alt me-2"></i> Dashboard
+                    </a>
+                </li>
+                <li class="mb-1">
+                    <a href="{% url 'gestao_alunos' %}" class="btn btn-block text-white w-100 text-start rounded-0">
+                        <i class="fas fa-user-graduate me-2"></i> Gestão de Alunos
+                    </a>
+                </li>
+                <li class="mb-1">
+                    <a href="{% url 'controle_financeiro' %}" class="btn btn-block text-white w-100 text-start rounded-0">
+                        <i class="fas fa-dollar-sign me-2"></i> Financeiro
+                    </a>
+                </li>
+                <li class="mb-1">
+                    <a href="{% url 'gestao_documentos' %}" class="btn btn-block text-white w-100 text-start rounded-0">
+                        <i class="fas fa-file-alt me-2"></i> Documentos
+                    </a>
+                </li>
+                <li class="mb-1">
+                    <a href="{% url 'comunicacao_secretaria' %}" class="btn btn-block text-white w-100 text-start rounded-0">
+                        <i class="fas fa-comments me-2"></i> Mensagens
+                    </a>
+                </li>
         {% elif user.profile.is_aluno %}
             <li class="active mb-1">
                 <a href="{% url 'aluno_dashboard' %}" class="btn bg-senai-dark text-white w-100 text-start rounded-0">
@@ -79,6 +101,33 @@
             <li class="mb-1">
                 <a href="{% url 'comunicacao_secretaria' %}" class="btn btn-block text-white w-100 text-start rounded-0">
                     <i class="fas fa-comments me-2"></i> Comunicação
+                </a>
+            </li>
+
+        {% elif user.profile.is_coordenacao %}
+            <li class="active mb-1">
+                <a href="{% url 'coordenacao_dashboard' %}" class="btn bg-senai-dark text-white w-100 text-start rounded-0">
+                    <i class="fas fa-tachometer-alt me-2"></i> Visão Geral
+                </a>
+            </li>
+            <li class="mb-1">
+                <a href="{% url 'coordenacao_desempenho' %}" class="btn btn-block text-white w-100 text-start rounded-0">
+                    <i class="fas fa-chart-line me-2"></i> Desempenho
+                </a>
+            </li>
+            <li class="mb-1">
+                <a href="{% url 'coordenacao_gestao' %}" class="btn btn-block text-white w-100 text-start rounded-0">
+                    <i class="fas fa-cogs me-2"></i> Gestão
+                </a>
+            </li>
+            <li class="mb-1">
+                <a href="{% url 'coordenacao_comunicacao' %}" class="btn btn-block text-white w-100 text-start rounded-0">
+                    <i class="fas fa-comments me-2"></i> Comunicação
+                </a>
+            </li>
+            <li class="mb-1">
+                <a href="{% url 'coordenacao_relatorios' %}" class="btn btn-block text-white w-100 text-start rounded-0">
+                    <i class="fas fa-file-pdf me-2"></i> Relatórios
                 </a>
             </li>
 
