@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}O SENAI-SP | SENAI School Manager{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/o-senai.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<!-- Hero Section -->
+<section class="hero text-white text-center py-5" style="background: url('{% static 'images/hero-o-senai.jpg' %}') center/cover no-repeat;">
+    <div class="container">
+        <h1 class="display-4 fw-bold">O SENAI-SP</h1>
+        <p class="lead">Conheça o SENAI-SP</p>
+    </div>
+</section>
+
+<!-- Introdução -->
+<section class="intro container py-5">
+    <p>
+        O SENAI-SP tem a missão de impulsionar o aumento da competitividade da indústria por meio de ações de educação profissional, inovação, tecnologia e empreendedorismo industrial. Com mais de 80 anos de atuação, o SENAI-SP supera 1 milhão de matrículas anuais, abrangendo desde cursos para a formação inicial profissional até a pós-graduação. São 90 unidades de formação profissional distribuídas em todo o estado de São Paulo, além de 78 escolas móveis, que levam soluções customizadas para a indústria.
+    </p>
+    <p>
+        A instituição também se destaca na oferta de soluções em inovação e tecnologia, desenvolvendo projetos de pesquisa, desenvolvimento e inovação (PD&I) e programas voltados para a melhoria da produtividade e competitividade das empresas. Na área de empreendedorismo, o SENAI-SP promove programas de aceleração de startups, inovação aberta, intraempreendedorismo e fomento à cultura inovadora, atendendo empresas de todos os tamanhos e setores.
+    </p>
+</section>
+
+<!-- Missão e Visão -->
+<section class="missions-vision container py-5">
+    <div class="row g-4">
+        <div class="col-md-6">
+            <div class="card p-4 shadow-sm h-100">
+                <h2 class="h5 fw-bold">Missão</h2>
+                <p>
+                    Promover o desenvolvimento sustentável do país, elevando a competitividade da indústria, por meio da educação profissional e da inovação e tecnologia.
+                </p>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card p-4 shadow-sm h-100">
+                <h2 class="h5 fw-bold">Visão</h2>
+                <p>
+                    Ser reconhecido pela oferta de formação profissional de padrão global. Ser reconhecido como indutor da inovação e da tecnologia para a competitividade da indústria. Distinguir-se pela excelência dos seus serviços e dos seus processos.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Valores e Compromissos -->
+<section class="values-commitments container py-5">
+    <h2 class="mb-4 text-center">Compromissos e Valores</h2>
+    <div class="row g-4">
+        <div class="col-md-6">
+            <div class="card p-4 shadow-sm h-100">
+                <h3 class="h6 fw-bold">Compromissos</h3>
+                <ol class="mb-0">
+                    <li>Formação para oportunidades reais de trabalho.</li>
+                    <li>Compromisso com o sucesso dos indivíduos e das empresas.</li>
+                    <li>Ampliação das oportunidades de acesso aos nossos serviços.</li>
+                    <li>Meritocracia baseada em oportunidades iguais para todos, equalizando diferenças que comprometem desempenhos e que provocam desperdício de competências e talentos.</li>
+                    <li>Liderança estratégica e responsável, influenciando positivamente todas as partes interessadas.</li>
+                    <li>Resultados crescentes e sustentabilidade. Respeitamos o direito das futuras gerações a um mundo melhor.</li>
+                </ol>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card p-4 shadow-sm h-100">
+                <h3 class="h6 fw-bold">Valores</h3>
+                <ol class="mb-0">
+                    <li>Credibilidade e Integridade: atitudes pautadas na transparência e confiança. Respeitamos os princípios da justiça e da verdade.</li>
+                    <li>Compromisso e Disciplina: trabalhamos de maneira organizada, empenhados com o alcance dos nossos objetivos.</li>
+                    <li>Diversidade e Inclusão: É a soma das diferenças que promove enriquecimento cultural e estímulo à criatividade e à flexibilidade.</li>
+                    <li>Excelência e Inovação: Incentivamos a geração de ideias que renovem e revolucionem serviços, processos e estratégias.</li>
+                    <li>Agilidade e Responsabilidade: desejamos respostas rápidas, eficazes, sustentáveis e consequentes.</li>
+                    <li>Valorização e Reconhecimento: estimulamos nossas pessoas, valorizando o "trabalho bem feito" e colaborativo.</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Links e documentos -->
+<section class="links-downloads container py-5">
+    <h2 class="mb-3">Documentos e Políticas</h2>
+    <ul class="list-unstyled">
+        <li><a href="https://cronos-media.sesisenaisp.org.br" target="_blank">Regimento do SENAI</a></li>
+        <li><a href="https://cronos-media.sesisenaisp.org.br" target="_blank">Regimento Comum das Unidades Escolares</a></li>
+        <li><a href="https://cronos-media.sesisenaisp.org.br" target="_blank">Termos de Uso e Política de Privacidade</a></li>
+        <li><a href="https://cronos-media.sesisenaisp.org.br" target="_blank">Política de Segurança da Informação e Privacidade</a></li>
+        <li><a href="https://cronos-media.sesisenaisp.org.br" target="_blank">Política de Propriedade Intelectual</a></li>
+    </ul>
+</section>
+
+{% endblock %}
