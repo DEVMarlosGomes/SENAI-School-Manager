@@ -1,91 +1,69 @@
 from django import forms
+from .models import Aluno  # 'Matricula' foi removido porque não existe no novo models.py
 from django.contrib.auth.models import User
-from django.contrib.auth.forms import UserCreationForm
-from .models import Aluno, Matricula
-from apps.usuarios.models import Profile
 
-class AlunoEditForm(forms.ModelForm):
-    first_name = forms.CharField(max_length=30, label='Nome')
-    last_name = forms.CharField(max_length=150, label='Sobrenome')
-    email = forms.EmailField(label='E-mail')
-    cpf = forms.CharField(max_length=14, label='CPF')
-    telefone = forms.CharField(max_length=15, label='Telefone')
-    data_nascimento = forms.DateField(
-        label='Data de Nascimento',
-        widget=forms.DateInput(attrs={'type': 'date'})
-    )
-    endereco = forms.CharField(
-        widget=forms.Textarea(attrs={'rows': 3}),
-        label='Endereço'
-    )
-    status = forms.ChoiceField(
-        choices=Matricula.STATUS_CHOICES,
-        label='Status da Matrícula'
-    )
+# NOTA: Estas são versões básicas dos seus formulários para
+# corrigir o Import Error. A lógica interna (para criar User, etc.)
+# precisará ser ajustada depois das migrações.
+
+class AlunoForm(forms.ModelForm):
+    # Campos do User que queremos no formulário de *criação*
+    first_name = forms.CharField(max_length=100, label="Primeiro Nome")
+    last_name = forms.CharField(max_length=100, label="Sobrenome")
+    email = forms.EmailField(label="Email")
+    username = forms.CharField(max_length=150, label="Nome de Usuário (Login)")
+    password = forms.CharField(widget=forms.PasswordInput, label="Senha")
 
     class Meta:
-        model = User
-        fields = ['first_name', 'last_name', 'email']
+        model = Aluno
+        # Definimos os campos que vêm do modelo Aluno
+        fields = [
+            'RA_aluno', 'RG_aluno', 'data_nascimento', 'genero', 'etinia', 
+            'deficiencia', 'estado_civil', 'conclusao_EM', 
+            'cod_endereco', 'responsavel_legal'
+        ]
 
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        if self.instance and hasattr(self.instance, 'profile'):
-            self.fields['cpf'].initial = self.instance.profile.cpf
-            self.fields['telefone'].initial = self.instance.profile.telefone
-            self.fields['data_nascimento'].initial = self.instance.profile.data_nascimento
-            self.fields['endereco'].initial = self.instance.profile.endereco
-            if hasattr(self.instance, 'aluno'):
-                matricula = self.instance.aluno.matriculas.first()
-                if matricula:
-                    self.fields['status'].initial = matricula.status
+        super(AlunoForm, self).__init__(*args, **kwargs)
+        # Ajustar para não obrigar campos que podem ser nulos
+        self.fields['conclusao_EM'].required = False
+        self.fields['etinia'].required = False
+        self.fields['deficiencia'].required = False
+        self.fields['cod_endereco'].required = False
+        self.fields['responsavel_legal'].required = False
 
-    def save(self, commit=True):
-        user = super().save(commit=False)
-        if commit:
-            user.save()
-            profile = user.profile
-            profile.cpf = self.cleaned_data['cpf']
-            profile.telefone = self.cleaned_data['telefone']
-            profile.data_nascimento = self.cleaned_data['data_nascimento']
-            profile.endereco = self.cleaned_data['endereco']
-            profile.save()
-
-            matricula = user.aluno.matriculas.first()
-            if matricula:
-                matricula.status = self.cleaned_data['status']
-                matricula.save()
-        return user
-
-class AlunoForm(UserCreationForm):
-    cpf = forms.CharField(max_length=14, label='CPF')
-    telefone = forms.CharField(max_length=15, label='Telefone')
-    data_nascimento = forms.DateField(
-        label='Data de Nascimento',
-        widget=forms.DateInput(attrs={'type': 'date'})
-    )
-    endereco = forms.CharField(
-        widget=forms.Textarea(attrs={'rows': 3}),
-        label='Endereço'
-    )
+class AlunoEditForm(forms.ModelForm):
+    # Campos do User que queremos no formulário de *edição*
+    first_name = forms.CharField(max_length=100, label="Primeiro Nome")
+    last_name = forms.CharField(max_length=100, label="Sobrenome")
+    email = forms.EmailField(label="Email")
+    username = forms.CharField(max_length=150, label="Nome de Usuário (Login)", disabled=True)
 
     class Meta:
-        model = User
-        fields = ['username', 'first_name', 'last_name', 'email', 'password1', 'password2']
-
-    def save(self, commit=True):
-        user = super().save(commit=False)
-        if commit:
-            user.save()
-            # Criar ou atualizar perfil
-            profile = Profile.objects.get_or_create(user=user)[0]
-            profile.tipo = 'aluno'
-            profile.cpf = self.cleaned_data.get('cpf')
-            profile.telefone = self.cleaned_data.get('telefone')
-            profile.data_nascimento = self.cleaned_data.get('data_nascimento')
-            profile.endereco = self.cleaned_data.get('endereco')
-            profile.save()
+        model = Aluno
+        # Em edição, podemos querer editar a turma e o status
+        fields = [
+            'RA_aluno', 'RG_aluno', 'data_nascimento', 'genero', 'etinia', 
+            'deficiencia', 'estado_civil', 'conclusao_EM', 'status_matricula',
+            'turma_atual', 'cod_endereco', 'responsavel_legal'
+        ]
+    
+    def __init__(self, *args, **kwargs):
+        # Pré-popula os campos do User quando o formulário é carregado
+        instance = kwargs.get('instance')
+        if instance:
+            initial = kwargs.get('initial', {})
+            initial['first_name'] = instance.user.first_name
+            initial['last_name'] = instance.user.last_name
+            initial['email'] = instance.user.email
+            initial['username'] = instance.user.username
+            kwargs['initial'] = initial
             
-            # Criar registro de aluno
-            matricula = f'ALU{user.id:06d}'
-            Aluno.objects.create(user=user, matricula=matricula)
-        return user
+        super(AlunoEditForm, self).__init__(*args, **kwargs)
+        # Ajustar para não obrigar campos que podem ser nulos
+        self.fields['conclusao_EM'].required = False
+        self.fields['etinia'].required = False
+        self.fields['deficiencia'].required = False
+        self.fields['turma_atual'].required = False
+        self.fields['cod_endereco'].required = False
+        self.fields['responsavel_legal'].required = False
