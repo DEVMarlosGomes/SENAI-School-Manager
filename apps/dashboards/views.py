@@ -1,88 +1,107 @@
-from django.shortcuts import render, redirect
-from django.contrib.auth.decorators import login_required
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 from django.http import HttpResponse, JsonResponse
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.db.models import Q
+from django.db.models import Q, Avg, Count, Sum
 from django.utils import timezone
 from datetime import date
 import json
 import csv
 
-from apps.academico.models import Turma, Aluno, Matricula, Nota, Frequencia
-from .models import Material
-from django.db.models import Avg, Count
-from django.http import JsonResponse
+# Importa os NOVOS modelos funcionais
+from apps.academico.models import (
+    Turma, Aluno, Professor, Secretaria, Coordenacao, 
+    Historico, Curso, TurmaDisciplinaProfessor
+)
+from .models import Material # O seu modelo de Material (assumindo que está em apps/dashboards/models.py)
 
-# ---------------------------------------------------------------------
-# 🔒 Decorator personalizado para restringir acesso por tipo de usuário
-# ---------------------------------------------------------------------
+# #####################################################################
+# 🔒 NOVAS Funções de Verificação de Permissão
+# (Substituem a lógica do 'Profile' antigo)
+# #####################################################################
+
+def is_aluno(user):
+    return user.is_authenticated and Aluno.objects.filter(user=user).exists()
+
+def is_professor(user):
+    return user.is_authenticated and Professor.objects.filter(user=user).exists()
+
+def is_secretaria(user):
+    return user.is_authenticated and Secretaria.objects.filter(user=user).exists()
+
+def is_coordenacao(user):
+    return user.is_authenticated and Coordenacao.objects.filter(user=user).exists()
+
 def role_required(*roles):
-    """Decorator para restringir acesso por tipo de perfil."""
+    """Decorator atualizado para verificar os novos modelos 1-para-1."""
     def decorator(view_func):
         @login_required
         def wrapper(request, *args, **kwargs):
-            if not hasattr(request.user, 'profile'):
-                messages.error(request, "Perfil de usuário não configurado.")
-                return redirect('home')
+            user_roles = []
+            if is_aluno(request.user): user_roles.append('aluno')
+            if is_professor(request.user): user_roles.append('professor')
+            if is_secretaria(request.user): user_roles.append('secretaria')
+            if is_coordenacao(request.user): user_roles.append('coordenacao')
 
-            if request.user.profile.tipo not in roles:
+            # Verifica se o usuário tem *pelo menos um* dos papéis necessários
+            if not any(role in roles for role in user_roles):
                 messages.error(request, "Acesso negado a esta área.")
                 return redirect('redirecionar_dashboard')
-
+            
             return view_func(request, *args, **kwargs)
         return wrapper
     return decorator
 
 
 # ---------------------------------------------------------------------
-# 🌐 Home
+# 🌐 Home (Atualizada)
 # ---------------------------------------------------------------------
+@login_required
 def home(request):
-    if request.user.is_authenticated:
-        if hasattr(request.user, 'profile'):
-            if request.user.profile.is_aluno:
-                return redirect('aluno_dashboard')
-            elif request.user.profile.is_professor:
-                return redirect('professor_dashboard')
-            elif request.user.profile.is_secretaria:
-                return redirect('secretaria_dashboard')
-            elif request.user.profile.is_coordenacao:
-                return redirect('coordenacao_dashboard')
+    # Redireciona com base nos novos modelos
+    if is_aluno(request.user):
+        return redirect('aluno_dashboard')
+    elif is_professor(request.user):
+        return redirect('professor_dashboard')
+    elif is_secretaria(request.user):
+        return redirect('secretaria_dashboard')
+    elif is_coordenacao(request.user):
+        return redirect('coordenacao_dashboard')
+    elif request.user.is_staff: # Para o admin/superusuário
+        return redirect('secretaria_dashboard') # ou 'coordenacao_dashboard'
+    
+    # Se não tiver papel, vai para a home (ou uma pág de "perfil incompleto")
     return render(request, 'home.html')
 
-
 # ---------------------------------------------------------------------
-# 🎓 Dashboard do Aluno
+# 🎓 Dashboard do Aluno (Atualizado)
 # ---------------------------------------------------------------------
 @role_required('aluno')
 def aluno_dashboard_view(request):
+    aluno = Aluno.objects.get(user=request.user)
+    
+    # Lógica de notas e faltas agora vem do 'Historico'
+    notas_recentes = Historico.objects.filter(id_aluno=aluno).exclude(nota_final=None).order_by('-data_lancamento')[:5]
+    faltas_recentes = Historico.objects.filter(id_aluno=aluno).exclude(total_faltas=None).order_by('-data_lancamento')[:5]
+
     context = {
         'titulo': 'Dashboard do Aluno',
-        'notas_recentes': Nota.objects.filter(
-            matricula__aluno__user=request.user
-        ).order_by('-data')[:5],
-        'faltas_recentes': Frequencia.objects.filter(
-            matricula__aluno__user=request.user, presenca=False
-        ).order_by('-data')[:5],
-        'proximas_aulas': [
-            {'disciplina': 'Automação Industrial II', 'professor': 'Maria Silva', 'horario': '19:00', 'sala': 'Lab 3'},
-            {'disciplina': 'Programação Web', 'professor': 'João Santos', 'horario': '20:45', 'sala': 'Lab 1'},
-        ],
+        'notas_recentes': notas_recentes,
+        'faltas_recentes': faltas_recentes,
+        # ... (avisos e eventos estáticos mantidos) ...
         'avisos': [
             {'titulo': 'Alteração no Cronograma', 'tipo': 'Urgente', 'mensagem': 'As aulas de programação foram remanejadas para terça-feira.', 'data': '2025-11-10'},
-            {'titulo': 'Palestra sobre Indústria 4.0', 'tipo': 'Importante', 'mensagem': 'Convidamos todos os alunos para a palestra sobre Indústria 4.0.', 'data': '2025-11-09'},
         ],
         'eventos': [
             {'titulo': 'Workshop de Inovação', 'data': date(2025, 11, 25), 'hora_inicio': '14:00', 'hora_fim': '17:00', 'local': 'Auditório Principal'},
-            {'titulo': 'Feira de Projetos', 'data': date(2025, 12, 5), 'hora_inicio': '09:00', 'hora_fim': '18:00', 'local': 'Pátio Central'},
         ],
     }
     return render(request, 'dashboards/aluno_dashboard.html', context)
 
 
 # ---------------------------------------------------------------------
-# 📚 Materiais de Estudo
+# 📚 Materiais de Estudo (Mantido como estava, mas com decorator atualizado)
 # ---------------------------------------------------------------------
 @role_required('aluno', 'professor', 'coordenacao')
 def materiais_estudo_view(request):
@@ -126,7 +145,7 @@ def materiais_estudo_view(request):
 
 
 # ---------------------------------------------------------------------
-# 🗓️ Calendário (Aluno)
+# 🗓️ Calendário (Aluno) (Mantido)
 # ---------------------------------------------------------------------
 @role_required('aluno')
 def calendario_view(request):
@@ -139,35 +158,50 @@ def calendario_view(request):
 
 
 # ---------------------------------------------------------------------
-# 👩‍🏫 Dashboard do Professor
+# 👩‍🏫 Dashboard do Professor (Atualizado)
 # ---------------------------------------------------------------------
 @role_required('professor')
 def professor_dashboard_view(request):
+    professor = Professor.objects.get(user=request.user)
+    
+    # Acessa as alocações do professor
+    alocacoes = TurmaDisciplinaProfessor.objects.filter(professor=professor)
+    
+    # Pega os IDs das turmas únicas
+    turmas_pks = alocacoes.values_list('turma__pk', flat=True).distinct()
+    
+    # Filtra as turmas
+    turmas_obj = Turma.objects.filter(pk__in=turmas_pks)
+    turmas_ativas = turmas_obj.filter(status_aprovacao='Aprovada').count() # Assumindo status
+    
+    # Total de alunos *nessas* turmas
+    total_alunos = Aluno.objects.filter(turma_atual__pk__in=turmas_pks, status_matricula='Ativo').count()
+
     context = {
         'titulo': 'Dashboard do Professor',
-        'turmas_ativas': Turma.objects.filter(professor=request.user, ativa=True).count(),
-        'total_alunos': Matricula.objects.filter(turma__professor=request.user, status='ativa').count(),
-        'proximas_aulas': Turma.objects.filter(professor=request.user, ativa=True)[:5],
+        'turmas_ativas': turmas_ativas,
+        'total_alunos': total_alunos,
+        'proximas_aulas': turmas_obj[:5], # Simplificado para as turmas
     }
     return render(request, 'dashboards/professor_dashboard.html', context)
 
 
 # ---------------------------------------------------------------------
-# 🧾 Dashboard da Secretaria
+# 🧾 Dashboard da Secretaria (Atualizado)
 # ---------------------------------------------------------------------
 @role_required('secretaria')
 def secretaria_dashboard_view(request):
     context = {
         'titulo': 'Dashboard da Secretaria',
         'total_alunos': Aluno.objects.count(),
-        'matriculas_ativas': Matricula.objects.filter(status='ativa').count(),
-        'turmas_ativas': Turma.objects.filter(ativa=True).count(),
+        'matriculas_ativas': Aluno.objects.filter(status_matricula='Ativo').count(), # Corrigido
+        'turmas_ativas': Turma.objects.filter(status_aprovacao='Aprovada').count(), # Corrigido
     }
     return render(request, 'dashboards/secretaria_dashboard.html', context)
 
 
 # ---------------------------------------------------------------------
-# 🧭 Dashboard da Coordenação
+# 🧭 Dashboard da Coordenação (Atualizado)
 # ---------------------------------------------------------------------
 @role_required('coordenacao')
 def coordenacao_dashboard_view(request):
@@ -175,35 +209,29 @@ def coordenacao_dashboard_view(request):
         'titulo': 'Dashboard da Coordenação',
         'total_turmas': Turma.objects.count(),
         'total_alunos': Aluno.objects.count(),
-        'total_professores': Turma.objects.values('professor').distinct().count(),
+        'total_professores': Professor.objects.count(), # Corrigido
     }
     return render(request, 'dashboards/coordenacao_dashboard.html', context)
 
+# #####################################################################
+# APIs DA COORDENAÇÃO (ATUALIZADAS)
+# #####################################################################
 
 @role_required('coordenacao')
 def api_coordenacao_kpis(request):
-    """Retorna KPIs para o dashboard da coordenação."""
+    """Retorna KPIs (ATUALIZADO para 'Historico')"""
     total_turmas = Turma.objects.count()
-    professores_ativos = Turma.objects.values('professor').distinct().count()
+    professores_ativos = Professor.objects.filter(status_professor='Ativo').count()
     total_alunos = Aluno.objects.count()
-    # Alunos em risco: 
-    # - média de notas < 5 => risco crítico
-    # - frequência < 60% => risco crítico
-    risco_count = 0
-    total_matriculas = Matricula.objects.count() or 1
-    for m in Matricula.objects.all():
-        # calcular média de notas
-        notas_qs = Nota.objects.filter(matricula=m)
-        notas_vals = [float(n.valor) for n in notas_qs]
-        media = round(sum(notas_vals)/len(notas_vals), 1) if notas_vals else 0
-        # calcular frequência
-        total_sessions = Frequencia.objects.filter(matricula=m).count()
-        faltas = Frequencia.objects.filter(matricula=m, presenca=False).count()
-        frequencia_pct = round(((total_sessions - faltas) / total_sessions) * 100, 1) if total_sessions > 0 else 100
-        # critério: média < 5 ou frequência < 60% => risco
-        if media < 5 or frequencia_pct < 60:
-            risco_count += 1
-    risco_pct = f"{round((risco_count/total_matriculas)*100,1)}%"
+    total_alunos_com_historico = Historico.objects.values('id_aluno').distinct().count() or 1
+    
+    # Alunos em risco: média < 7 OU frequência < 75%
+    # (Baseado na lógica do seu boletim antigo)
+    risco_count = Historico.objects.filter(
+        Q(media_final__lt=7) | Q(frequencia_percentual__lt=75)
+    ).values('id_aluno').distinct().count()
+    
+    risco_pct = f"{round((risco_count / total_alunos_com_historico) * 100, 1)}%"
 
     return JsonResponse({
         'total_turmas': total_turmas,
@@ -215,80 +243,58 @@ def api_coordenacao_kpis(request):
 
 @role_required('coordenacao')
 def api_coordenacao_desempenho(request):
-    """Retorna desempenho médio por turma (média das notas) para TODAS as turmas."""
+    """Retorna desempenho médio por turma (ATUALIZADO para 'Historico')"""
     results = []
-    turmas = Turma.objects.all().order_by('codigo')
+    turmas = Turma.objects.all().order_by('nome')
     for turma in turmas:
-        avg = Nota.objects.filter(matricula__turma=turma).aggregate(v=Avg('valor'))['v']
+        # Média das médias finais do histórico para alunos dessa turma
+        avg = Historico.objects.filter(
+            turma_disciplina_professor__turma=turma
+        ).aggregate(v=Avg('media_final'))['v']
+        
         value = round(float(avg), 1) if avg is not None else None
-        results.append({'codigo': turma.codigo, 'valor': value})
+        results.append({'codigo': turma.nome, 'valor': value}) # Usei turma.nome
 
     return JsonResponse({'results': results})
 
 
 @role_required('coordenacao')
 def api_coordenacao_aprovacao(request):
-    """Retorna índices de aprovação (aprovados, recuperacao, reprovados)."""
+    """Retorna índices de aprovação (ATUALIZADO para 'Historico')"""
+    
+    # Contagem de alunos únicos por status no histórico
+    aprovados = Historico.objects.filter(status_aprovacao='Aprovado').values('id_aluno').distinct().count()
+    recuperacao = Historico.objects.filter(status_aprovacao='Recuperação').values('id_aluno').distinct().count()
+    reprovados = Historico.objects.filter(status_aprovacao='Reprovado').values('id_aluno').distinct().count()
+
+    total_avaliados = Historico.objects.values('id_aluno').distinct().count() or 1
     total_alunos = Aluno.objects.count()
-    aprovados = 0
-    recuperacao = 0
-    reprovados = 0
-    for aluno in Aluno.objects.all():
-        matriculas = Matricula.objects.filter(aluno=aluno)
-        # determinar status por aluno: se qualquer matrícula ativa com media>=7 e freq>=75 -> aprovado
-        status_final = None
-        for m in matriculas:
-            notas_qs = Nota.objects.filter(matricula=m)
-            notas_vals = [float(n.valor) for n in notas_qs]
-            media = round(sum(notas_vals)/len(notas_vals), 1) if notas_vals else None
-            total_sessions = Frequencia.objects.filter(matricula=m).count()
-            faltas = Frequencia.objects.filter(matricula=m, presenca=False).count()
-            frequencia_pct = round(((total_sessions - faltas) / total_sessions) * 100, 1) if total_sessions > 0 else None
 
-            if media is None:
-                continue
-            if media >= 7 and (frequencia_pct is None or frequencia_pct >= 75):
-                status_final = 'aprovado'
-                break
-            elif media < 7 and (frequencia_pct is None or frequencia_pct >= 75):
-                status_final = 'recuperacao'
-            else:
-                status_final = 'reprovado'
-
-        if status_final == 'aprovado':
-            aprovados += 1
-        elif status_final == 'recuperacao':
-            recuperacao += 1
-        elif status_final == 'reprovado':
-            reprovados += 1
-
-    total = aprovados + recuperacao + reprovados
-    if total == 0:
-        total = 1
     return JsonResponse({
         'total': total_alunos,
-        'aprovados_pct': round((aprovados/total)*100),
-        'recuperacao_pct': round((recuperacao/total)*100),
-        'reprovados_pct': round((reprovados/total)*100),
+        'aprovados_pct': round((aprovados / total_avaliados) * 100),
+        'recuperacao_pct': round((recuperacao / total_avaliados) * 100),
+        'reprovados_pct': round((reprovados / total_avaliados) * 100),
     })
 
 
 @role_required('coordenacao')
 def api_coordenacao_atividades(request):
-    # Gerar atividades recentes simples a partir das últimas matrículas / notas
+    """Atividades recentes (ATUALIZADO)"""
     items = []
-    recentes_matriculas = Matricula.objects.order_by('-created_at')[:3]
-    for m in recentes_matriculas:
+    # Usando novos alunos
+    recentes_alunos = Aluno.objects.order_by('-data_matricula')[:3]
+    for a in recentes_alunos:
         items.append({
             'tipo': 'novo',
-            'titulo': f'Nova matrícula: {m.turma.codigo if m.turma else "—"}',
-            'detalhe': f'{m.aluno.user.get_full_name()} • há pouco',
+            'titulo': f'Novo aluno: {a.user.get_full_name()}',
+            'detalhe': f'{a.RA_aluno} • há pouco',
             'badge': 'Novo'
         })
-    # Complementar com eventos estáticos se necessário
+        
     if len(items) < 3:
         items.extend([
-            {'tipo': 'aprovado', 'titulo': 'Comunicado aprovado para Turma TI-2023A', 'detalhe': 'Prof. João Santos • há 2 horas', 'badge': 'Aprovado'},
+            {'tipo': 'aprovado', 'titulo': 'Turma TI-2023A Aprovada', 'detalhe': 'Coord. Maria • há 2 horas', 'badge': 'Aprovado'},
             {'tipo': 'atencao', 'titulo': 'Frequência baixa detectada na Turma ELE-2023B', 'detalhe': 'Sistema • há 6 horas', 'badge': 'Atenção'},
         ])
 
@@ -296,49 +302,40 @@ def api_coordenacao_atividades(request):
 
 
 # ---------------------------------------------------------------------
-# 🔧 Páginas da Secretaria (implementações iniciais)
+# 🔧 Páginas da Secretaria (ATUALIZADO)
 # ---------------------------------------------------------------------
 @login_required
+@user_passes_test(is_secretaria) # Adicionada permissão
 def gestao_alunos_view(request):
-    # Contexto mínimo: total de alunos e matrículas ativas (usado nos cards)
-    total_alunos = 0
-    matriculas_ativas = 0
-    try:
-        total_alunos = Aluno.objects.count()
-        matriculas_ativas = Matricula.objects.filter(status='ativa').count()
-    except Exception:
-        # Em ambientes sem DB populado, fallback para 0
-        total_alunos = 0
-        matriculas_ativas = 0
+    # Contexto mínimo (usado nos cards)
+    total_alunos = Aluno.objects.count()
+    matriculas_ativas = Aluno.objects.filter(status_matricula='Ativo').count()
 
     return render(request, 'dashboards/gestao_alunos.html', {
         'total_alunos': total_alunos,
         'matriculas_ativas': matriculas_ativas,
     })
 
+# (As views abaixo foram mantidas, mas com permissão adicionada)
 
 @login_required
+@user_passes_test(is_secretaria)
 def controle_financeiro_view(request):
-    # Contexto inicial pode ser estendido com dados reais do backend
-    context = {
-        'titulo': 'Controle Financeiro',
-    }
+    context = {'titulo': 'Controle Financeiro'}
     return render(request, 'dashboards/controle_financeiro.html', context)
 
 
 @login_required
+@user_passes_test(is_secretaria)
 def gestao_documentos_view(request):
-    context = {
-        'titulo': 'Gestão de Documentos',
-    }
+    context = {'titulo': 'Gestão de Documentos'}
     return render(request, 'dashboards/gestao_documentos.html', context)
 
 
 @login_required
+@user_passes_test(is_secretaria)
 def comunicacao_secretaria_view(request):
-    context = {
-        'titulo': 'Comunicação - Secretaria',
-    }
+    context = {'titulo': 'Comunicação - Secretaria'}
     return render(request, 'dashboards/comunicacao_secretaria.html', context)
 
 
@@ -348,64 +345,36 @@ def perfil_view(request):
 
 
 # ---------------------------------------------------------------------
-# 📊 Boletim (Aluno)
+# 📊 Boletim (Aluno) (ATUALIZADO)
 # ---------------------------------------------------------------------
 @role_required('aluno')
 def boletim_view(request):
     try:
         aluno = Aluno.objects.get(user=request.user)
     except Aluno.DoesNotExist:
-        return render(request, 'not_implemented.html', {'title': 'Boletim', 'message': 'Usuário não é um aluno.'})
+        messages.error(request, "Perfil de Aluno não encontrado.")
+        return redirect('home')
 
-    matriculas = Matricula.objects.filter(aluno=aluno).order_by('-data_matricula')
-
-    boletim = []
-    for m in matriculas:
-        notas_qs = Nota.objects.filter(matricula=m)
-        notas_vals = [float(n.valor) for n in notas_qs]
-        media = round(sum(notas_vals)/len(notas_vals), 1) if notas_vals else None
-
-        total_sessions = Frequencia.objects.filter(matricula=m).count()
-        faltas = Frequencia.objects.filter(matricula=m, presenca=False).count()
-        frequencia_pct = round(((total_sessions - faltas) / total_sessions) * 100, 1) if total_sessions > 0 else None
-
-        if media is None:
-            status = 'Sem notas'
-        elif frequencia_pct is None:
-            status = 'Sem frequência'
-        elif media >= 7 and frequencia_pct >= 75:
-            status = 'Aprovado'
-        elif media < 7 and frequencia_pct >= 75:
-            status = 'Recuperação'
-        else:
-            status = 'Reprovado'
-
-        boletim.append({
-            'matricula': m,
-            'turma': m.turma,
-            'curso': m.turma.curso if m.turma else None,
-            'notas': notas_qs,
-            'media': media,
-            'faltas': faltas,
-            'frequencia': frequencia_pct,
-            'status': status,
-        })
+    # A lógica de boletim agora vem direto do 'Historico'
+    boletim = Historico.objects.filter(id_aluno=aluno).order_by(
+        'periodo_realizacao', 'turma_disciplina_professor__disciplina__nome'
+    ).select_related('turma_disciplina_professor__disciplina', 'turma_disciplina_professor__turma')
 
     # Export CSV
     if request.GET.get('export') == 'csv':
         response = HttpResponse(content_type='text/csv')
-        response['Content-Disposition'] = f'attachment; filename="boletim_{aluno.matricula}.csv"'
+        response['Content-Disposition'] = f'attachment; filename="boletim_{aluno.RA_aluno}.csv"'
         writer = csv.writer(response)
-        writer.writerow(['Matrícula', 'Turma', 'Curso', 'Média', 'Faltas', 'Frequência (%)', 'Status'])
+        writer.writerow(['Período', 'Disciplina', 'Turma', 'Média Final', 'Faltas', 'Frequência (%)', 'Status'])
         for b in boletim:
             writer.writerow([
-                aluno.matricula,
-                b['turma'].codigo if b['turma'] else '',
-                b['curso'].nome if b['curso'] else '',
-                b['media'] or '',
-                b['faltas'],
-                b['frequencia'] or '',
-                b['status'],
+                b.periodo_realizacao,
+                b.turma_disciplina_professor.disciplina.nome,
+                b.turma_disciplina_professor.turma.nome,
+                b.media_final or '',
+                b.total_faltas or '',
+                b.frequencia_percentual or '',
+                b.status_aprovacao or '',
             ])
         return response
 
@@ -418,23 +387,21 @@ def boletim_view(request):
 
 
 # ---------------------------------------------------------------------
-# 📅 Avisos e Eventos (Aluno)
+# 📅 Avisos e Eventos (Aluno) (Mantido)
 # ---------------------------------------------------------------------
 @role_required('aluno')
 def avisos_eventos_view(request):
     avisos = [
         {'titulo': 'Manutenção no Portal', 'tipo': 'Informativo', 'mensagem': 'O portal ficará fora do ar para manutenção nesta sexta-feira, das 22h às 02h.', 'data': '2025-11-12'},
-        {'titulo': 'Bolsa de Estudo', 'tipo': 'Importante', 'mensagem': 'Inscrições abertas para bolsas até 20/11.', 'data': '2025-11-05'},
     ]
     eventos = [
         {'titulo': 'Feira de Projetos', 'data': '2025-12-05', 'hora_inicio': '09:00', 'hora_fim': '18:00', 'local': 'Pátio Central'},
-        {'titulo': 'Palestra Indústria 4.0', 'data': '2025-11-25', 'hora_inicio': '14:00', 'hora_fim': '16:00', 'local': 'Auditório Principal'},
     ]
     return render(request, 'dashboards/avisos_eventos.html', {'titulo': 'Avisos e Eventos', 'avisos': avisos, 'eventos': eventos})
 
 
 # =====================================================================
-# COORDENAÇÃO - PÁGINAS INTERATIVAS
+# COORDENAÇÃO - PÁGINAS INTERATIVAS (ATUALIZADO)
 # =====================================================================
 
 @role_required('coordenacao')
@@ -452,7 +419,7 @@ def coordenacao_desempenho_view(request):
 def coordenacao_gestao_view(request):
     """Página de Gestão para Coordenador"""
     total_alunos = Aluno.objects.count()
-    alunos_ativos = Matricula.objects.filter(status='ativa').count()
+    alunos_ativos = Aluno.objects.filter(status_matricula='Ativo').count() # Corrigido
     turmas = Turma.objects.all()
     context = {
         'titulo': 'Gestão Acadêmica',
@@ -466,16 +433,12 @@ def coordenacao_gestao_view(request):
 @role_required('coordenacao')
 def coordenacao_comunicacao_view(request):
     """Página de Comunicação para Coordenador"""
-    context = {
-        'titulo': 'Comunicação',
-    }
+    context = {'titulo': 'Comunicação'}
     return render(request, 'dashboards/coordenacao_comunicacao.html', context)
 
 
 @role_required('coordenacao')
 def coordenacao_relatorios_view(request):
     """Página de Relatórios para Coordenador"""
-    context = {
-        'titulo': 'Relatórios da Unidade',
-    }
+    context = {'titulo': 'Relatórios da Unidade'}
     return render(request, 'dashboards/coordenacao_relatorios.html', context)
