@@ -20,7 +20,7 @@ urlpatterns = [
 
     # Apps
     path('usuarios/', include('apps.usuarios.urls')),
-    path('academico/', include('apps.academico.urls')),
+    path('academico/', include('apps.academico.urls')),  # ← CEP pode ficar aqui
     path('dashboards/', include('apps.dashboards.urls')),
 
     # Página inicial (landing page com login e cadastro)

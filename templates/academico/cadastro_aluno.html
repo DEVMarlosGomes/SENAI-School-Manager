@@ -64,7 +64,9 @@
                 <div class="row g-3">
                     <div class="col-md-3">
                         <label for="id_cep" class="form-label small fw-bold">CEP</label>
-                        <input type="text" class="form-control" id="id_cep" name="cep">
+                        <input type="text" class="form-control" id="id_cep" name="cep" placeholder="00000-000" maxlength="9">
+                        <small class="form-text text-muted">Digite o CEP para preencher automaticamente</small>
+                        <span id="mensagemCep" class="d-block mt-1"></span>
                     </div>
                     <div class="col-md-6">
                         <label for="id_logradouro" class="form-label small fw-bold">Rua / Avenida</label>
@@ -84,7 +86,7 @@
                     </div>
                     <div class="col-md-3">
                         <label for="id_estado" class="form-label small fw-bold">Estado (UF)</label>
-                        <input type="text" class="form-control" id="id_estado" name="estado" required>
+                        <input type="text" class="form-control" id="id_estado" name="estado" maxlength="2" required>
                     </div>
                 </div>
             </div>
@@ -102,7 +104,7 @@
                             <option value="">Selecione o Curso</option>
                             <option value="1">Técnico em Automação Industrial</option>
                             <option value="2">Superior em Análise e Desenvolvimento</option>
-                            </select>
+                        </select>
                     </div>
                     <div class="col-md-3">
                         <label for="id_turma" class="form-label small fw-bold">Turma</label>
@@ -121,11 +123,157 @@
         </div>
         
         <div class="text-end mb-5">
-            <button type="button" class="btn btn-outline-secondary me-2">Limpar Formulário</button>
+            <button type="button" class="btn btn-outline-secondary me-2" onclick="limparFormulario()">Limpar Formulário</button>
             <button type="submit" class="btn bg-senai-red text-white btn-lg fw-bold">
                 <i class="fas fa-save me-2"></i> Cadastrar Aluno
             </button>
         </div>
     </form>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// #############################################################################
+// JAVASCRIPT - INTEGRAÇÃO COM API VIACEP
+// #############################################################################
+
+// Função para obter o CSRF token do Django
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+// Máscara para o campo CEP (formato: 00000-000)
+document.getElementById('id_cep').addEventListener('input', function(e) {
+    let valor = e.target.value.replace(/\D/g, '');
+    if (valor.length > 5) {
+        valor = valor.replace(/^(\d{5})(\d)/, '$1-$2');
+    }
+    e.target.value = valor;
+});
+
+// Máscara para CPF (formato: 000.000.000-00)
+document.getElementById('id_cpf').addEventListener('input', function(e) {
+    let valor = e.target.value.replace(/\D/g, '');
+    if (valor.length <= 11) {
+        valor = valor.replace(/(\d{3})(\d)/, '$1.$2');
+        valor = valor.replace(/(\d{3})(\d)/, '$1.$2');
+        valor = valor.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+    }
+    e.target.value = valor;
+});
+
+// Máscara para Telefone (formato: (00) 00000-0000)
+document.getElementById('id_telefone').addEventListener('input', function(e) {
+    let valor = e.target.value.replace(/\D/g, '');
+    if (valor.length <= 11) {
+        valor = valor.replace(/^(\d{2})(\d)/, '($1) $2');
+        valor = valor.replace(/(\d{5})(\d)/, '$1-$2');
+    }
+    e.target.value = valor;
+});
+
+// Função principal: buscar CEP quando o usuário sair do campo
+document.getElementById('id_cep').addEventListener('blur', function() {
+    const cep = this.value.replace(/\D/g, '');
+    const mensagemCep = document.getElementById('mensagemCep');
+    
+    // Limpa mensagem anterior
+    mensagemCep.textContent = '';
+    mensagemCep.className = '';
+    
+    // Valida CEP (deve ter 8 dígitos)
+    if (cep.length !== 8) {
+        if (cep.length > 0) {
+            mensagemCep.textContent = '⚠ CEP deve conter 8 dígitos';
+            mensagemCep.className = 'text-warning small';
+        }
+        return;
+    }
+    
+    // Mostra mensagem de loading
+    mensagemCep.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Buscando CEP...';
+    mensagemCep.className = 'text-info small';
+    
+    // Desabilita campos enquanto busca
+    const camposEndereco = ['id_logradouro', 'id_bairro', 'id_cidade', 'id_estado'];
+    camposEndereco.forEach(id => {
+        document.getElementById(id).disabled = true;
+    });
+    
+    // Faz a requisição para a API do Django
+    fetch(`/academico/api/consultar-cep/?cep=${cep}`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        // Reabilita campos
+        camposEndereco.forEach(id => {
+            document.getElementById(id).disabled = false;
+        });
+        
+        if (data.erro) {
+            // Mostra erro
+            mensagemCep.innerHTML = `<i class="fas fa-exclamation-circle me-1"></i> ${data.mensagem}`;
+            mensagemCep.className = 'text-danger small';
+        } else {
+            // Preenche os campos com os dados retornados
+            document.getElementById('id_logradouro').value = data.logradouro;
+            document.getElementById('id_bairro').value = data.bairro;
+            document.getElementById('id_cidade').value = data.cidade;
+            document.getElementById('id_estado').value = data.estado.toUpperCase();
+            
+            // Mostra mensagem de sucesso
+            mensagemCep.innerHTML = '<i class="fas fa-check-circle me-1"></i> CEP encontrado!';
+            mensagemCep.className = 'text-success small fw-bold';
+            
+            // Foca no campo número (usuário só precisa digitar o número)
+            document.getElementById('id_numero').focus();
+            
+            // Remove mensagem de sucesso após 3 segundos
+            setTimeout(() => {
+                mensagemCep.textContent = '';
+            }, 3000);
+        }
+    })
+    .catch(error => {
+        // Reabilita campos em caso de erro
+        camposEndereco.forEach(id => {
+            document.getElementById(id).disabled = false;
+        });
+        
+        console.error('Erro ao consultar CEP:', error);
+        mensagemCep.innerHTML = '<i class="fas fa-exclamation-triangle me-1"></i> Erro ao consultar CEP. Tente novamente.';
+        mensagemCep.className = 'text-danger small';
+    });
+});
+
+// Função para limpar o formulário
+function limparFormulario() {
+    if (confirm('Deseja realmente limpar todos os campos do formulário?')) {
+        document.querySelector('form').reset();
+        document.getElementById('mensagemCep').textContent = '';
+    }
+}
+
+// Converte UF para maiúsculo automaticamente
+document.getElementById('id_estado').addEventListener('input', function(e) {
+    e.target.value = e.target.value.toUpperCase();
+});
+</script>
 {% endblock %}
