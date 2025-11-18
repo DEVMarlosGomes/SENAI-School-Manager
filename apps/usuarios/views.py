@@ -2,9 +2,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.urls import reverse
 from django.contrib.auth.models import User
-
 from apps.academico.models import Aluno as AcadAluno
 from .models import Profile, PendingRegistration
 
@@ -17,29 +15,22 @@ def login_view(request):
     if request.method == 'POST':
         identifier = (request.POST.get('username') or '').strip()
         password = request.POST.get('password')
-
-        # Tentativa direta por username
         user = authenticate(request, username=identifier, password=password)
 
-        # Se falhou, tentar por CPF no Profile
+        # Tentativa por CPF, matrícula etc
         if user is None and identifier:
-            # procura por profile.cpf igual (exato) ou sem pontuação
             candidate = None
             try:
                 candidate = User.objects.filter(profile__cpf=identifier).first()
             except Exception:
                 candidate = None
-
             if not candidate:
-                # tenta somente dígitos (CPF pode ser salvo sem formatação)
                 nums = ''.join(ch for ch in identifier if ch.isdigit())
                 if nums:
                     try:
                         candidate = User.objects.filter(profile__cpf__icontains=nums).first()
                     except Exception:
                         candidate = None
-
-            # também tenta encontrar por matrícula (Alunos da app academico)
             if not candidate:
                 try:
                     acad_aluno = AcadAluno.objects.filter(matricula=identifier).first()
@@ -47,8 +38,6 @@ def login_view(request):
                         candidate = acad_aluno.user
                 except Exception:
                     candidate = candidate
-
-            # e tenta core.Aluno se existir
             if not candidate and CoreAluno is not None:
                 try:
                     core_aluno = CoreAluno.objects.filter(matricula=identifier).first()
@@ -56,23 +45,17 @@ def login_view(request):
                         candidate = core_aluno.user
                 except Exception:
                     candidate = candidate
-
-            # se encontramos um candidato, tentar autenticar com o username real
             if candidate:
                 user = authenticate(request, username=candidate.username, password=password)
 
         if user is not None:
             login(request, user)
-            # Respeita parâmetro 'next' (quando existe) para redirecionamentos
             next_url = request.GET.get('next') or request.POST.get('next')
             if next_url:
                 return redirect(next_url)
-
-            # Se usuário não tem profile, manda para completar o perfil
             if not hasattr(user, 'profile'):
                 return redirect('complete_profile')
-
-            return redirect('redirecionar_dashboard')  # vai para o redirecionamento por perfil
+            return redirect('redirecionar_dashboard')
         else:
             messages.error(request, 'Usuário ou senha incorretos.')
     return render(request, 'usuarios/login.html')
@@ -85,9 +68,7 @@ def logout_view(request):
 def register_view(request):
     return render(request, 'usuarios/register.html')
 
-
 def registro_pendente(request):
-    """View para cadastro de novo usuário (cria PendingRegistration)"""
     if request.method == 'POST':
         primeiro_nome = request.POST.get('primeiro_nome', '').strip()
         sobrenome = request.POST.get('sobrenome', '').strip()
@@ -98,8 +79,6 @@ def registro_pendente(request):
         tipo_solicitado = request.POST.get('tipo_solicitado', '').strip()
         senha = request.POST.get('senha', '').strip()
         senha_confirmar = request.POST.get('senha_confirmar', '').strip()
-
-        # Validações básicas
         erros = []
         if not primeiro_nome:
             erros.append('Primeiro nome é obrigatório.')
@@ -117,23 +96,16 @@ def registro_pendente(request):
             erros.append('As senhas não coincidem.')
         if len(senha) < 8:
             erros.append('A senha deve ter pelo menos 8 caracteres.')
-
-        # Verificar se username já existe
         if User.objects.filter(username=username).exists():
             erros.append('Este usuário já está registrado.')
         if PendingRegistration.objects.filter(username=username).exists():
             erros.append('Este usuário já possui uma solicitação pendente.')
-
-        # Verificar se email já existe
         if User.objects.filter(email=email).exists():
             erros.append('Este email já está registrado.')
         if PendingRegistration.objects.filter(email=email).exists():
             erros.append('Este email já possui uma solicitação pendente.')
-
-        # Verificar CPF se fornecido
         if cpf and (Profile.objects.filter(cpf=cpf).exists() or PendingRegistration.objects.filter(cpf=cpf).exists()):
             erros.append('Este CPF já está registrado.')
-
         if erros:
             for erro in erros:
                 messages.error(request, erro)
@@ -146,10 +118,8 @@ def registro_pendente(request):
                 'cpf': cpf,
                 'tipo_solicitado': tipo_solicitado,
             })
-
-        # Criar registro pendente
         try:
-            pending = PendingRegistration.objects.create(
+            PendingRegistration.objects.create(
                 primeiro_nome=primeiro_nome,
                 sobrenome=sobrenome,
                 email=email,
@@ -159,26 +129,17 @@ def registro_pendente(request):
                 tipo_solicitado=tipo_solicitado,
                 status='pendente'
             )
-            messages.success(request, 
-                f'✓ Cadastro realizado com sucesso! Sua solicitação está pendente de aprovação. '
-                f'Você receberá um email em {email} quando for aprovado.')
+            messages.success(request, f'✓ Cadastro realizado com sucesso! Sua solicitação está pendente de aprovação. Você receberá um email em {email} quando for aprovado.')
             return redirect('/')
         except Exception as e:
             messages.error(request, f'Erro ao criar registro: {str(e)}')
-
     return render(request, 'usuarios/registro_pendente.html')
-
 
 @login_required
 def redirecionar_dashboard(request):
-    """Redireciona o usuário para o dashboard apropriado conforme seu perfil.
-
-    Se o usuário não possuir profile ou não estiver autenticado, mostra a home pública.
-    """
     user = request.user
     if user.is_authenticated and hasattr(user, 'profile'):
         profile = user.profile
-        # Checa flags do profile (is_aluno / is_professor / is_secretaria / is_coordenacao)
         if getattr(profile, 'is_aluno', False):
             return redirect('aluno_dashboard')
         if getattr(profile, 'is_professor', False):
@@ -187,22 +148,17 @@ def redirecionar_dashboard(request):
             return redirect('secretaria_dashboard')
         if getattr(profile, 'is_coordenacao', False):
             return redirect('coordenacao_dashboard')
-
-    # Padrão: renderiza página pública inicial
-    return render(request, 'home.html')
-
+        logout(request)
+        messages.error(request, 'Perfil não reconhecido. Entre em contato com o suporte.')
+        return redirect('login')
+    messages.error(request, 'Seu usuário não tem perfil cadastrado. Entre em contato com o suporte.')
+    return redirect('login')
 
 @login_required
 def complete_profile(request):
-    """View simples que permite ao usuário preencher o tipo de perfil caso não exista.
-
-    Esta view é útil quando um usuário foi criado sem Profile (ex.: importações).
-    """
     user = request.user
-    # Se já existe profile, redireciona ao dashboard
     if hasattr(user, 'profile'):
         return redirect('redirecionar_dashboard')
-
     if request.method == 'POST':
         tipo = request.POST.get('tipo')
         telefone = request.POST.get('telefone') or None
@@ -210,10 +166,7 @@ def complete_profile(request):
         Profile.objects.create(user=user, tipo=tipo, telefone=telefone, cpf=cpf)
         messages.success(request, 'Perfil criado com sucesso.')
         return redirect('redirecionar_dashboard')
-
     return render(request, 'usuarios/complete_profile.html')
 
-
 def home_view(request):
-    """Renderiza a página home (landing page)"""
     return render(request, 'home.html')

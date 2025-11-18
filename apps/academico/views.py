@@ -8,9 +8,12 @@ from django.http import JsonResponse, HttpResponseBadRequest, HttpResponseNotAll
 from django.forms.models import model_to_dict
 from django.contrib.auth.models import User
 import json
+import requests  # ← ADICIONADO: Para a API ViaCEP
+
 
 from .forms import AlunoForm, AlunoEditForm
 from .models import Aluno, Historico, Secretaria, Turma # Importações corrigidas
+
 
 # #############################################################################
 # FUNÇÃO DE VERIFICAÇÃO DE PERMISSÃO (ATUALIZADA)
@@ -22,9 +25,11 @@ def is_secretaria(user):
     """
     return user.is_authenticated and Secretaria.objects.filter(user=user).exists()
 
+
 # #############################################################################
 # VIEWS ATUALIZADAS (COMPATÍVEIS COM OS NOVOS MODELOS)
 # #############################################################################
+
 
 @login_required
 @user_passes_test(is_secretaria)
@@ -61,6 +66,7 @@ def lista_alunos_view(request):
     }
     return render(request, 'academico/lista_alunos.html', context)
 
+
 @login_required
 @user_passes_test(is_secretaria)
 def detalhe_aluno_view(request, pk):
@@ -79,6 +85,7 @@ def detalhe_aluno_view(request, pk):
         'total_faltas': total_faltas
     }
     return render(request, 'academico/detalhe_aluno.html', context)
+
 
 @login_required
 @user_passes_test(is_secretaria)
@@ -111,6 +118,7 @@ def editar_aluno_view(request, pk):
         form = AlunoEditForm(instance=aluno)
     
     return render(request, 'academico/editar_aluno.html', {'form': form, 'aluno': aluno})
+
 
 @login_required
 @user_passes_test(is_secretaria)
@@ -146,9 +154,11 @@ def cadastro_aluno_view(request):
     return render(request, 'academico/cadastro_aluno.html', {'form': form})
 
 
+
 # #############################################################################
 # API VIEWS (ATUALIZADAS)
 # #############################################################################
+
 
 @login_required
 @user_passes_test(is_secretaria)
@@ -175,11 +185,13 @@ def api_alunos(request):
             })
         return JsonResponse({'results': data})
 
+
     if request.method == 'POST':
         try:
             payload = json.loads(request.body.decode('utf-8'))
         except Exception:
             return HttpResponseBadRequest('JSON inválido')
+
 
         # Mapear dados para o AlunoForm
         form_data = {
@@ -195,6 +207,7 @@ def api_alunos(request):
             'estado_civil': payload.get('estado_civil', ''),
             # Adicionar outros campos do AlunoForm se necessário...
         }
+
 
         form = AlunoForm(form_data)
         if form.is_valid():
@@ -220,6 +233,7 @@ def api_alunos(request):
             return JsonResponse({'errors': form.errors}, status=400)
 
 
+
 @login_required
 @user_passes_test(is_secretaria)
 @require_http_methods(['GET', 'PUT', 'DELETE'])
@@ -228,6 +242,7 @@ def api_aluno_detail(request, pk):
         aluno = Aluno.objects.select_related('user').get(pk=pk)
     except Aluno.DoesNotExist:
         return JsonResponse({'error': 'Aluno não encontrado'}, status=404)
+
 
     if request.method == 'GET':
         user = aluno.user
@@ -241,6 +256,7 @@ def api_aluno_detail(request, pk):
             'turma_id': aluno.turma_atual.pk if aluno.turma_atual else None
         }
         return JsonResponse(data)
+
 
     if request.method == 'PUT':
         try:
@@ -270,6 +286,85 @@ def api_aluno_detail(request, pk):
         aluno.save()
         return JsonResponse({'status': 'ok'})
 
+
     if request.method == 'DELETE':
         aluno.user.delete() # Apagar o User apaga o Aluno (on_delete=models.CASCADE)
         return JsonResponse({'status': 'deleted'})
+
+
+# #############################################################################
+# API EXTERNA - VIACEP (NOVA)
+# #############################################################################
+
+
+@require_http_methods(['GET'])
+def consultar_cep(request):
+    """
+    API para consultar CEP via ViaCEP.
+    
+    Endpoint público (sem autenticação) para ser usado nos formulários
+    de cadastro de alunos, professores, secretaria, etc.
+    
+    Uso: GET /academico/api/consultar-cep/?cep=01310100
+    
+    Retorna:
+        JsonResponse: Dados do endereço ou mensagem de erro
+    """
+    cep = request.GET.get('cep', '')
+    
+    # Remove caracteres não numéricos do CEP
+    cep = ''.join(filter(str.isdigit, cep))
+    
+    # Valida se o CEP tem 8 dígitos
+    if len(cep) != 8:
+        return JsonResponse({
+            'erro': True,
+            'mensagem': 'CEP inválido. Digite 8 dígitos.'
+        }, status=400)
+    
+    try:
+        # Faz a requisição para o ViaCEP
+        url = f'https://viacep.com.br/ws/{cep}/json/'
+        resposta = requests.get(url, timeout=5)
+        
+        if resposta.status_code == 200:
+            dados = resposta.json()
+            
+            # Verifica se o CEP foi encontrado
+            if 'erro' in dados:
+                return JsonResponse({
+                    'erro': True,
+                    'mensagem': 'CEP não encontrado.'
+                }, status=404)
+            
+            # Retorna os dados do endereço
+            return JsonResponse({
+                'erro': False,
+                'logradouro': dados.get('logradouro', ''),
+                'complemento': dados.get('complemento', ''),
+                'bairro': dados.get('bairro', ''),
+                'cidade': dados.get('localidade', ''),
+                'estado': dados.get('uf', ''),
+                'cep': dados.get('cep', '')
+            })
+        else:
+            return JsonResponse({
+                'erro': True,
+                'mensagem': 'Erro ao consultar CEP no servidor externo.'
+            }, status=500)
+            
+    except requests.exceptions.Timeout:
+        return JsonResponse({
+            'erro': True,
+            'mensagem': 'Tempo de consulta excedido. Tente novamente.'
+        }, status=408)
+    except requests.exceptions.RequestException as e:
+        return JsonResponse({
+            'erro': True,
+            'mensagem': f'Erro na conexão com o servidor de CEP: {str(e)}'
+        }, status=503)
+    except Exception as e:
+        return JsonResponse({
+            'erro': True,
+            'mensagem': f'Erro inesperado: {str(e)}'
+        }, status=500)
