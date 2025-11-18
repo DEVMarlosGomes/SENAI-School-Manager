@@ -1,0 +1,390 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Comunicação - Coordenação{% endblock %}
+
+{% block content %}
+<div class="layout-wrapper d-flex">
+    <!-- Sidebar -->
+    {% include 'includes/sidebar.html' %}
+    
+    <!-- Main Content -->
+    <div class="flex-grow-1" style="margin-left: 250px; min-height: 100vh;">
+        <!-- Top Header Bar -->
+        <header class="bg-white border-bottom shadow-sm sticky-top">
+            <div class="d-flex justify-content-between align-items-center px-4 py-3">
+                <div>
+                    <h6 class="mb-0 text-muted">COORDENAÇÃO ACADÊMICA</h6>
+                    <h3 class="mb-0 fw-bold text-senai-red">Comunicação</h3>
+                </div>
+                <div class="d-flex align-items-center gap-3">
+                    <div class="position-relative">
+                        <i class="fas fa-bell text-muted fa-lg" style="cursor: pointer;"></i>
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.6em; margin-top: -8px; margin-left: -12px;">3</span>
+                    </div>
+                    <div class="vr"></div>
+                    <div class="d-flex align-items-center gap-2">
+                        <div>
+                            <p class="mb-0 small fw-bold">{{ user.first_name|default:'Usuário' }}</p>
+                            <p class="mb-0 small text-muted">Coordenador</p>
+                        </div>
+                        <i class="fas fa-user-circle fa-2x text-senai-red"></i>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Page Content -->
+        <div class="container-fluid p-4">
+            
+            <!-- Tabs de Navegação -->
+            <ul class="nav nav-tabs mb-4" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active fw-bold" id="tab-mensagens" data-bs-toggle="tab" data-bs-target="#content-mensagens" type="button" role="tab">
+                        <i class="fas fa-inbox me-2"></i>Mensagens <span class="badge bg-danger ms-2">3</span>
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link fw-bold" id="tab-avisos" data-bs-toggle="tab" data-bs-target="#content-avisos" type="button" role="tab">
+                        <i class="fas fa-bullhorn me-2"></i>Avisos e Comunicados
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link fw-bold" id="tab-eventos" data-bs-toggle="tab" data-bs-target="#content-eventos" type="button" role="tab">
+                        <i class="fas fa-calendar me-2"></i>Eventos
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link fw-bold" id="tab-notificacoes" data-bs-toggle="tab" data-bs-target="#content-notificacoes" type="button" role="tab">
+                        <i class="fas fa-bell me-2"></i>Notificações
+                    </button>
+                </li>
+            </ul>
+
+            <div class="tab-content">
+                
+                <!-- Tab: Mensagens -->
+                <div class="tab-pane fade show active" id="content-mensagens" role="tabpanel">
+                    <div class="row g-3">
+                        <div class="col-lg-4">
+                            <div class="card shadow-sm border-0">
+                                <div class="card-header bg-light border-bottom py-3">
+                                    <h6 class="mb-0 fw-bold text-dark">
+                                        <i class="fas fa-list text-senai-red me-2"></i>Conversas
+                                    </h6>
+                                </div>
+                                <div class="card-body p-0" style="max-height: 600px; overflow-y: auto;">
+                                    <div class="list-group list-group-flush" id="messagemList">
+                                        <button class="list-group-item list-group-item-action active text-start py-3 px-3 border-0">
+                                            <h6 class="mb-1 fw-bold">Secretária Geral</h6>
+                                            <p class="small text-muted mb-0">Últimas atualizações sobre...</p>
+                                        </button>
+                                        <button class="list-group-item list-group-item-action text-start py-3 px-3 border-0">
+                                            <h6 class="mb-1 fw-bold">Prof. João Silva</h6>
+                                            <p class="small text-muted mb-0">Questões sobre a turma...</p>
+                                        </button>
+                                        <button class="list-group-item list-group-item-action text-start py-3 px-3 border-0">
+                                            <h6 class="mb-1 fw-bold">Diretoria</h6>
+                                            <p class="small text-muted mb-0">Agenda de reunião...</p>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-8">
+                            <div class="card shadow-sm border-0">
+                                <div class="card-header bg-light border-bottom py-3">
+                                    <h6 class="mb-0 fw-bold text-dark">
+                                        <i class="fas fa-comments text-senai-red me-2"></i>Secretária Geral
+                                    </h6>
+                                </div>
+                                <div class="card-body" style="height: 400px; overflow-y: auto;">
+                                    <div class="mb-3">
+                                        <div class="d-flex gap-2 mb-2">
+                                            <i class="fas fa-user-circle text-senai-red"></i>
+                                            <div>
+                                                <small class="text-muted">Secretária Geral • 14:30</small>
+                                                <p class="small bg-light p-2 rounded mt-1">Bom dia! Temos 3 alunos novos que precisam ser matriculados.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <div class="d-flex gap-2 mb-2 justify-content-end">
+                                            <div class="text-end">
+                                                <small class="text-muted">Você • 14:45</small>
+                                                <p class="small bg-senai-red text-white p-2 rounded mt-1">Certo! Vou processar as matrículas hoje.</p>
+                                            </div>
+                                            <i class="fas fa-user-circle text-success"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card-footer bg-light border-top">
+                                    <div class="input-group">
+                                        <input type="text" class="form-control form-control-sm" placeholder="Digite uma mensagem...">
+                                        <button class="btn btn-senai-red btn-sm" type="button">
+                                            <i class="fas fa-paper-plane"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab: Avisos e Comunicados -->
+                <div class="tab-pane fade" id="content-avisos" role="tabpanel">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="fw-bold mb-0">Avisos e Comunicados</h6>
+                        <button class="btn btn-sm btn-senai-red" id="btnNovoAviso">
+                            <i class="fas fa-plus me-1"></i>Novo Aviso
+                        </button>
+                    </div>
+                    <div class="row g-3" id="avisosContainer">
+                        <div class="col-lg-4">
+                            <div class="card shadow-sm border-0 border-top border-4 border-danger">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-start mb-2">
+                                        <h6 class="fw-bold mb-0">Reunião Importante</h6>
+                                        <span class="badge bg-danger">Urgente</span>
+                                    </div>
+                                    <p class="small text-muted mb-2">Reunião com coordenadores está marcada para...</p>
+                                    <small class="text-muted">11/11/2025 • 10:00</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="card shadow-sm border-0 border-top border-4 border-warning">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-start mb-2">
+                                        <h6 class="fw-bold mb-0">Atualização de Calendário</h6>
+                                        <span class="badge bg-warning text-dark">Aviso</span>
+                                    </div>
+                                    <p class="small text-muted mb-2">O calendário acadêmico foi alterado...</p>
+                                    <small class="text-muted">10/11/2025 • 15:30</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="card shadow-sm border-0 border-top border-4 border-success">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-start mb-2">
+                                        <h6 class="fw-bold mb-0">Resultado de Processos</h6>
+                                        <span class="badge bg-success">Info</span>
+                                    </div>
+                                    <p class="small text-muted mb-2">Os resultados de seleção foram publicados...</p>
+                                    <small class="text-muted">09/11/2025 • 09:00</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab: Eventos -->
+                <div class="tab-pane fade" id="content-eventos" role="tabpanel">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="fw-bold mb-0">Eventos da Unidade</h6>
+                        <button class="btn btn-sm btn-senai-red" id="btnNovoEvento">
+                            <i class="fas fa-calendar-plus me-1"></i>Novo Evento
+                        </button>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Evento</th>
+                                    <th>Data</th>
+                                    <th>Hora</th>
+                                    <th>Local</th>
+                                    <th>Participantes</th>
+                                    <th class="text-end">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Reunião Pedagógica</td>
+                                    <td>15/11/2025</td>
+                                    <td>14:00</td>
+                                    <td>Sala de Reuniões</td>
+                                    <td><span class="badge bg-primary">12</span></td>
+                                    <td class="text-end">
+                                        <button class="btn btn-xs btn-outline-primary me-1"><i class="fas fa-edit"></i></button>
+                                        <button class="btn btn-xs btn-outline-danger"><i class="fas fa-trash"></i></button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Apresentação de Projetos</td>
+                                    <td>20/11/2025</td>
+                                    <td>16:30</td>
+                                    <td>Auditório</td>
+                                    <td><span class="badge bg-primary">45</span></td>
+                                    <td class="text-end">
+                                        <button class="btn btn-xs btn-outline-primary me-1"><i class="fas fa-edit"></i></button>
+                                        <button class="btn btn-xs btn-outline-danger"><i class="fas fa-trash"></i></button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Tab: Notificações -->
+                <div class="tab-pane fade" id="content-notificacoes" role="tabpanel">
+                    <div class="list-group">
+                        <a href="#" class="list-group-item list-group-item-action py-3 border-0 border-bottom">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <h6 class="fw-bold mb-1">Aluno inscrito na turma</h6>
+                                    <p class="small text-muted mb-0">João Silva se inscreveu em Programação Web</p>
+                                </div>
+                                <small class="text-muted">há 2 horas</small>
+                            </div>
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action py-3 border-0 border-bottom">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <h6 class="fw-bold mb-1">Mensagem urgente</h6>
+                                    <p class="small text-muted mb-0">Secretária comunicou sobre falta de materiais</p>
+                                </div>
+                                <small class="text-muted">há 4 horas</small>
+                            </div>
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action py-3 border-0">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <h6 class="fw-bold mb-1">Atualização no sistema</h6>
+                                    <p class="small text-muted mb-0">Novo relatório gerado com sucesso</p>
+                                </div>
+                                <small class="text-muted">há 1 dia</small>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- MODAL: Novo/Editar Aviso -->
+<div class="modal fade" id="modalAviso" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-light border-bottom">
+                <h5 class="modal-title fw-bold text-dark" id="modalAvisoTitle">Novo Aviso</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4">
+                <form id="formAviso">
+                    <div class="row g-3">
+                        <div class="col-md-8">
+                            <label class="form-label fw-bold">Título do Aviso *</label>
+                            <input type="text" class="form-control" id="inputAvisoTitulo" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">Urgência *</label>
+                            <select class="form-select" id="inputAvisoUrgencia" required>
+                                <option value="Urgente">Urgente</option>
+                                <option value="Aviso">Aviso</option>
+                                <option value="Info">Informação</option>
+                            </select>
+                        </div>
+                        <div class="col-md-12">
+                            <label class="form-label fw-bold">Descrição *</label>
+                            <textarea class="form-control" id="inputAvisoDescricao" rows="4" required></textarea>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Data de Publicação *</label>
+                            <input type="datetime-local" class="form-control" id="inputAvisoData" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Público-alvo *</label>
+                            <select class="form-select" id="inputAvisoPublico" required>
+                                <option value="todos">Todos</option>
+                                <option value="professores">Professores</option>
+                                <option value="alunos">Alunos</option>
+                                <option value="coordenacao">Coordenação</option>
+                            </select>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer border-top">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-senai-red" id="btnSalvarAviso">Publicar Aviso</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL: Novo/Editar Evento -->
+<div class="modal fade" id="modalEvento" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-light border-bottom">
+                <h5 class="modal-title fw-bold text-dark" id="modalEventoTitle">Novo Evento</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4">
+                <form id="formEvento">
+                    <div class="row g-3">
+                        <div class="col-md-8">
+                            <label class="form-label fw-bold">Nome do Evento *</label>
+                            <input type="text" class="form-control" id="inputEventoNome" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">Total de Participantes *</label>
+                            <input type="number" class="form-control" id="inputEventoParticipantes" min="1" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Data do Evento *</label>
+                            <input type="date" class="form-control" id="inputEventoData" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Hora do Evento *</label>
+                            <input type="time" class="form-control" id="inputEventoHora" required>
+                        </div>
+                        <div class="col-md-12">
+                            <label class="form-label fw-bold">Local do Evento *</label>
+                            <input type="text" class="form-control" id="inputEventoLocal" placeholder="ex: Sala de Reuniões, Auditório" required>
+                        </div>
+                        <div class="col-md-12">
+                            <label class="form-label fw-bold">Descrição (opcional)</label>
+                            <textarea class="form-control" id="inputEventoDescricao" rows="3" placeholder="Descrição detalhada do evento"></textarea>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer border-top">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-senai-red" id="btnSalvarEvento">Criar Evento</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Responsive adjustments -->
+<style>
+    @media (max-width: 991.98px) {
+        .layout-wrapper > div {
+            margin-left: 0 !important;
+        }
+        
+        #sidebar {
+            width: 200px;
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+        
+        #sidebar.show {
+            transform: translateX(0);
+        }
+    }
+</style>
+
+{% endblock %}
+
+{% block extra_js %}
+    <script src="{% static 'js/coordenacao-comunicacao.js' %}"></script>
+{% endblock %}

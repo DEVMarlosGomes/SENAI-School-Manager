@@ -1,0 +1,433 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Gestão - Coordenação{% endblock %}
+
+{% block content %}
+<div class="layout-wrapper d-flex">
+    <!-- Sidebar -->
+    {% include 'includes/sidebar.html' %}
+    
+    <!-- Main Content -->
+    <div class="flex-grow-1" style="margin-left: 250px; min-height: 100vh;">
+        <!-- Top Header Bar -->
+        <header class="bg-white border-bottom shadow-sm sticky-top">
+            <div class="d-flex justify-content-between align-items-center px-4 py-3">
+                <div>
+                    <h6 class="mb-0 text-muted">COORDENAÇÃO ACADÊMICA</h6>
+                    <h3 class="mb-0 fw-bold text-senai-red">Gestão Acadêmica</h3>
+                </div>
+                <div class="d-flex align-items-center gap-3">
+                    <div class="position-relative">
+                        <i class="fas fa-bell text-muted fa-lg" style="cursor: pointer;"></i>
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.6em; margin-top: -8px; margin-left: -12px;">3</span>
+                    </div>
+                    <div class="vr"></div>
+                    <div class="d-flex align-items-center gap-2">
+                        <div>
+                            <p class="mb-0 small fw-bold">{{ user.first_name|default:'Usuário' }}</p>
+                            <p class="mb-0 small text-muted">Coordenador</p>
+                        </div>
+                        <i class="fas fa-user-circle fa-2x text-senai-red"></i>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Page Content -->
+        <div class="container-fluid p-4">
+            
+            <!-- KPI Cards -->
+            <div class="row g-3 mb-4">
+                <div class="col-lg-3 col-md-6">
+                    <div class="card shadow-sm border-0 border-top border-4 border-senai-red h-100 position-relative overflow-hidden">
+                        <div class="card-body">
+                            <h6 class="text-muted small text-uppercase">Total de Alunos</h6>
+                            <h2 class="display-4 fw-bold text-senai-red mb-0" id="kpiTotalAlunos">—</h2>
+                            <p class="small text-muted mb-0">Matriculados</p>
+                            <i class="fas fa-user-graduate fa-4x text-senai-red opacity-10 position-absolute top-50 end-0 translate-middle-y me-2" style="margin-right: -20px;"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-3 col-md-6">
+                    <div class="card shadow-sm border-0 border-top border-4 border-success h-100 position-relative overflow-hidden">
+                        <div class="card-body">
+                            <h6 class="text-muted small text-uppercase">Alunos Ativos</h6>
+                            <h2 class="display-4 fw-bold text-success mb-0" id="kpiAtivos">—</h2>
+                            <p class="small text-muted mb-0">Em aulas</p>
+                            <i class="fas fa-check-circle fa-4x text-success opacity-10 position-absolute top-50 end-0 translate-middle-y me-2" style="margin-right: -20px;"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-3 col-md-6">
+                    <div class="card shadow-sm border-0 border-top border-4 border-warning h-100 position-relative overflow-hidden">
+                        <div class="card-body">
+                            <h6 class="text-muted small text-uppercase">Alunos Pendentes</h6>
+                            <h2 class="display-4 fw-bold text-warning mb-0" id="kpiPendentes">—</h2>
+                            <p class="small text-muted mb-0">Pendências</p>
+                            <i class="fas fa-hourglass-half fa-4x text-warning opacity-10 position-absolute top-50 end-0 translate-middle-y me-2" style="margin-right: -20px;"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-3 col-md-6">
+                    <div class="card shadow-sm border-0 border-top border-4 border-danger h-100 position-relative overflow-hidden">
+                        <div class="card-body">
+                            <h6 class="text-muted small text-uppercase">Alunos Inativos</h6>
+                            <h2 class="display-4 fw-bold text-danger mb-0" id="kpiInativos">—</h2>
+                            <p class="small text-muted mb-0">Sem matrícula</p>
+                            <i class="fas fa-ban fa-4x text-danger opacity-10 position-absolute top-50 end-0 translate-middle-y me-2" style="margin-right: -20px;"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabs de Navegação -->
+            <ul class="nav nav-tabs mb-4" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active fw-bold" id="tab-alunos" data-bs-toggle="tab" data-bs-target="#content-alunos" type="button" role="tab">
+                        <i class="fas fa-user-graduate me-2"></i>Alunos
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link fw-bold" id="tab-turmas" data-bs-toggle="tab" data-bs-target="#content-turmas" type="button" role="tab">
+                        <i class="fas fa-chalkboard me-2"></i>Turmas
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link fw-bold" id="tab-professores" data-bs-toggle="tab" data-bs-target="#content-professores" type="button" role="tab">
+                        <i class="fas fa-chalkboard-user me-2"></i>Professores
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link fw-bold" id="tab-disciplinas" data-bs-toggle="tab" data-bs-target="#content-disciplinas" type="button" role="tab">
+                        <i class="fas fa-book me-2"></i>Disciplinas
+                    </button>
+                </li>
+            </ul>
+
+            <div class="tab-content">
+                
+                <!-- Tab: Alunos -->
+                <div class="tab-pane fade show active" id="content-alunos" role="tabpanel">
+                    <div class="card shadow-sm border-0">
+                        <div class="card-header bg-light border-bottom py-3 d-flex justify-content-between align-items-center">
+                            <h6 class="mb-0 fw-bold text-dark">
+                                <i class="fas fa-list text-senai-red me-2"></i>Lista de Alunos
+                            </h6>
+                            <button class="btn btn-sm btn-senai-red" id="btnNovoAluno">
+                                <i class="fas fa-user-plus me-1"></i>Novo Aluno
+                            </button>
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="row g-2 p-3 bg-light">
+                                <div class="col-md-3">
+                                    <input type="text" id="filterAlunoNome" class="form-control form-control-sm" placeholder="Nome ou matrícula">
+                                </div>
+                                <div class="col-md-2">
+                                    <select id="filterAlunoStatus" class="form-select form-select-sm">
+                                        <option value="">Todos</option>
+                                        <option value="ativo">Ativo</option>
+                                        <option value="inativo">Inativo</option>
+                                        <option value="pendente">Pendente</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-2">
+                                    <select id="filterAlunoTurma" class="form-select form-select-sm">
+                                        <option value="">Todas as Turmas</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-2 text-end">
+                                    <button class="btn btn-sm btn-outline-secondary" id="btnFiltrarAlunos">
+                                        <i class="fas fa-search me-1"></i>Filtrar
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table table-hover table-sm mb-0" id="tableAlunos">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Nome</th>
+                                            <th>Matrícula</th>
+                                            <th>Turma</th>
+                                            <th>Status</th>
+                                            <th class="text-end">Ações</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="alunosTableBody">
+                                        <!-- Preenchido via JavaScript -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab: Turmas -->
+                <div class="tab-pane fade" id="content-turmas" role="tabpanel">
+                    <div class="card shadow-sm border-0">
+                        <div class="card-header bg-light border-bottom py-3 d-flex justify-content-between align-items-center">
+                            <h6 class="mb-0 fw-bold text-dark">
+                                <i class="fas fa-list text-senai-red me-2"></i>Lista de Turmas
+                            </h6>
+                            <button class="btn btn-sm btn-senai-red" id="btnNovaTurma">
+                                <i class="fas fa-plus me-1"></i>Nova Turma
+                            </button>
+                        </div>
+                        <div class="card-body">
+                            <div class="row g-3" id="turmasContainer">
+                                <!-- Preenchido via JavaScript -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab: Professores -->
+                <div class="tab-pane fade" id="content-professores" role="tabpanel">
+                    <div class="card shadow-sm border-0">
+                        <div class="card-header bg-light border-bottom py-3 d-flex justify-content-between align-items-center">
+                            <h6 class="mb-0 fw-bold text-dark">
+                                <i class="fas fa-list text-senai-red me-2"></i>Lista de Professores
+                            </h6>
+                            <button class="btn btn-sm btn-senai-red" id="btnNovoProfessor">
+                                <i class="fas fa-user-plus me-1"></i>Novo Professor
+                            </button>
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="table-responsive">
+                                <table class="table table-hover table-sm mb-0" id="tableProfessores">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Nome</th>
+                                            <th>Email</th>
+                                            <th>Disciplinas</th>
+                                            <th>Turmas Atribuídas</th>
+                                            <th class="text-end">Ações</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="professoresTableBody">
+                                        <!-- Preenchido via JavaScript -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab: Disciplinas -->
+                <div class="tab-pane fade" id="content-disciplinas" role="tabpanel">
+                    <div class="card shadow-sm border-0">
+                        <div class="card-header bg-light border-bottom py-3 d-flex justify-content-between align-items-center">
+                            <h6 class="mb-0 fw-bold text-dark">
+                                <i class="fas fa-list text-senai-red me-2"></i>Lista de Disciplinas
+                            </h6>
+                            <button class="btn btn-sm btn-senai-red" id="btnNovaDisciplina">
+                                <i class="fas fa-plus me-1"></i>Nova Disciplina
+                            </button>
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="table-responsive">
+                                <table class="table table-hover table-sm mb-0" id="tableDisciplinas">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Código</th>
+                                            <th>Nome</th>
+                                            <th>Carga Horária</th>
+                                            <th>Turmas</th>
+                                            <th class="text-end">Ações</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="disciplinasTableBody">
+                                        <!-- Preenchido via JavaScript -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- MODAL: Novo/Editar Aluno -->
+<div class="modal fade" id="modalAluno" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-light border-bottom">
+                <h5 class="modal-title fw-bold text-dark" id="modalAlunoTitle">Novo Aluno</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4">
+                <form id="formAluno">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Nome Completo *</label>
+                            <input type="text" class="form-control" id="inputAlunoNome" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Matrícula *</label>
+                            <input type="text" class="form-control" id="inputAlunoMatricula" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Turma *</label>
+                            <select class="form-select" id="inputAlunoTurma" required>
+                                <option value="">Selecione uma turma</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Status *</label>
+                            <select class="form-select" id="inputAlunoStatus" required>
+                                <option value="ativo">Ativo</option>
+                                <option value="pendente">Pendente</option>
+                                <option value="inativo">Inativo</option>
+                            </select>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer border-top">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-senai-red" id="btnSalvarAluno">Salvar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL: Novo/Editar Turma -->
+<div class="modal fade" id="modalTurma" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-light border-bottom">
+                <h5 class="modal-title fw-bold text-dark" id="modalTurmaTitle">Nova Turma</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4">
+                <form id="formTurma">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Código da Turma *</label>
+                            <input type="text" class="form-control" id="inputTurmaCodigo" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Nome da Turma *</label>
+                            <input type="text" class="form-control" id="inputTurmaNome" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Professor *</label>
+                            <select class="form-select" id="inputTurmaProfessor" required>
+                                <option value="">Selecione um professor</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Total de Vagas *</label>
+                            <input type="number" class="form-control" id="inputTurmaVagas" min="1" required>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer border-top">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-senai-red" id="btnSalvarTurma">Salvar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL: Novo/Editar Professor -->
+<div class="modal fade" id="modalProfessor" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-light border-bottom">
+                <h5 class="modal-title fw-bold text-dark" id="modalProfessorTitle">Novo Professor</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4">
+                <form id="formProfessor">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Nome Completo *</label>
+                            <input type="text" class="form-control" id="inputProfessorNome" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Email *</label>
+                            <input type="email" class="form-control" id="inputProfessorEmail" required>
+                        </div>
+                        <div class="col-md-12">
+                            <label class="form-label fw-bold">Disciplinas (separar por vírgula) *</label>
+                            <input type="text" class="form-control" id="inputProfessorDisciplinas" placeholder="ex: Programação, Banco de Dados" required>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer border-top">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-senai-red" id="btnSalvarProfessor">Salvar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL: Nova/Editar Disciplina -->
+<div class="modal fade" id="modalDisciplina" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-light border-bottom">
+                <h5 class="modal-title fw-bold text-dark" id="modalDisciplinaTitle">Nova Disciplina</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4">
+                <form id="formDisciplina">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Código da Disciplina *</label>
+                            <input type="text" class="form-control" id="inputDisciplinaCodigo" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Nome da Disciplina *</label>
+                            <input type="text" class="form-control" id="inputDisciplinaNome" required>
+                        </div>
+                        <div class="col-md-12">
+                            <label class="form-label fw-bold">Carga Horária (horas) *</label>
+                            <input type="number" class="form-control" id="inputDisciplinaCargaHoraria" min="1" required>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer border-top">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-senai-red" id="btnSalvarDisciplina">Salvar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Responsive adjustments -->
+<style>
+    @media (max-width: 991.98px) {
+        .layout-wrapper > div {
+            margin-left: 0 !important;
+        }
+        
+        #sidebar {
+            width: 200px;
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+        
+        #sidebar.show {
+            transform: translateX(0);
+        }
+    }
+</style>
+
+{% endblock %}
+
+{% block extra_js %}
+    <script src="{% static 'js/coordenacao-gestao.js' %}"></script>
+{% endblock %}

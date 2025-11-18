@@ -1,244 +1,492 @@
-{% extends 'base.html' %}
+{% extends 'base_home.html' %}
 {% load static %}
+
+{% block title %}SENAI - Sistema de Gestão Educacional{% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/home.css' %}">
+{% endblock %}
 
 {% block content %}
 
-<section class="hero-banner bg-senai-red text-white py-5" style="min-height: 450px;">
-    <div class="container-fluid">
+<section class="hero-banner hero-with-bg text-white">
+    <div style="position: absolute; inset: 0; background: linear-gradient(135deg, rgba(196, 30, 58, 0.92) 0%, rgba(231, 76, 60, 0.88) 100%); z-index: 1;"></div>
+    
+    <div class="container-fluid" style="position: relative; z-index: 2;">
         <div class="row align-items-center">
-            <div class="col-lg-6 px-5">
-                <div class="d-flex align-items-center mb-3">
-                    <img src="{% static 'img/senai_logo_white.png' %}" alt="SENAI" height="40" class="me-2">
-                    <span class="fs-6 fw-bold border-bottom pb-1">SISTEMA EDUCACIONAL</span>
+            <div class="col-lg-6 hero-content px-4 px-lg-5">
+                <div class="logo-section mb-4">
+                    <img src="{% static 'img/senai-logo.png' %}" alt="SENAI" class="me-3" style="height: 50px;">
+                    <div class="badge">Sistema Educacional</div>
                 </div>
                 
-                <h1 class="display-5 fw-bold mb-3">Bem-vindo ao SENAI</h1>
-                <p class="lead mb-4">Transformando vidas através da educação profissional de **qualidade** e **inovação tecnológica**.</p>
-                
-                <div class="row text-center mt-4">
-                    <div class="col-3">
-                        <h3 class="fw-bold">50.000+</h3>
-                        <p class="small">Alunos</p>
+                <h1 class="display-3 fw-bold mb-3">Bem-vindo ao SENAI</h1>
+                <p class="lead mb-4">
+                    Transformando vidas através da <strong>educação profissional de qualidade</strong> 
+                    e <strong>inovação tecnológica</strong>. Acesse seu dashboard e continue sua jornada de aprendizado.
+                </p>
+
+                <div class="hero-stats">
+                    <div class="stat-item">
+                        <h3>50.000+</h3>
+                        <p>Alunos</p>
                     </div>
-                    <div class="col-3">
-                        <h3 class="fw-bold">700+</h3>
-                        <p class="small">Instrutores</p>
+                    <div class="stat-item">
+                        <h3>700+</h3>
+                        <p>Instrutores</p>
                     </div>
-                    <div class="col-3">
-                        <h3 class="fw-bold">600+</h3>
-                        <p class="small">Cursos</p>
+                    <div class="stat-item">
+                        <h3>600+</h3>
+                        <p>Cursos</p>
                     </div>
-                    <div class="col-3">
-                        <h3 class="fw-bold">84,2%</h3>
-                        <p class="small">Empregabilidade</p>
+                    <div class="stat-item">
+                        <h3>84,2%</h3>
+                        <p>Empregabilidade</p>
                     </div>
                 </div>
             </div>
-            
-            <div class="col-lg-6 d-none d-lg-block">
-                <img src="{% static 'img/students_studying.jpg' %}" alt="Estudantes em aula" class="img-fluid rounded shadow-lg" style="max-height: 400px; width: 100%; object-fit: cover;">
+
+            <div class="col-lg-6 d-flex align-items-center justify-content-center px-4 px-lg-5">
+                <div class="auth-card w-100" style="max-width: 450px;">
+                    <div class="card-header bg-white border-bottom-0 p-0">
+                        <ul class="nav nav-tabs" id="authTabs" role="tablist" style="border-bottom: 2px solid #f0f0f0;">
+                            <li class="nav-item w-50" role="presentation">
+                                <button class="nav-link w-100 active fw-bold text-dark py-3" id="login-tab" 
+                                        data-bs-toggle="tab" data-bs-target="#login-pane" type="button" role="tab">
+                                    <i class="fas fa-sign-in-alt me-2"></i> Login
+                                </button>
+                            </li>
+                            <li class="nav-item w-50" role="presentation">
+                                <button class="nav-link w-100 fw-bold text-dark py-3" id="cadastro-tab" 
+                                        data-bs-toggle="tab" data-bs-target="#cadastro-pane" type="button" role="tab">
+                                    <i class="fas fa-user-plus me-2"></i> Cadastro
+                                </button>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="tab-content p-4" id="authTabsContent">
+                        <div class="tab-pane fade show active" id="login-pane" role="tabpanel">
+                            <div class="text-center mb-4">
+                                <h5 class="text-senai-red fw-bold mb-1">Acessar Sistema</h5>
+                                <p class="text-muted small">Use suas credenciais para entrar</p>
+                            </div>
+                            
+                            <form method="post" action="{% url 'login' %}">
+                                {% csrf_token %}
+                                <input type="hidden" name="next" value="{{ request.GET.next }}">
+                                
+                                {% if messages %}
+                                    {% for message in messages %}
+                                        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                            {{ message }}
+                                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                        </div>
+                                    {% endfor %}
+                                {% endif %}
+
+                                <div class="mb-3">
+                                    <label for="id_username" class="form-label text-dark fw-600">Usuário, CPF ou Matrícula</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-light border-0">
+                                            <i class="fas fa-user text-senai-red"></i>
+                                        </span>
+                                        <input type="text" name="username" class="form-control border-0" 
+                                               id="id_username" placeholder="Ex: usuario, 000.000.000-00 ou 2024001" 
+                                               required style="box-shadow: none; border-bottom: 2px solid #ccc;">
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-4">
+                                    <label for="id_password" class="form-label text-dark fw-600">Senha</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-light border-0">
+                                            <i class="fas fa-lock text-senai-red"></i>
+                                        </span>
+                                        <input type="password" name="password" class="form-control border-0" 
+                                               id="id_password" placeholder="Digite sua senha" required
+                                               style="box-shadow: none; border-bottom: 2px solid #ccc;">
+                                    </div>
+                                </div>
+                                
+                                <button type="submit" class="btn bg-senai-red text-white w-100 fw-bold py-2 mb-3">
+                                    <i class="fas fa-sign-in-alt me-2"></i> Entrar no Sistema
+                                </button>
+                            </form>
+                            
+                            <div class="text-center small">
+                                <a href="{% url 'password_reset' %}" class="text-muted text-decoration-none">Esqueceu a senha?</a>
+                                <span class="text-muted mx-2">•</span>
+                                <a href="#" class="text-muted text-decoration-none">Suporte</a>
+                            </div>
+                        </div>
+
+                        <div class="tab-pane fade" id="cadastro-pane" role="tabpanel">
+                            <div class="text-center mb-4">
+                                <h5 class="text-senai-red fw-bold mb-1">Criar Conta</h5>
+                                <p class="text-muted small">Preencha os dados para se cadastrar</p>
+                            </div>
+                            
+                            <form method="post" action="{% url 'registro_pendente' %}" id="formCadastro">
+                                {% csrf_token %}
+
+                                <div class="row mb-2">
+                                    <div class="col-6">
+                                        <label for="primeiro_nome" class="form-label small text-dark fw-600">Primeiro Nome</label>
+                                        <input type="text" class="form-control form-control-sm" id="primeiro_nome" 
+                                               name="primeiro_nome" required>
+                                    </div>
+                                    <div class="col-6">
+                                        <label for="sobrenome" class="form-label small text-dark fw-600">Sobrenome</label>
+                                        <input type="text" class="form-control form-control-sm" id="sobrenome" 
+                                               name="sobrenome" required>
+                                    </div>
+                                </div>
+
+                                <div class="mb-2">
+                                    <label for="email_cadastro" class="form-label small text-dark fw-600">Email</label>
+                                    <input type="email" class="form-control form-control-sm" id="email_cadastro" 
+                                           name="email" required>
+                                </div>
+
+                                <div class="mb-2">
+                                    <label for="username_cadastro" class="form-label small text-dark fw-600">Usuário</label>
+                                    <input type="text" class="form-control form-control-sm" id="username_cadastro" 
+                                           name="username" required>
+                                </div>
+
+                                <div class="row mb-2">
+                                    <div class="col-6">
+                                        <label for="cpf_cadastro" class="form-label small text-dark fw-600">CPF</label>
+                                        <input type="text" class="form-control form-control-sm" id="cpf_cadastro" 
+                                               name="cpf" placeholder="000.000.000-00">
+                                    </div>
+                                    <div class="col-6">
+                                        <label for="tipo_solicitado" class="form-label small text-dark fw-600">Perfil</label>
+                                        <select class="form-select form-select-sm" id="tipo_solicitado" name="tipo_solicitado" required>
+                                            <option value="">-- Selecione --</option>
+                                            <option value="aluno">Aluno</option>
+                                            <option value="professor">Professor</option>
+                                            <option value="secretaria">Secretaria</option>
+                                            <option value="coordenacao">Coordenação</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="mb-2">
+                                    <label for="telefone_cadastro" class="form-label small text-dark fw-600">Telefone</label>
+                                    <input type="tel" class="form-control form-control-sm" id="telefone_cadastro" 
+                                           name="telefone" placeholder="(00) 00000-0000">
+                                </div>
+
+                                <div class="mb-2">
+                                    <label for="cep_cadastro" class="form-label small text-dark fw-600">CEP</label>
+                                    <input type="text" class="form-control form-control-sm" id="cep_cadastro" 
+                                           name="cep" placeholder="00000-000" maxlength="9">
+                                    <span id="mensagemCepCadastro" class="d-block small mt-1"></span>
+                                </div>
+
+                                <div class="row mb-2">
+                                    <div class="col-8">
+                                        <label for="logradouro_cadastro" class="form-label small text-dark fw-600">Logradouro</label>
+                                        <input type="text" class="form-control form-control-sm" id="logradouro_cadastro" 
+                                               name="logradouro">
+                                    </div>
+                                    <div class="col-4">
+                                        <label for="numero_cadastro" class="form-label small text-dark fw-600">Número</label>
+                                        <input type="text" class="form-control form-control-sm" id="numero_cadastro" 
+                                               name="numero">
+                                    </div>
+                                </div>
+
+                                <div class="row mb-2">
+                                    <div class="col-6">
+                                        <label for="bairro_cadastro" class="form-label small text-dark fw-600">Bairro</label>
+                                        <input type="text" class="form-control form-control-sm" id="bairro_cadastro" 
+                                               name="bairro">
+                                    </div>
+                                    <div class="col-6">
+                                        <label for="cidade_cadastro" class="form-label small text-dark fw-600">Cidade</label>
+                                        <input type="text" class="form-control form-control-sm" id="cidade_cadastro" 
+                                               name="cidade">
+                                    </div>
+                                </div>
+
+                                <div class="mb-2">
+                                    <label for="estado_cadastro" class="form-label small text-dark fw-600">Estado (UF)</label>
+                                    <input type="text" class="form-control form-control-sm" id="estado_cadastro" 
+                                           name="estado" maxlength="2">
+                                </div>
+
+                                <div class="row mb-2">
+                                    <div class="col-6">
+                                        <label for="senha_cadastro" class="form-label small text-dark fw-600">Senha</label>
+                                        <input type="password" class="form-control form-control-sm" id="senha_cadastro" 
+                                               name="senha" required>
+                                    </div>
+                                    <div class="col-6">
+                                        <label for="senha_conf" class="form-label small text-dark fw-600">Confirmar</label>
+                                        <input type="password" class="form-control form-control-sm" id="senha_conf" 
+                                               name="senha_confirmar" required>
+                                    </div>
+                                </div>
+
+                                <small class="text-muted d-block mb-3">
+                                    ℹ️ Sua conta será ativada após aprovação do administrador.
+                                </small>
+
+                                <button type="submit" class="btn bg-senai-red text-white w-100 fw-bold py-2">
+                                    <i class="fas fa-user-plus me-2"></i> Cadastrar-se
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </section>
 
-
-<section class="container-fluid my-5">
-    <div class="row">
-        
-        <div class="col-lg-7">
-            <h2 class="mb-4">Atalhos Rápidos</h2>
-            <div class="row g-4">
-                
-                <div class="col-md-6">
-                    <a href="{% url 'aluno_dashboard' %}" class="card access-card border-0 shadow-sm p-3 h-100 text-decoration-none">
-                        <div class="card-body">
-                            <i class="fas fa-user-graduate fa-2x text-senai-red mb-3"></i>
-                            <h5 class="card-title">Portal do Aluno</h5>
-                            <p class="card-text text-muted small">Acesse suas notas, frequência, horários de aula e cronograma de aulas.</p>
-                            <span class="btn btn-link p-0 text-senai-red fw-bold">Acessar Portal <i class="fas fa-arrow-right small"></i></span>
-                        </div>
-                    </a>
-                </div>
-                
-                <div class="col-md-6">
-                    <a href="{% url 'professor_dashboard' %}" class="card access-card border-0 shadow-sm p-3 h-100 text-decoration-none">
-                        <div class="card-body">
-                            <i class="fas fa-chalkboard-teacher fa-2x text-success mb-3"></i>
-                            <h5 class="card-title">Portal do Professor</h5>
-                            <p class="card-text text-muted small">Gerencie turmas, lançamento de notas e frequência e painéis de sua área.</p>
-                            <span class="btn btn-link p-0 text-success fw-bold">Acessar Portal <i class="fas fa-arrow-right small"></i></span>
-                        </div>
-                    </a>
-                </div>
-                
-                <div class="col-md-6">
-                    <a href="{% url 'coordenacao_dashboard' %}" class="card access-card border-0 shadow-sm p-3 h-100 text-decoration-none">
-                        <div class="card-body">
-                            <i class="fas fa-users-cog fa-2x text-primary mb-3"></i>
-                            <h5 class="card-title">Coordenação</h5>
-                            <p class="card-text text-muted small">Supervisão pedagógica, relatórios e gestão de professores.</p>
-                            <span class="btn btn-link p-0 text-primary fw-bold">Acessar Portal <i class="fas fa-arrow-right small"></i></span>
-                        </div>
-                    </a>
-                </div>
-                
-                <div class="col-md-6">
-                    <a href="{% url 'secretaria_dashboard' %}" class="card access-card border-0 shadow-sm p-3 h-100 text-decoration-none">
-                        <div class="card-body">
-                            <i class="fas fa-briefcase fa-2x text-warning mb-3"></i>
-                            <h5 class="card-title">Secretaria</h5>
-                            <p class="card-text text-muted small">Matrículas, documentos, certificados e processos administrativos.</p>
-                            <span class="btn btn-link p-0 text-warning fw-bold">Acessar Portal <i class="fas fa-arrow-right small"></i></span>
-                        </div>
-                    </a>
-                </div>
-            </div>
-        </div>
-        
-        <div class="col-lg-5">
-            <h2 class="mb-4">Comunicados Gerais</h2>
-            <div class="card shadow-sm mb-4">
-                <div class="card-body">
-                    <div class="alert alert-light p-3 border-start border-3 border-danger mb-3" role="alert">
-                        <h6 class="alert-heading mb-1 text-danger">Início do Período Letivo 2024</h6>
-                        <small class="text-muted d-block mb-2">Publicado em 23/07/2024</small>
-                        <a href="#" class="alert-link text-danger fw-bold">Ler mensagem <i class="fas fa-arrow-right small"></i></a>
-                    </div>
-                    <div class="alert alert-light p-3 border-start border-3 border-success mb-3" role="alert">
-                        <h6 class="alert-heading mb-1 text-success">Novas Vagas para Cursos Técnicos</h6>
-                        <small class="text-muted d-block mb-2">Publicado em 20/07/2024</small>
-                        <a href="#" class="alert-link text-success fw-bold">Ler mensagem <i class="fas fa-arrow-right small"></i></a>
-                    </div>
-                    <div class="alert alert-light p-3 border-start border-3 border-info mb-3" role="alert">
-                        <h6 class="alert-heading mb-1 text-info">Calendário do Processo de 1º Semestre</h6>
-                        <small class="text-muted d-block mb-2">Publicado em 05/07/2024</small>
-                        <a href="#" class="alert-link text-info fw-bold">Ler mensagem <i class="fas fa-arrow-right small"></i></a>
-                    </div>
-                    
-                    <a href="#" class="btn bg-senai-red text-white w-100 mt-2">Ver Todos os Comunicados</a>
-                </div>
-            </div>
-            
-            <h3 class="mb-3 mt-4">Dashboard Institucional</h3>
-            <div class="card shadow-sm p-3">
-                <div class="d-flex justify-content-between py-2 border-bottom">
-                    <span class="text-muted">Alunos Ativos</span>
-                    <span class="fw-bold">3.847 <span class="badge bg-success ms-2">+0.2%</span></span>
-                </div>
-                <div class="d-flex justify-content-between py-2 border-bottom">
-                    <span class="text-muted">Professores</span>
-                    <span class="fw-bold">89 <span class="badge bg-success ms-2">+2.3%</span></span>
-                </div>
-                <div class="d-flex justify-content-between py-2 border-bottom">
-                    <span class="text-muted">Cursos Ativos</span>
-                    <span class="fw-bold">24 <span class="badge bg-danger ms-2">-0.3%</span></span>
-                </div>
-                <div class="d-flex justify-content-between py-2">
-                    <span class="text-muted">Taxa de Aprovação</span>
-                    <span class="fw-bold">94,2% <span class="badge bg-success ms-2">+1.1%</span></span>
-                </div>
-            </div>
-            
-            <h3 class="mb-3 mt-4">Próximos Eventos</h3>
-            <div class="list-group">
-                <a href="#" class="list-group-item list-group-item-action d-flex align-items-center">
-                    <div class="me-3 text-center bg-danger text-white p-2 rounded" style="width: 50px;">
-                        <small class="d-block fw-bold">22</small>
-                        <small>JUL</small>
-                    </div>
-                    <div>
-                        <h6 class="mb-0">Reunião Pedagógica</h6>
-                        <small class="text-muted">14:00 - 16:00, Sala 101</small>
-                    </div>
-                </a>
-                <a href="#" class="list-group-item list-group-item-action d-flex align-items-center">
-                    <div class="me-3 text-center bg-info text-white p-2 rounded" style="width: 50px;">
-                        <small class="d-block fw-bold">24</small>
-                        <small>JUL</small>
-                    </div>
-                    <div>
-                        <h6 class="mb-0">Workshop de Inovação</h6>
-                        <small class="text-muted">09:00 - 12:00, Lab. Tecnologia</small>
-                    </div>
-                </a>
-            </div>
-            <a href="#" class="btn btn-link text-senai-red float-end mt-2">Ver Calendário Completo <i class="fas fa-arrow-right small"></i></a>
-        </div>
-    </div>
-</section>
-
-<section class="container-fluid my-5">
-    <h2 class="mb-4 text-center">Cursos em Destaque</h2>
-    <div class="row g-4 justify-content-center">
-        <div class="col-lg-4 col-md-6">
-            <div class="card shadow-sm h-100">
-                <img src="{% static 'img/curso_automacao.jpg' %}" class="card-img-top" alt="Automação Industrial" style="height: 180px; object-fit: cover;">
-                <div class="card-body">
-                    <span class="badge bg-danger">Técnico</span>
-                    <span class="badge bg-success">Inscrições Abertas</span>
-                    <h5 class="card-title mt-2">Automação Industrial</h5>
-                    <p class="card-text text-muted small">Foca em uma das áreas mais promissoras da Indústria 4.0.</p>
-                    <small class="text-muted">Duração: 30 meses</small>
-                    <a href="#" class="btn bg-senai-red text-white float-end">Saiba Mais</a>
-                </div>
-            </div>
-        </div>
-        <div class="col-lg-4 col-md-6">
-            <div class="card shadow-sm h-100">
-                <img src="{% static 'img/curso_analise.jpg' %}" class="card-img-top" alt="Análise e Desenvolvimento" style="height: 180px; object-fit: cover;">
-                <div class="card-body">
-                    <span class="badge bg-primary">Superior</span>
-                    <span class="badge bg-info">Últimas Vagas</span>
-                    <h5 class="card-title mt-2">Análise e Desenvolvimento</h5>
-                    <p class="card-text text-muted small">Tecnologia da informação aplicada ao negócio.</p>
-                    <small class="text-muted">Duração: 3 semestres</small>
-                    <a href="#" class="btn bg-senai-red text-white float-end">Saiba Mais</a>
-                </div>
-            </div>
-        </div>
-        <div class="col-lg-4 col-md-6">
-            <div class="card shadow-sm h-100">
-                <img src="{% static 'img/curso_mecanica.jpg' %}" class="card-img-top" alt="Mecânica de Precisão" style="height: 180px; object-fit: cover;">
-                <div class="card-body">
-                    <span class="badge bg-warning text-dark">Técnico</span>
-                    <span class="badge bg-secondary">Mais Curso</span>
-                    <h5 class="card-title mt-2">Mecânica de Precisão</h5>
-                    <p class="card-text text-muted small">Especialização em usinagem e manufatura avançada.</p>
-                    <small class="text-muted">Duração: 24 meses</small>
-                    <a href="#" class="btn bg-senai-red text-white float-end">Saiba Mais</a>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="text-center mt-4">
-        <a href="#" class="btn btn-link text-senai-red">Ver Todos os Cursos <i class="fas fa-arrow-right"></i></a>
-    </div>
-</section>
-
-<section class="py-5 bg-light">
+<section class="full-width-section bg-light">
     <div class="container-fluid">
-        <h2 class="text-center mb-5">O que dizem nossos alunos</h2>
-        <p class="text-center lead text-muted mb-5">Histórias de sucesso que inspiram e transformam vidas através da educação profissional</p>
+        <div class="content-card">
+            <div class="card-header-custom">
+                <h3 class="mb-0"><i class="fas fa-megaphone text-senai-red me-2"></i> Comunicados Gerais</h3>
+            </div>
+            <div class="card-body-custom">
+                <div class="comunicado-item">
+                    <div class="comunicado-badge bg-danger">URGENTE</div>
+                    <h6 class="fw-bold">Início do Período Letivo 2024</h6>
+                    <p class="text-muted small mb-2">Publicado em 23/07/2024</p>
+                    <p class="comunicado-text">Comunicamos o início oficial do período letivo. Todos os alunos devem estar presentes no primeiro dia de aula.</p>
+                    <a href="#" class="btn-link-small">Ler mais <i class="fas fa-arrow-right small"></i></a>
+                </div>
+
+                <div class="comunicado-item border-top pt-3">
+                    <div class="comunicado-badge bg-success">IMPORTANTE</div>
+                    <h6 class="fw-bold">Novas Vagas para Cursos Técnicos</h6>
+                    <p class="text-muted small mb-2">Publicado em 20/07/2024</p>
+                    <p class="comunicado-text">Estamos com inscrições abertas para novos cursos técnicos. Confira os requisitos e inscreva-se agora!</p>
+                    <a href="#" class="btn-link-small">Ler mais <i class="fas fa-arrow-right small"></i></a>
+                </div>
+
+                <div class="comunicado-item border-top pt-3">
+                    <div class="comunicado-badge bg-info">INFORMATIVO</div>
+                    <h6 class="fw-bold">Calendário do Processo de 1º Semestre</h6>
+                    <p class="text-muted small mb-2">Publicado em 05/07/2024</p>
+                    <p class="comunicado-text">Confira as datas importantes do semestre como avaliações, feriados e recesso escolar.</p>
+                    <a href="#" class="btn-link-small">Ler mais <i class="fas fa-arrow-right small"></i></a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="full-width-section bg-white">
+    <div class="container-fluid">
+        <div class="content-card">
+            <div class="card-header-custom">
+                <h3 class="mb-0"><i class="fas fa-chart-bar text-senai-red me-2"></i> Dashboard Institucional</h3>
+            </div>
+            <div class="card-body-custom">
+                <div class="row">
+                    <div class="col-lg-3 col-md-6">
+                        <div class="dashboard-stat">
+                            <div class="stat-label">
+                                <span>Alunos Ativos</span>
+                                <span class="badge bg-success">+0.2%</span>
+                            </div>
+                            <div class="stat-value">3.847</div>
+                            <div class="stat-bar">
+                                <div class="stat-bar-fill" style="width: 92%"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-3 col-md-6">
+                        <div class="dashboard-stat">
+                            <div class="stat-label">
+                                <span>Professores</span>
+                                <span class="badge bg-success">+2.3%</span>
+                            </div>
+                            <div class="stat-value">89</div>
+                            <div class="stat-bar">
+                                <div class="stat-bar-fill" style="width: 88%"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-3 col-md-6">
+                        <div class="dashboard-stat">
+                            <div class="stat-label">
+                                <span>Cursos Ativos</span>
+                                <span class="badge bg-danger">-0.3%</span>
+                            </div>
+                            <div class="stat-value">24</div>
+                            <div class="stat-bar">
+                                <div class="stat-bar-fill" style="width: 75%"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-3 col-md-6">
+                        <div class="dashboard-stat">
+                            <div class="stat-label">
+                                <span>Taxa de Aprovação</span>
+                                <span class="badge bg-success">+1.1%</span>
+                            </div>
+                            <div class="stat-value">94,2%</div>
+                            <div class="stat-bar">
+                                <div class="stat-bar-fill" style="width: 94.2%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="full-width-section bg-light">
+    <div class="container-fluid">
+        <div class="content-card">
+            <div class="card-header-custom">
+                <h3 class="mb-0"><i class="fas fa-calendar-alt text-senai-red me-2"></i> Próximos Eventos</h3>
+            </div>
+            <div class="card-body-custom">
+                <div class="row">
+                    <div class="col-lg-4 col-md-6">
+                        <div class="event-item">
+                            <div class="event-date">
+                                <div class="date-day">22</div>
+                                <div class="date-month">NOV</div>
+                            </div>
+                            <div class="event-info">
+                                <h6 class="fw-bold mb-1">Reunião Pedagógica</h6>
+                                <p class="text-muted small mb-0">14:00 - 16:00 • Sala 101</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-4 col-md-6">
+                        <div class="event-item">
+                            <div class="event-date">
+                                <div class="date-day">24</div>
+                                <div class="date-month">NOV</div>
+                            </div>
+                            <div class="event-info">
+                                <h6 class="fw-bold mb-1">Workshop de Inovação Tecnológica</h6>
+                                <p class="text-muted small mb-0">09:00 - 12:00 • Laboratório de Tecnologia</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-4 col-md-6">
+                        <div class="event-item">
+                            <div class="event-date">
+                                <div class="date-day">28</div>
+                                <div class="date-month">NOV</div>
+                            </div>
+                            <div class="event-info">
+                                <h6 class="fw-bold mb-1">Apresentação de Projetos Finais</h6>
+                                <p class="text-muted small mb-0">15:00 - 18:00 • Auditório Principal</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="testimonials-section">
+    <div class="container-fluid">
+        <div class="section-header text-center mb-5">
+            <h2>Testemunhos dos Alunos</h2>
+            <p class="lead text-muted">Histórias de sucesso que inspiram e transformam vidas através da educação profissional</p>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-lg-4 col-md-6">
+                <div class="testimonial-card">
+                    <div class="stars">
+                        <i class="fas fa-star text-warning"></i>
+                        <i class="fas fa-star text-warning"></i>
+                        <i class="fas fa-star text-warning"></i>
+                        <i class="fas fa-star text-warning"></i>
+                        <i class="fas fa-star text-warning"></i>
+                    </div>
+                    <p class="fst-italic">"O SENAI realmente me transformou! Consegui um emprego na área antes mesmo de me formar. Os professores são excelentes e a estrutura é impecável!"</p>
+                    <div class="testimonial-author">
+                        <h6>João Silva</h6>
+                        <small>Técnico em Automação Industrial • 2024</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4 col-md-6">
+                <div class="testimonial-card">
+                    <div class="stars">
+                        <i class="fas fa-star text-warning"></i>
+                        <i class="fas fa-star text-warning"></i>
+                        <i class="fas fa-star text-warning"></i>
+                        <i class="fas fa-star text-warning"></i>
+                        <i class="fas fa-star-half-alt text-warning"></i>
+                    </div>
+                    <p class="fst-italic">"Com o curso em Análise e Desenvolvimento, abriram muitas portas no mercado de trabalho. Grato à equipe SENAI pelo apoio!"</p>
+                    <div class="testimonial-author">
+                        <h6>Maria Santos</h6>
+                        <small>Técnica em Análise e Desenvolvimento • 2024</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4 col-md-6">
+                <div class="testimonial-card">
+                    <div class="stars">
+                        <i class="fas fa-star text-warning"></i>
+                        <i class="fas fa-star text-warning"></i>
+                        <i class="fas fa-star text-warning"></i>
+                        <i class="fas fa-star text-warning"></i>
+                        <i class="fas fa-star text-warning"></i>
+                    </div>
+                    <p class="fst-italic">"Aprendizado de qualidade com metodologia totalmente prática. Sou preparado para o mercado de trabalho real!"</p>
+                    <div class="testimonial-author">
+                        <h6>Carlos Oliveira</h6>
+                        <small>Técnico em Mecânica de Precisão • 2023</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="partners-section">
+    <div class="container-fluid">
+        <div class="section-header text-center mb-5">
+            <h2>Nossos Parceiros Estratégicos</h2>
+            <p class="lead text-muted">Empresas que confiam na qualidade da educação SENAI</p>
+        </div>
         
         <div class="row g-4 justify-content-center">
-            <div class="col-md-4">
-                <div class="card shadow-sm h-100">
-                    <div class="card-body text-center p-4">
-                        <i class="fas fa-star text-warning"></i><i class="fas fa-star text-warning"></i><i class="fas fa-star text-warning"></i><i class="fas fa-star text-warning"></i><i class="fas fa-star text-warning"></i>
-                        <p class="fst-italic mt-3 mb-4">"O SENAI realmente me lotou! Consegui um emprego na área antes mesmo de me formar. Os professores são incríveis e a estrutura é excelente!"</p>
-                        <h6 class="fw-bold mb-0">João Silva</h6>
-                        <small class="text-muted">Técnico em Automação</small>
+            <div class="col-lg-4 col-md-6">
+                <div class="partner-card">
+                    <div class="partner-img-container">
+                        <img src="{% static 'img/Logo_petrobras.gif' %}" alt="Petrobras" class="partner-logo-img">
+                    </div>
+                    <div class="partner-info">
+                        <h5>Petrobras</h5>
                     </div>
                 </div>
             </div>
-            <div class="col-md-4">
-                <div class="card shadow-sm h-100">
-                    <div class="card-body text-center p-4">
-                        <i class="fas fa-star text-warning"></i><i class="fas fa-star text-warning"></i><i class="fas fa-star text-warning"></i><i class="fas fa-star text-warning"></i><i class="fas fa-star-half-alt text-warning"></i>
-                        <p class="fst-italic mt-3 mb-4">"Com o curso o resultado e o mercado de trabalho são muito satisfatórios. Grato à equipe do SENAI!"</p>
-                        <h6 class="fw-bold mb-0">Maria Santos</h6>
-                        <small class="text-muted">Análise e Desenvolvimento</small>
+
+            <div class="col-lg-4 col-md-6">
+                <div class="partner-card">
+                    <div class="partner-img-container">
+                        <img src="{% static 'img/vale-logo.png' %}" alt="Vale" class="partner-logo-img">
+                    </div>
+                    <div class="partner-info">
+                        <h5>Vale</h5>
                     </div>
                 </div>
             </div>
@@ -249,28 +497,285 @@
                         <p class="fst-italic mt-3 mb-4">"Um aprendizado de última geração e metodologia prática. Sou preparado para o mercado de trabalho!"</p>
                         <h6 class="fw-bold mb-0">João Oliveira</h6>
                         <small class="text-muted">Mecânica de Precisão</small>
+
+            <div class="col-lg-4 col-md-6">
+                <div class="partner-card">
+                    <div class="partner-img-container">
+                        <img src="{% static 'img/embraer-logo.png' %}" alt="Embraer" class="partner-logo-img">
+                    </div>
+                    <div class="partner-info">
+                        <h5>Embraer</h5>
                     </div>
                 </div>
             </div>
-        </div>
-        
-        <h2 class="text-center mt-5 mb-4">Nossos Parceiros</h2>
-        <p class="text-center text-muted mb-5">Empresas que confiam na qualidade da educação SENAI</p>
-        <div class="row align-items-center justify-content-center g-4">
-            <div class="col-4 col-md-2 text-center"><div class="p-3 border rounded text-muted">PETROBRAS</div></div>
-            <div class="col-4 col-md-2 text-center"><div class="p-3 border rounded text-muted">VALE</div></div>
-            <div class="col-4 col-md-2 text-center"><div class="p-3 border rounded text-muted">EMBRAER</div></div>
-            <div class="col-4 col-md-2 text-center"><div class="p-3 border rounded text-muted">VOLKSWAGEN</div></div>
-            <div class="col-4 col-md-2 text-center"><div class="p-3 border rounded text-muted">BOSCH</div></div>
+
+            <div class="col-lg-4 col-md-6">
+                <div class="partner-card">
+                    <div class="partner-img-container">
+                        <img src="{% static 'img/Volkswagen_logo.png' %}" alt="Volkswagen" class="partner-logo-img">
+                    </div>
+                    <div class="partner-info">
+                        <h5>Volkswagen</h5>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4 col-md-6">
+                <div class="partner-card">
+                    <div class="partner-img-container">
+                        <img src="{% static 'img/Bosch-Logo.png' %}" alt="Bosch" class="partner-logo-img">
+                    </div>
+                    <div class="partner-info">
+                        <h5>Bosch</h5>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4 col-md-6">
+                <div class="partner-card">
+                    <div class="partner-img-container">
+                        <img src="{% static 'img/ambev-logo.png' %}" alt="Ambev" class="partner-logo-img">
+                    </div>
+                    <div class="partner-info">
+                        <h5>Ambev</h5>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4 col-md-6">
+                <div class="partner-card">
+                    <div class="partner-img-container">
+                        <img src="{% static 'img/siemens-logo.png' %}" alt="Siemens" class="partner-logo-img">
+                    </div>
+                    <div class="partner-info">
+                        <h5>Siemens</h5>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4 col-md-6">
+                <div class="partner-card">
+                    <div class="partner-img-container">
+                        <img src="{% static 'img/abb-logo.png' %}" alt="ABB" class="partner-logo-img">
+                    </div>
+                    <div class="partner-info">
+                        <h5>ABB</h5>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4 col-md-6">
+                <div class="partner-card">
+                    <div class="partner-img-container">
+                        <img src="{% static 'img/fiat-logo.png' %}" alt="Fiat" class="partner-logo-img">
+                    </div>
+                    <div class="partner-info">
+                        <h5>Fiat</h5>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </section>
 <section class="py-5 bg-senai-red text-white">
     <div class="container text-center">
         <h2 class="mb-3">Pronto para transformar seu futuro?</h2>
-        <p class="lead mb-4">Junte-se a milhares de alunos que já escolheram o SENAI para construir uma carreira de sucesso</p>
-        <a href="#" class="btn btn-lg btn-light me-3">Inscreva-se Agora</a>
-        <a href="#" class="btn btn-lg btn-outline-light">Conheça os Cursos</a>
+        <p class="lead mb-5">Junte-se a milhares de alunos que já escolheram o SENAI para construir uma carreira de sucesso</p>
+        <div>
+            <a href="{% url 'home' %}#cadastro-pane" class="btn btn-lg btn-light me-3 mb-2 mb-md-0">
+                <i class="fas fa-user-plus me-2"></i> Inscreva-se Agora
+            </a>
+            <a href="#" class="btn btn-lg btn-outline-light">
+                <i class="fas fa-book me-2"></i> Conheça os Cursos
+            </a>
+        </div>
     </div>
 </section>
+
+<footer>
+    <div class="container-fluid">
+        <div class="row mb-5">
+            <div class="col-lg-3 col-md-6 mb-4">
+                <h5>Sobre o SENAI</h5>
+                <div class="footer-links">
+                    <a href="#">Quem Somos</a>
+                    <a href="#">Nossa Missão</a>
+                    <a href="#">Valores</a>
+                    <a href="#">Histórico</a>
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-md-6 mb-4">
+                <h5>Cursos</h5>
+                <div class="footer-links">
+                    <a href="#">Técnico</a>
+                    <a href="#">Superior</a>
+                    <a href="#">Qualificação</a>
+                    <a href="#">EaD</a>
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-md-6 mb-4">
+                <h5>Para Alunos</h5>
+                <div class="footer-links">
+                    <a href="{% url 'login' %}">Portal do Aluno</a>
+                    <a href="#">Bolsas e Auxílios</a>
+                    <a href="#">Horários</a>
+                    <a href="#">Biblioteca</a>
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-md-6 mb-4">
+                <h5>Contato</h5>
+                <p class="mb-3">
+                    <i class="fas fa-phone text-senai-red me-2"></i> (11) 3000-0000
+                </p>
+                <p class="mb-3">
+                    <i class="fas fa-envelope text-senai-red me-2"></i> contato@senai.com.br
+                </p>
+                <h6 class="mt-4">Siga-nos</h6>
+                <div class="social-links">
+                    <a href="#" title="Facebook"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" title="Instagram"><i class="fab fa-instagram"></i></a>
+                    <a href="#" title="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                    <a href="#" title="YouTube"><i class="fab fa-youtube"></i></a>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <p class="mb-0">
+                &copy; 2025 SENAI - Serviço Nacional de Aprendizagem Industrial. 
+                Todos os direitos reservados. | 
+                <a href="#" class="text-decoration-none">Política de Privacidade</a> |
+                <a href="#" class="text-decoration-none">Termos de Uso</a>
+            </p>
+        </div>
+    </div>
+</footer>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+document.getElementById('cpf_cadastro').addEventListener('input', function(e) {
+    let valor = e.target.value.replace(/\D/g, '');
+    if (valor.length <= 11) {
+        valor = valor.replace(/(\d{3})(\d)/, '$1.$2');
+        valor = valor.replace(/(\d{3})(\d)/, '$1.$2');
+        valor = valor.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+    }
+    e.target.value = valor;
+});
+
+document.getElementById('telefone_cadastro').addEventListener('input', function(e) {
+    let valor = e.target.value.replace(/\D/g, '');
+    if (valor.length <= 11) {
+        valor = valor.replace(/^(\d{2})(\d)/, '($1) $2');
+        valor = valor.replace(/(\d{5})(\d)/, '$1-$2');
+    }
+    e.target.value = valor;
+});
+
+document.getElementById('cep_cadastro').addEventListener('input', function(e) {
+    let valor = e.target.value.replace(/\D/g, '');
+    if (valor.length > 5) {
+        valor = valor.replace(/^(\d{5})(\d)/, '$1-$2');
+    }
+    e.target.value = valor;
+});
+
+document.getElementById('cep_cadastro').addEventListener('blur', function() {
+    const cep = this.value.replace(/\D/g, '');
+    const mensagem = document.getElementById('mensagemCepCadastro');
+    
+    mensagem.textContent = '';
+    mensagem.className = '';
+    
+    if (cep.length !== 8) {
+        if (cep.length > 0) {
+            mensagem.textContent = '⚠ CEP deve ter 8 dígitos';
+            mensagem.className = 'text-warning small';
+        }
+        return;
+    }
+    
+    mensagem.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Buscando...';
+    mensagem.className = 'text-info small';
+    
+    const campos = ['logradouro_cadastro', 'bairro_cadastro', 'cidade_cadastro', 'estado_cadastro'];
+    campos.forEach(id => document.getElementById(id).disabled = true);
+    
+    fetch(`/academico/api/consultar-cep/?cep=${cep}`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        campos.forEach(id => document.getElementById(id).disabled = false);
+        
+        if (data.erro) {
+            mensagem.innerHTML = `<i class="fas fa-times-circle"></i> ${data.mensagem}`;
+            mensagem.className = 'text-danger small';
+        } else {
+            document.getElementById('logradouro_cadastro').value = data.logradouro;
+            document.getElementById('bairro_cadastro').value = data.bairro;
+            document.getElementById('cidade_cadastro').value = data.cidade;
+            document.getElementById('estado_cadastro').value = data.estado;
+            
+            mensagem.innerHTML = '<i class="fas fa-check-circle"></i> Encontrado!';
+            mensagem.className = 'text-success small';
+            
+            document.getElementById('numero_cadastro').focus();
+            
+            setTimeout(() => mensagem.textContent = '', 3000);
+        }
+    })
+    .catch(error => {
+        campos.forEach(id => document.getElementById(id).disabled = false);
+        console.error('Erro:', error);
+        mensagem.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Erro ao buscar CEP';
+        mensagem.className = 'text-danger small';
+    });
+});
+
+document.getElementById('estado_cadastro').addEventListener('input', function(e) {
+    e.target.value = e.target.value.toUpperCase();
+});
+
+document.getElementById('formCadastro').addEventListener('submit', function(e) {
+    const senha = document.getElementById('senha_cadastro').value;
+    const senhaConf = document.getElementById('senha_conf').value;
+    
+    if (senha !== senhaConf) {
+        e.preventDefault();
+        alert('As senhas não coincidem!');
+        return false;
+    }
+    
+    if (senha.length < 8) {
+        e.preventDefault();
+        alert('A senha deve ter no mínimo 8 caracteres!');
+        return false;
+    }
+});
+</script>
 {% endblock %}

@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Calendário Acadêmico - SENAI{% endblock %}
+
+{% block extra_head %}
+<link href='https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/5.11.3/main.min.css' rel='stylesheet' />
+<script src='https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/5.11.3/main.min.js'></script>
+<script src='https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/5.11.3/locales/pt-br.min.js'></script>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Calendário Acadêmico</h1>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow mb-4">
+                <div class="card-body">
+                    <div id="calendar"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-lg-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-senai-red">Próximos Eventos</h6>
+                </div>
+                <div class="card-body">
+                    <div class="list-group">
+                        {% for evento in proximos_eventos %}
+                        <div class="list-group-item border-0">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1">{{ evento.titulo }}</h6>
+                                <small class="text-muted">{{ evento.data|date:"d/m/Y" }}</small>
+                            </div>
+                            <p class="mb-1 small">{{ evento.descricao }}</p>
+                            <small class="text-muted">{{ evento.tipo }}</small>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-8">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-senai-red">Datas Importantes</h6>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-borderless">
+                            <tbody>
+                                {% for data in datas_importantes %}
+                                <tr>
+                                    <td width="120">
+                                        <div class="text-center bg-senai-red text-white p-2 rounded">
+                                            <small class="d-block">{{ data.data|date:"d/m" }}</small>
+                                            <small class="d-block">{{ data.data|date:"Y" }}</small>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <h6 class="mb-1">{{ data.titulo }}</h6>
+                                        <p class="mb-0 small text-muted">{{ data.descricao }}</p>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var calendarEl = document.getElementById('calendar');
+    var calendar = new FullCalendar.Calendar(calendarEl, {
+        locale: 'pt-br',
+        initialView: 'dayGridMonth',
+        headerToolbar: {
+            left: 'prev,next today',
+            center: 'title',
+            right: 'dayGridMonth,timeGridWeek,listMonth'
+        },
+        events: {{ eventos_json|safe }},
+        eventClick: function(info) {
+            // Mostrar detalhes do evento
+            alert(info.event.title + '\n\n' + info.event.extendedProps.description);
+        }
+    });
+    calendar.render();
+});
+</script>
+{% endblock %}
