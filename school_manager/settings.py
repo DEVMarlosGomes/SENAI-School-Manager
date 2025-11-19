@@ -18,7 +18,6 @@ SECRET_KEY = 'django-insecure-7q()hy)04l-36t=dzf+k%@d9p^bh4#z_hdoqmx9-317*)v#wk#
 DEBUG = True
 ALLOWED_HOSTS = ['romulofamiglietti.pythonanywhere.com', '127.0.0.1', 'localhost']
 
-
 # ==============================
 # Aplicações
 # ==============================
@@ -41,6 +40,7 @@ INSTALLED_APPS = [
     'apps.usuarios.apps.UsuariosConfig',
     'apps.academico.apps.AcademicoConfig',
     'apps.dashboards.apps.DashboardsConfig',
+    'apps.relatorios',
 ]
 
 # ==============================
@@ -55,6 +55,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'apps.usuarios.middleware.LimitUserSessionsMiddleware',
 ]
 
 ROOT_URLCONF = 'school_manager.urls'
@@ -82,6 +83,9 @@ TEMPLATES = [
 WSGI_APPLICATION = 'school_manager.wsgi.application'
 
 # ==============================
+# Banco de Dados
+# ==============================
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -110,22 +114,55 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # ==============================
-# Autenticação e Sessões
+# Autenticação e Redirecionamento
 # ==============================
 
-
-# LOGIN_REDIRECT_URL = 'home' # Esta linha é sobrescrita pela de baixo
+LOGIN_REDIRECT_URL = 'redirecionar_dashboard'
 LOGOUT_REDIRECT_URL = 'home'
 LOGIN_URL = 'login'
 
-MESSAGE_STORAGE = 'django.contrib.messages.storage.session.SessionStorage'
-
-CACHES = {
-    'default': {'BACKEND': 'django.core.cache.backends.locmem.LocMemCache'}
-}
+# ==============================
+# Configurações de Sessão (ATUALIZADO)
+# ==============================
 
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 SESSION_COOKIE_AGE = 86400  # 24 horas
+SESSION_SAVE_EVERY_REQUEST = False  # Não salvar a cada request
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False  # Manter sessão após fechar navegador
+SESSION_COOKIE_HTTPONLY = True  # Segurança: JS não acessa cookie
+SESSION_COOKIE_SAMESITE = 'Lax'  # Proteção contra CSRF
+SESSION_COOKIE_SECURE = False  # Mudar para True em produção com HTTPS
+
+# ==============================
+# Configurações de CSRF (NOVO)
+# ==============================
+
+CSRF_COOKIE_AGE = 31449600  # 1 ano (365 dias)
+CSRF_USE_SESSIONS = False  # Usar cookie ao invés de sessão
+CSRF_COOKIE_HTTPONLY = False  # JavaScript precisa ler o token
+CSRF_COOKIE_SAMESITE = 'Lax'  # Proteção contra ataques CSRF
+CSRF_COOKIE_SECURE = False  # Mudar para True em produção com HTTPS
+CSRF_TRUSTED_ORIGINS = [
+    'http://127.0.0.1:8000',
+    'http://localhost:8000',
+]
+
+# ==============================
+# Mensagens
+# ==============================
+
+MESSAGE_STORAGE = 'django.contrib.messages.storage.session.SessionStorage'
+
+# ==============================
+# Cache
+# ==============================
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'unique-snowflake',
+    }
+}
 
 # ==============================
 # Configurações adicionais
@@ -134,6 +171,31 @@ SESSION_COOKIE_AGE = 86400  # 24 horas
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 CRISPY_TEMPLATE_PACK = 'bootstrap5'
 
+# ==============================
+# Validação de Senhas
+# ==============================
 
-# Esta é a URL de redirecionamento de login que está valendo (sobrescreve a anterior)
-LOGIN_REDIRECT_URL = 'redirecionar_dashboard'
+AUTH_PASSWORD_VALIDATORS = [
+    {
+        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        'OPTIONS': {
+            'min_length': 4,  # Mínimo 4 caracteres para testes
+        }
+    },
+]
+
+# ==============================
+# Limpeza Automática de Sessões
+# ==============================
+
+# Limpar sessões expiradas automaticamente
+SESSION_SAVE_EVERY_REQUEST = False
+SESSION_COOKIE_AGE = 86400  # 24 horas
+
+# Configuração adicional para debug
+if DEBUG:
+    # Em desenvolvimento, limitar vida útil da sessão
+    SESSION_COOKIE_AGE = 3600  # 1 hora
