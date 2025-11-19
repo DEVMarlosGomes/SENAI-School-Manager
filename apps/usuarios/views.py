@@ -3,6 +3,8 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
+from django.views.decorators.csrf import csrf_protect
+from django.views.decorators.cache import never_cache
 from apps.academico.models import Aluno as AcadAluno
 from .models import Profile, PendingRegistration
 
@@ -11,7 +13,11 @@ try:
 except Exception:
     CoreAluno = None
 
+
+@never_cache
+@csrf_protect
 def login_view(request):
+    """View de login com proteção CSRF e sem cache"""
     if request.method == 'POST':
         identifier = (request.POST.get('username') or '').strip()
         password = request.POST.get('password')
@@ -50,6 +56,9 @@ def login_view(request):
 
         if user is not None:
             login(request, user)
+            # Regenerar chave de sessão após login (segurança)
+            request.session.cycle_key()
+            
             next_url = request.GET.get('next') or request.POST.get('next')
             if next_url:
                 return redirect(next_url)
@@ -58,17 +67,38 @@ def login_view(request):
             return redirect('redirecionar_dashboard')
         else:
             messages.error(request, 'Usuário ou senha incorretos.')
+    
     return render(request, 'usuarios/login.html')
 
-def logout_view(request):
-    logout(request)
-    messages.success(request, 'Você foi desconectado com sucesso!')
-    return redirect('home')
 
+@never_cache
+def logout_view(request):
+    """Logout com limpeza completa de sessão"""
+    logout(request)
+    # Limpar completamente a sessão
+    request.session.flush()
+    
+    messages.success(request, 'Você foi desconectado com sucesso!')
+    
+    # Criar resposta com redirecionamento
+    response = redirect('home')
+    
+    # Deletar cookies de sessão e CSRF
+    response.delete_cookie('sessionid')
+    response.delete_cookie('csrftoken')
+    
+    return response
+
+
+@csrf_protect
 def register_view(request):
+    """View de registro com proteção CSRF"""
     return render(request, 'usuarios/register.html')
 
+
+@csrf_protect
 def registro_pendente(request):
+    """Registro pendente de aprovação com proteção CSRF"""
     if request.method == 'POST':
         primeiro_nome = request.POST.get('primeiro_nome', '').strip()
         sobrenome = request.POST.get('sobrenome', '').strip()
@@ -79,6 +109,7 @@ def registro_pendente(request):
         tipo_solicitado = request.POST.get('tipo_solicitado', '').strip()
         senha = request.POST.get('senha', '').strip()
         senha_confirmar = request.POST.get('senha_confirmar', '').strip()
+        
         erros = []
         if not primeiro_nome:
             erros.append('Primeiro nome é obrigatório.')
@@ -106,6 +137,7 @@ def registro_pendente(request):
             erros.append('Este email já possui uma solicitação pendente.')
         if cpf and (Profile.objects.filter(cpf=cpf).exists() or PendingRegistration.objects.filter(cpf=cpf).exists()):
             erros.append('Este CPF já está registrado.')
+        
         if erros:
             for erro in erros:
                 messages.error(request, erro)
@@ -118,6 +150,7 @@ def registro_pendente(request):
                 'cpf': cpf,
                 'tipo_solicitado': tipo_solicitado,
             })
+        
         try:
             PendingRegistration.objects.create(
                 primeiro_nome=primeiro_nome,
@@ -133,10 +166,14 @@ def registro_pendente(request):
             return redirect('/')
         except Exception as e:
             messages.error(request, f'Erro ao criar registro: {str(e)}')
+    
     return render(request, 'usuarios/registro_pendente.html')
 
+
 @login_required
+@never_cache
 def redirecionar_dashboard(request):
+    """Redireciona para o dashboard apropriado baseado no tipo de usuário"""
     user = request.user
     if user.is_authenticated and hasattr(user, 'profile'):
         profile = user.profile
@@ -148,17 +185,23 @@ def redirecionar_dashboard(request):
             return redirect('secretaria_dashboard')
         if getattr(profile, 'is_coordenacao', False):
             return redirect('coordenacao_dashboard')
+        
         logout(request)
         messages.error(request, 'Perfil não reconhecido. Entre em contato com o suporte.')
         return redirect('login')
+    
     messages.error(request, 'Seu usuário não tem perfil cadastrado. Entre em contato com o suporte.')
     return redirect('login')
 
+
 @login_required
+@csrf_protect
 def complete_profile(request):
+    """Completar perfil do usuário com proteção CSRF"""
     user = request.user
     if hasattr(user, 'profile'):
         return redirect('redirecionar_dashboard')
+    
     if request.method == 'POST':
         tipo = request.POST.get('tipo')
         telefone = request.POST.get('telefone') or None
@@ -166,7 +209,10 @@ def complete_profile(request):
         Profile.objects.create(user=user, tipo=tipo, telefone=telefone, cpf=cpf)
         messages.success(request, 'Perfil criado com sucesso.')
         return redirect('redirecionar_dashboard')
+    
     return render(request, 'usuarios/complete_profile.html')
 
+
 def home_view(request):
+    """View da página inicial"""
     return render(request, 'home.html')

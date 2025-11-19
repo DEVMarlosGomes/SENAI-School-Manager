@@ -12,6 +12,26 @@
 
 {% block content %}
 <div class="container-fluid">
+    <!-- Cabeçalho com Botão PDF -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold text-senai-red mb-0">Olá, Professor(a) {{ user.first_name }}!</h2>
+            <small class="text-muted">Bem-vindo ao seu painel de controle</small>
+        </div>
+        <div class="text-end">
+            <small class="text-muted d-block">Acesso em: {% now "d/m/Y H:i" %}</small>
+            <div class="btn-group mt-2" role="group">
+                <!-- BOTÃO PDF ADICIONADO -->
+                <a href="{% url 'relatorio_professor_pdf' user.id %}" class="btn btn-sm btn-danger" target="_blank" title="Gerar Relatório em PDF">
+                    <i class="fas fa-file-pdf me-1"></i> Meu Relatório PDF
+                </a>
+                <a href="{% url 'home' %}" class="btn btn-sm btn-outline-secondary">
+                    <i class="fas fa-home me-1"></i> Portal SENAI
+                </a>
+            </div>
+        </div>
+    </div>
+
     <div class="row g-4 mb-4">
         <!-- Cards de Informações Principais -->
         <div class="col-xl-3 col-sm-6">

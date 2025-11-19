@@ -10,6 +10,15 @@
         <div class="text-end">
             <small class="text-muted d-block">Acesso em: {% now "d/m/Y H:i" %}</small>
             <div class="btn-group mt-2" role="group">
+                {% if aluno and aluno.user %}
+                <a href="{% url 'relatorio_aluno_pdf' aluno.user.id %}" class="btn btn-sm btn-danger" target="_blank">
+                    <i class="fas fa-file-pdf me-1"></i> Gerar PDF
+                </a>
+                {% else %}
+                <a href="{% url 'relatorio_aluno_pdf' user.id %}" class="btn btn-sm btn-danger" target="_blank">
+                    <i class="fas fa-file-pdf me-1"></i> Gerar PDF
+                </a>
+                {% endif %}
                 <a href="{% url 'home' %}" class="btn btn-sm btn-outline-secondary">
                     <i class="fas fa-home me-1"></i> Portal SENAI
                 </a>
@@ -18,7 +27,6 @@
     </div>
 
     <div class="row g-4 mb-5">
-        
         <div class="col-md-3">
             <div class="card shadow-sm border-start border-4 border-success h-100">
                 <div class="card-body">
@@ -81,7 +89,6 @@
     </div>
 
     <div class="row g-4">
-        
         <div class="col-lg-6">
             <h3 class="mb-3 border-bottom pb-2">Notas por Disciplina</h3>
             <div class="list-group shadow-sm">
@@ -99,7 +106,7 @@
                     </div>
                     <span class="badge bg-warning text-dark rounded-pill p-2 fs-6">7.0</span>
                 </a>
-                 <a href="#" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                <a href="#" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
                     <div>
                         <h6 class="mb-0 fw-bold">Eletricidade Básica</h6>
                         <small class="text-muted">Professor: José Almeida</small>
@@ -114,7 +121,7 @@
             <h3 class="mb-3 border-bottom pb-2">Avisos e Eventos</h3>
             <div class="card shadow-sm p-3 mb-4">
                 <h5 class="text-primary"><i class="fas fa-bullhorn me-2"></i> Alteração de Horário</h5>
-                <p class="small text-muted">A aula de Programação Web de amanhã (11/10) foi **remarcada** para o laboratório 3. Verifique seu novo horário no sistema.</p>
+                <p class="small text-muted">A aula de Programação Web de amanhã (11/10) foi remarcada para o laboratório 3. Verifique seu novo horário no sistema.</p>
                 <small class="text-end text-muted">23 horas atrás</small>
             </div>
             
@@ -134,11 +141,13 @@
 </div>
 
 <div class="row g-4 mt-4">
-    <!-- Calendário Acadêmico -->
     <div class="col-lg-8">
         <div class="card shadow-sm">
-            <div class="card-header bg-white">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
                 <h5 class="mb-0"><i class="fas fa-calendar me-2"></i>Calendário Acadêmico</h5>
+                <button class="btn btn-sm btn-outline-danger" onclick="window.print()">
+                    <i class="fas fa-print me-1"></i> Imprimir
+                </button>
             </div>
             <div class="card-body">
                 <div id="calendar"></div>
@@ -146,7 +155,6 @@
         </div>
     </div>
 
-    <!-- Material de Estudo Recente -->
     <div class="col-lg-4">
         <div class="card shadow-sm">
             <div class="card-header bg-white">
@@ -174,7 +182,30 @@
                 </a>
             </div>
         </div>
+        
+        <div class="card shadow-sm mt-4">
+            <div class="card-header bg-danger text-white">
+                <h6 class="mb-0"><i class="fas fa-certificate me-2"></i>Certificados</h6>
+            </div>
+            <div class="card-body">
+                <p class="small text-muted">Quando você concluir o curso, seu certificado estará disponível aqui.</p>
+                <button class="btn btn-outline-danger btn-sm w-100" disabled>
+                    <i class="fas fa-lock me-1"></i> Certificado Indisponível
+                </button>
+            </div>
+        </div>
     </div>
 </div>
+
 {% endblock %}
 
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+});
+</script>
+{% endblock %}
