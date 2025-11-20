@@ -7,6 +7,11 @@ urlpatterns = [
     path('registrar/', views.register_view, name='registrar'),
     path('registro-pendente/', views.registro_pendente, name='registro_pendente'),
     path('complete-profile/', views.complete_profile, name='complete_profile'),
-    path('redirecionar-dashboard/', views.redirecionar_dashboard, name='redirecionar_dashboard'),  # ESSENCIAL!
+    path('redirecionar-dashboard/', views.redirecionar_dashboard, name='redirecionar_dashboard'),
+    
+# Novas URLs que estavam faltando e causaram o erro
+    path('politica-privacidade/', views.politica_privacidade, name='politica_privacidade'),
+    path('termos-uso/', views.termos_uso, name='termos_uso'),
+
     path('', views.home_view, name='home'),
 ]

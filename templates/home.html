@@ -619,67 +619,109 @@
     </div>
 </section>
 
-<footer>
-    <div class="container-fluid">
+<footer style="background-color: #111; color: #fff;">
+    <div class="container-fluid px-5 pt-5">
         <div class="row mb-5">
+            
             <div class="col-lg-3 col-md-6 mb-4">
-                <h5>Sobre o SENAI</h5>
-                <div class="footer-links">
-                    <a href="#">Quem Somos</a>
-                    <a href="#">Nossa Missão</a>
-                    <a href="#">Valores</a>
-                    <a href="#">Histórico</a>
+                <h5 class="fw-bold mb-3 text-white">Sobre o SENAI</h5>
+                <div class="footer-links d-flex flex-column gap-2">
+                    <a href="https://www.sp.senai.br/o-senai/o-sistema-senai" target="_blank" rel="noopener noreferrer" class="text-decoration-none text-white-50 hover-link">
+                        Institucional (Quem Somos, Missão e História) <i class="fas fa-external-link-alt fa-xs ms-1 opacity-50"></i>
+                    </a>
                 </div>
             </div>
 
             <div class="col-lg-3 col-md-6 mb-4">
-                <h5>Cursos</h5>
-                <div class="footer-links">
-                    <a href="#">Técnico</a>
-                    <a href="#">Superior</a>
-                    <a href="#">Qualificação</a>
-                    <a href="#">EaD</a>
+                <h5 class="fw-bold mb-3 text-white">Cursos</h5>
+                <div class="footer-links d-flex flex-column gap-2">
+                    <a href="https://www.sp.senai.br/cursos-tecnicos-comunidade" target="_blank" rel="noopener noreferrer" class="text-decoration-none text-white-50 hover-link">
+                        Técnico
+                    </a>
+                    <a href="https://www.sp.senai.br/ps-superiores-comunidade" target="_blank" rel="noopener noreferrer" class="text-decoration-none text-white-50 hover-link">
+                        Faculdade
+                    </a>
+                    <a href="https://www.sp.senai.br/cursos/formacao-inicial-e-continuada" target="_blank" rel="noopener noreferrer" class="text-decoration-none text-white-50 hover-link">
+                        Qualificação Profissional
+                    </a>
+                    <a href="https://www.sp.senai.br/cursos/0/0?modalidade=3" target="_blank" rel="noopener noreferrer" class="text-decoration-none text-white-50 hover-link">
+                        Cursos EaD
+                    </a>
                 </div>
             </div>
 
             <div class="col-lg-3 col-md-6 mb-4">
-                <h5>Para Alunos</h5>
-                <div class="footer-links">
-                    <a href="{% url 'login' %}">Portal do Aluno</a>
-                    <a href="#">Bolsas e Auxílios</a>
-                    <a href="#">Horários</a>
-                    <a href="#">Biblioteca</a>
+                <h5 class="fw-bold mb-3 text-white">Para Alunos</h5>
+                <div class="footer-links d-flex flex-column gap-2">
+                    <a href="{% url 'login' %}" class="text-decoration-none fw-bold hover-link text-white">
+                        <i class="fas fa-sign-in-alt me-2 text-senai-red"></i>Acessar Portal
+                    </a>
+                    
+                    <a href="https://www.sp.senai.br/bolsas-de-estudo" target="_blank" rel="noopener noreferrer" class="text-decoration-none text-white-50 hover-link">
+                        Bolsas e Auxílios
+                    </a>
+                    <a href="#" class="text-decoration-none text-white-50 hover-link">
+                        Horários de Aulas
+                    </a>
+                    <a href="https://pergamum.sp.senai.br/pergamum/biblioteca/index.php" target="_blank" rel="noopener noreferrer" class="text-decoration-none text-white-50 hover-link">
+                        Biblioteca Virtual
+                    </a>
                 </div>
             </div>
 
             <div class="col-lg-3 col-md-6 mb-4">
-                <h5>Contato</h5>
-                <p class="mb-3">
-                    <i class="fas fa-phone text-senai-red me-2"></i> (11) 3000-0000
-                </p>
-                <p class="mb-3">
-                    <i class="fas fa-envelope text-senai-red me-2"></i> contato@senai.com.br
-                </p>
-                <h6 class="mt-4">Siga-nos</h6>
-                <div class="social-links">
-                    <a href="#" title="Facebook"><i class="fab fa-facebook-f"></i></a>
-                    <a href="#" title="Instagram"><i class="fab fa-instagram"></i></a>
-                    <a href="#" title="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
-                    <a href="#" title="YouTube"><i class="fab fa-youtube"></i></a>
+                <h5 class="fw-bold mb-3 text-white">Fale Conosco</h5>
+                <div class="d-flex flex-column gap-2 mb-3">
+                    <div class="d-flex align-items-center text-white-50">
+                        <i class="fas fa-phone text-senai-red me-3" style="width: 20px;"></i> 
+                        (11) 3000-0000
+                    </div>
+                    <a href="mailto:contato@senai.com.br" class="d-flex align-items-center text-white-50 text-decoration-none hover-link">
+                        <i class="fas fa-envelope text-senai-red me-3" style="width: 20px;"></i> 
+                        contato@senai.com.br
+                    </a>
+                </div>
+                
+                <h6 class="fw-bold mt-2 mb-3 text-white">Siga-nos</h6>
+                <div class="social-links d-flex gap-3">
+                    <a href="https://www.facebook.com/senaisaopaulo/?locale=pt_BR" target="_blank" title="Facebook" class="text-white-50 fs-5 hover-red"><i class="fab fa-facebook-f"></i></a>
+                    <a href="https://www.instagram.com/senai.sp/" target="_blank" title="Instagram" class="text-white-50 fs-5 hover-red"><i class="fab fa-instagram"></i></a>
+                    <a href="https://www.linkedin.com/school/senaisp/posts/?feedView=all" target="_blank" title="LinkedIn" class="text-white-50 fs-5 hover-red"><i class="fab fa-linkedin-in"></i></a>
+                    <a href="https://www.youtube.com/channel/UCaz1BMUVug86pd_uS598X1A" target="_blank" title="YouTube" class="text-white-50 fs-5 hover-red"><i class="fab fa-youtube"></i></a>
                 </div>
             </div>
         </div>
 
-        <div class="footer-bottom">
-            <p class="mb-0">
-                &copy; 2025 SENAI - Serviço Nacional de Aprendizagem Industrial.
-                Todos os direitos reservados. |
-                <a href="#" class="text-decoration-none">Política de Privacidade</a> |
-                <a href="#" class="text-decoration-none">Termos de Uso</a>
-            </p>
+        <div class="footer-bottom border-top border-secondary pt-4 pb-4 mt-2">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-center small text-white-50">
+                <p class="mb-2 mb-md-0">
+                    &copy; 2025 SENAI - Serviço Nacional de Aprendizagem Industrial.
+                </p>
+                <div>
+                    <a href="{% url 'politica_privacidade' %}" class="text-decoration-none text-white-50 me-3 hover-link">Política de Privacidade</a>
+                    <a href="{% url 'termos_uso' %}" class="text-decoration-none text-white-50 hover-link">Termos de Uso</a>
+                </div>
+            </div>
         </div>
     </div>
 </footer>
+
+<style>
+    .text-white-50 {
+        color: rgba(255, 255, 255, 0.6) !important;
+    }
+    
+    .hover-link:hover {
+        color: #d32f2f !important;
+        transition: color 0.2s ease;
+    }
+    
+    .hover-red:hover {
+        color: #d32f2f !important;
+        transform: translateY(-2px);
+        transition: all 0.2s ease;
+    }
+</style>
 
 {% endblock %}
 
