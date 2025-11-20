@@ -294,68 +294,88 @@
 
 <section class="full-width-section bg-white">
     <div class="container-fluid">
-        <div class="content-card">
-            <div class="card-header-custom">
-                <h3 class="mb-0"><i class="fas fa-chart-bar text-senai-red me-2"></i> Dashboard Institucional</h3>
+        <div class="content-card shadow-sm border-0"> <div class="card-header-custom bg-white border-bottom pb-3 pt-4 px-4">
+                <h4 class="mb-0 fw-bold text-dark"><i class="fas fa-chart-pie text-senai-red me-2"></i> Dashboard Institucional</h4>
             </div>
-            <div class="card-body-custom">
-                <div class="row">
-                    <div class="col-lg-3 col-md-6">
-                        <div class="dashboard-stat">
-                            <div class="stat-label">
-                                <span>Alunos Ativos</span>
-                                <span class="badge bg-success">+0.2%</span>
+            <div class="card-body-custom p-4">
+                <div class="row g-4"> <div class="col-lg-3 col-md-6">
+                        <div class="creative-stat-card p-3 rounded-3 border h-100 d-flex align-items-center bg-light-subtle hover-lift transition-all">
+                            <div class="icon-wrapper bg-white p-3 rounded-circle shadow-sm me-3">
+                                <i class="fas fa-user-graduate fa-2x text-senai-red"></i>
                             </div>
-                            <div class="stat-value">3.847</div>
-                            <div class="stat-bar">
-                                <div class="stat-bar-fill" style="width: 92%"></div>
+                            <div>
+                                <h2 class="stat-value fw-bolder mb-0 text-dark">{{ total_alunos }}</h2>
+                                <p class="stat-label text-muted small mb-0 text-uppercase fw-semibold ls-1">Alunos Ativos</p>
                             </div>
                         </div>
                     </div>
 
                     <div class="col-lg-3 col-md-6">
-                        <div class="dashboard-stat">
-                            <div class="stat-label">
-                                <span>Professores</span>
-                                <span class="badge bg-success">+2.3%</span>
+                        <div class="creative-stat-card p-3 rounded-3 border h-100 d-flex align-items-center bg-light-subtle hover-lift transition-all">
+                            <div class="icon-wrapper bg-white p-3 rounded-circle shadow-sm me-3">
+                                <i class="fas fa-chalkboard-teacher fa-2x text-senai-red"></i>
                             </div>
-                            <div class="stat-value">89</div>
-                            <div class="stat-bar">
-                                <div class="stat-bar-fill" style="width: 88%"></div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-lg-3 col-md-6">
-                        <div class="dashboard-stat">
-                            <div class="stat-label">
-                                <span>Cursos Ativos</span>
-                                <span class="badge bg-danger">-0.3%</span>
-                            </div>
-                            <div class="stat-value">24</div>
-                            <div class="stat-bar">
-                                <div class="stat-bar-fill" style="width: 75%"></div>
+                            <div>
+                                <h2 class="stat-value fw-bolder mb-0 text-dark">{{ total_professores }}</h2>
+                                <p class="stat-label text-muted small mb-0 text-uppercase fw-semibold ls-1">Professores</p>
                             </div>
                         </div>
                     </div>
 
                     <div class="col-lg-3 col-md-6">
-                        <div class="dashboard-stat">
-                            <div class="stat-label">
-                                <span>Taxa de Aprovação</span>
-                                <span class="badge bg-success">+1.1%</span>
+                        <div class="creative-stat-card p-3 rounded-3 border h-100 d-flex align-items-center bg-light-subtle hover-lift transition-all">
+                            <div class="icon-wrapper bg-white p-3 rounded-circle shadow-sm me-3">
+                                <i class="fas fa-book-open fa-2x text-senai-red"></i>
                             </div>
-                            <div class="stat-value">94,2%</div>
-                            <div class="stat-bar">
-                                <div class="stat-bar-fill" style="width: 94.2%"></div>
+                            <div>
+                                <h2 class="stat-value fw-bolder mb-0 text-dark">{{ total_cursos }}</h2>
+                                <p class="stat-label text-muted small mb-0 text-uppercase fw-semibold ls-1">Cursos Ativos</p>
                             </div>
                         </div>
                     </div>
+
+                    <div class="col-lg-3 col-md-6">
+                        <div class="creative-stat-card p-3 rounded-3 border h-100 d-flex align-items-center bg-light-subtle hover-lift transition-all">
+                            <div class="icon-wrapper bg-white p-3 rounded-circle shadow-sm me-3">
+                                <i class="fas fa-chart-line fa-2x text-senai-red"></i>
+                            </div>
+                            <div>
+                                <h2 class="stat-value fw-bolder mb-0 text-dark">{{ taxa_aprovacao|default:'0'|floatformat:1 }}%</h2>
+                                <p class="stat-label text-muted small mb-0 text-uppercase fw-semibold ls-1">Taxa de Aprovação</p>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
             </div>
         </div>
     </div>
 </section>
+
+<style>
+    .hover-lift {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .hover-lift:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.08) !important;
+        background-color: #fff !important;
+        border-color: transparent !important;
+    }
+
+    .ls-1 {
+        letter-spacing: 1px;
+    }
+    
+    .icon-wrapper {
+        width: 64px;
+        height: 64px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 2px solid #f8f9fa;
+    }
+</style>
 
 <section class="full-width-section bg-light">
     <div class="container-fluid">

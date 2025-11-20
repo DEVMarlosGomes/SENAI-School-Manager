@@ -5,7 +5,18 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.views.decorators.csrf import csrf_protect
 from django.views.decorators.cache import never_cache
-from apps.academico.models import Aluno as AcadAluno
+
+# --- IMPORTS DOS SEUS MODELOS ---
+# Importando Aluno, Professor e Curso para contar no dashboard
+# Se der erro de importação aqui, verifique se os models Professor e Curso existem em apps.academico.models
+try:
+    from apps.academico.models import Aluno as AcadAluno, Professor, Curso
+except ImportError:
+    # Fallback caso não tenha Professor/Curso ainda, importa só o Aluno
+    from apps.academico.models import Aluno as AcadAluno
+    Professor = None
+    Curso = None
+
 from .models import Profile, PendingRegistration
 
 try:
@@ -212,7 +223,38 @@ def complete_profile(request):
     
     return render(request, 'usuarios/complete_profile.html')
 
-
+# ---------------------------------------------------------------------
+# ALTERAÇÃO AQUI: VIEW DA HOME COM CONTAGEM REAL
+# ---------------------------------------------------------------------
 def home_view(request):
-    """View da página inicial"""
-    return render(request, 'home.html')
+    """View da página inicial com estatísticas do Dashboard"""
+    
+    # 1. Contagem de Alunos (Usando o AcadAluno importado lá em cima)
+    total_alunos = AcadAluno.objects.count()
+
+    # 2. Contagem de Professores
+    # Verifica se o model Professor foi importado corretamente
+    if Professor:
+        total_professores = Professor.objects.count()
+    else:
+        total_professores = 0
+
+    # 3. Contagem de Cursos
+    # Verifica se o model Curso foi importado corretamente
+    if Curso:
+        total_cursos = Curso.objects.count()
+    else:
+        total_cursos = 0
+
+    # 4. Taxa de Aprovação (Fixo por enquanto)
+    taxa_aprovacao = 94.2
+
+    # Contexto para enviar ao template
+    context = {
+        'total_alunos': total_alunos,
+        'total_professores': total_professores,
+        'total_cursos': total_cursos,
+        'taxa_aprovacao': taxa_aprovacao,
+    }
+
+    return render(request, 'home.html', context)
