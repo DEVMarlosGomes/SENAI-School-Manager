@@ -1,0 +1,130 @@
+{% extends 'base_home.html' %}
+{% load static %}
+
+{% block title %}Política de Privacidade - SENAI School Manager{% endblock %}
+
+{% block content %}
+<div class="bg-light min-vh-100 py-5">
+    <div class="container">
+        
+        <!-- Header com Botão Voltar -->
+        <div class="row justify-content-center mb-4">
+            <div class="col-lg-8 d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-shield-alt fa-2x text-senai-red me-3"></i>
+                    <div>
+                        <h2 class="fw-bold text-dark mb-0">Política de Privacidade</h2>
+                        <small class="text-muted">Última atualização: 20 de Novembro de 2025</small>
+                    </div>
+                </div>
+                <a href="{% url 'home' %}" class="btn btn-outline-secondary btn-sm rounded-pill px-4 transition-all">
+                    <i class="fas fa-arrow-left me-2"></i> Voltar
+                </a>
+            </div>
+        </div>
+
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+                    <div class="card-body p-5">
+                        
+                        <!-- Introdução -->
+                        <div class="mb-5">
+                            <p class="lead text-dark" style="line-height: 1.8;">
+                                O <strong>SENAI School Manager</strong> leva sua privacidade a sério. Este documento detalha como seus dados são tratados, garantindo total transparência e conformidade com a <strong>Lei Geral de Proteção de Dados (LGPD)</strong>.
+                            </p>
+                        </div>
+
+                        <!-- Seção 1 -->
+                        <div class="policy-section mb-5">
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="icon-box bg-red-subtle text-senai-red rounded-circle me-3 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                    <i class="fas fa-database"></i>
+                                </div>
+                                <h4 class="fw-bold mb-0">1. Dados que Coletamos</h4>
+                            </div>
+                            <div class="bg-light p-4 rounded-3 border-start border-4 border-senai-red">
+                                <p class="mb-2">Para garantir o funcionamento acadêmico, armazenamos:</p>
+                                <ul class="list-unstyled mb-0">
+                                    <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i> <strong>Pessoais:</strong> Nome, CPF, RG, Data de Nascimento.</li>
+                                    <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i> <strong>Contato:</strong> E-mail, Telefone, Endereço Residencial.</li>
+                                    <li><i class="fas fa-check-circle text-success me-2"></i> <strong>Acadêmicos:</strong> Notas, Frequência, Histórico Escolar.</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- Seção 2 -->
+                        <div class="policy-section mb-5">
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="icon-box bg-red-subtle text-senai-red rounded-circle me-3 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                    <i class="fas fa-bullseye"></i>
+                                </div>
+                                <h4 class="fw-bold mb-0">2. Como Utilizamos</h4>
+                            </div>
+                            <p class="text-muted">Seus dados não são vendidos. Eles são usados exclusivamente para:</p>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <div class="p-3 border rounded-3 h-100">
+                                        <h6 class="fw-bold"><i class="fas fa-graduation-cap me-2 text-secondary"></i>Gestão Acadêmica</h6>
+                                        <small class="text-muted">Emissão de certificados, diários de classe e históricos.</small>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="p-3 border rounded-3 h-100">
+                                        <h6 class="fw-bold"><i class="fas fa-balance-scale me-2 text-secondary"></i>Obrigações Legais</h6>
+                                        <small class="text-muted">Prestação de contas ao MEC e órgãos reguladores.</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Seção 3 -->
+                        <div class="policy-section mb-4">
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="icon-box bg-red-subtle text-senai-red rounded-circle me-3 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                    <i class="fas fa-lock"></i>
+                                </div>
+                                <h4 class="fw-bold mb-0">3. Segurança e Controle</h4>
+                            </div>
+                            <p class="text-muted text-justify">
+                                Utilizamos criptografia de ponta a ponta e servidores seguros. O acesso aos dados é restrito apenas a funcionários autorizados da secretaria e coordenação.
+                            </p>
+                        </div>
+
+                        <hr class="my-5">
+
+                        <!-- Footer do Card -->
+                        <div class="text-center">
+                            <h5 class="fw-bold mb-3">Dúvidas sobre seus dados?</h5>
+                            <p class="text-muted mb-4">Nosso Encarregado de Proteção de Dados (DPO) está à disposição.</p>
+                            <a href="mailto:dpo@senai.com.br" class="btn btn-senai-red text-black px-5 py-2 rounded-pill shadow-sm hover-lift">
+                                <i class="fas fa-envelope me-2"></i> Falar com o DPO
+                            </a>
+                            <div class="mt-4">
+                                <a href="{% url 'home' %}" class="text-decoration-none text-muted small">
+                                    <i class="fas fa-arrow-left me-1"></i> Voltar para Home
+                                </a>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .text-senai-red { color: #d32f2f !important; }
+    .bg-senai-red { background-color: #d32f2f !important; }
+    .bg-red-subtle { background-color: #fde8e8; }
+    
+    .hover-lift:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 20px rgba(211, 47, 47, 0.2) !important;
+    }
+    
+    .border-senai-red { border-color: #d32f2f !important; }
+    .transition-all { transition: all 0.3s ease; }
+</style>
+{% endblock %}

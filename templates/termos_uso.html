@@ -1,0 +1,147 @@
+{% extends 'base_home.html' %}
+{% load static %}
+
+{% block title %}Termos de Uso - SENAI School Manager{% endblock %}
+
+{% block content %}
+<div class="bg-light min-vh-100 py-5">
+    <div class="container">
+        
+        <!-- Header com Botão Voltar -->
+        <div class="row justify-content-center mb-4">
+            <div class="col-lg-8 d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-file-contract fa-2x text-senai-red me-3"></i>
+                    <div>
+                        <h2 class="fw-bold text-dark mb-0">Termos de Uso</h2>
+                        <small class="text-muted">Vigência: 20/11/2025</small>
+                    </div>
+                </div>
+                <a href="{% url 'home' %}" class="btn btn-outline-secondary btn-sm rounded-pill px-4 transition-all">
+                    <i class="fas fa-arrow-left me-2"></i> Voltar
+                </a>
+            </div>
+        </div>
+
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card border-0 shadow-lg rounded-4">
+                    <div class="card-body p-0"> <!-- Padding zero para o accordion encostar nas bordas -->
+                        
+                        <div class="p-5 pb-4">
+                            <p class="lead text-dark mb-0">
+                                Ao utilizar o <strong>SENAI School Manager</strong>, você concorda com as regras abaixo. O uso da plataforma implica na aceitação total destes termos.
+                            </p>
+                        </div>
+
+                        <!-- Accordion Estilizado -->
+                        <div class="accordion accordion-flush" id="termsAccordion">
+                            
+                            <!-- Item 1 -->
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="h1">
+                                    <button class="accordion-button fw-bold py-4 px-5 text-dark" type="button" data-bs-toggle="collapse" data-bs-target="#c1" aria-expanded="true">
+                                        <span class="me-3 text-senai-red">01.</span> Acesso e Credenciais
+                                    </button>
+                                </h2>
+                                <div id="c1" class="accordion-collapse collapse show" data-bs-parent="#termsAccordion">
+                                    <div class="accordion-body px-5 pb-4 text-muted">
+                                        O acesso é <strong>pessoal e intransferível</strong>. Você é inteiramente responsável por manter o sigilo de sua senha. O SENAI não se responsabiliza por acessos indevidos causados por compartilhamento de credenciais.
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Item 2 -->
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="h2">
+                                    <button class="accordion-button collapsed fw-bold py-4 px-5 text-dark" type="button" data-bs-toggle="collapse" data-bs-target="#c2">
+                                        <span class="me-3 text-senai-red">02.</span> Conduta e Proibições
+                                    </button>
+                                </h2>
+                                <div id="c2" class="accordion-collapse collapse" data-bs-parent="#termsAccordion">
+                                    <div class="accordion-body px-5 pb-4 text-muted">
+                                        É estritamente proibido:
+                                        <ul class="mt-2">
+                                            <li>Inserir informações falsas no sistema;</li>
+                                            <li>Tentar burlar mecanismos de segurança;</li>
+                                            <li>Usar a plataforma para disseminar vírus ou spam.</li>
+                                        </ul>
+                                        Violações resultarão em bloqueio imediato e medidas disciplinares.
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Item 3 -->
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="h3">
+                                    <button class="accordion-button collapsed fw-bold py-4 px-5 text-dark" type="button" data-bs-toggle="collapse" data-bs-target="#c3">
+                                        <span class="me-3 text-senai-red">03.</span> Responsabilidades Acadêmicas
+                                    </button>
+                                </h2>
+                                <div id="c3" class="accordion-collapse collapse" data-bs-parent="#termsAccordion">
+                                    <div class="accordion-body px-5 pb-4 text-muted">
+                                        O aluno deve verificar regularmente suas notas, frequências e avisos. Reclamações sobre dados acadêmicos devem ser feitas dentro dos prazos estipulados no calendário escolar.
+                                    </div>
+                                </div>
+                            </div>
+
+                             <!-- Item 4 -->
+                             <div class="accordion-item">
+                                <h2 class="accordion-header" id="h4">
+                                    <button class="accordion-button collapsed fw-bold py-4 px-5 text-dark" type="button" data-bs-toggle="collapse" data-bs-target="#c4">
+                                        <span class="me-3 text-senai-red">04.</span> Disponibilidade
+                                    </button>
+                                </h2>
+                                <div id="c4" class="accordion-collapse collapse" data-bs-parent="#termsAccordion">
+                                    <div class="accordion-body px-5 pb-4 text-muted">
+                                        O sistema pode passar por manutenções programadas. O SENAI não garante disponibilidade ininterrupta, embora trabalhe para manter o serviço online 24/7.
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                        
+                        <!-- Footer do Card -->
+                        <div class="bg-white p-5 text-center rounded-bottom-4">
+                            <div class="form-check d-inline-block mb-4 user-select-none">
+                                <input class="form-check-input" type="checkbox" value="" id="checkTerms" checked disabled>
+                                <label class="form-check-label text-muted" for="checkTerms">
+                                    Li e concordo com todos os termos acima.
+                                </label>
+                            </div>
+                            <div>
+                                <a href="{% url 'home' %}" class="btn btn-senai-red text-black px-5 py-3 rounded-pill fw-bold shadow hover-lift w-100 w-md-auto">
+                                    ACEITAR E VOLTAR
+                                </a>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .text-senai-red { color: #d32f2f !important; }
+    .bg-senai-red { background-color: #d32f2f !important; }
+    
+    .accordion-button:not(.collapsed) {
+        color: #d32f2f;
+        background-color: #fff5f5;
+        box-shadow: inset 0 -1px 0 rgba(0,0,0,.125);
+    }
+    .accordion-button:focus {
+        box-shadow: none;
+        border-color: rgba(0,0,0,.125);
+    }
+    
+    .hover-lift:hover {
+        transform: translateY(-2px);
+        background-color: #b71c1c !important;
+        box-shadow: 0 10px 25px rgba(211, 47, 47, 0.3) !important;
+    }
+    .transition-all { transition: all 0.3s ease; }
+</style>
+{% endblock %}

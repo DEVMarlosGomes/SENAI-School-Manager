@@ -7,12 +7,9 @@ from django.views.decorators.csrf import csrf_protect
 from django.views.decorators.cache import never_cache
 
 # --- IMPORTS DOS SEUS MODELOS ---
-# Importando Aluno, Professor e Curso para contar no dashboard
-# Se der erro de importação aqui, verifique se os models Professor e Curso existem em apps.academico.models
 try:
     from apps.academico.models import Aluno as AcadAluno, Professor, Curso
 except ImportError:
-    # Fallback caso não tenha Professor/Curso ainda, importa só o Aluno
     from apps.academico.models import Aluno as AcadAluno
     Professor = None
     Curso = None
@@ -34,7 +31,6 @@ def login_view(request):
         password = request.POST.get('password')
         user = authenticate(request, username=identifier, password=password)
 
-        # Tentativa por CPF, matrícula etc
         if user is None and identifier:
             candidate = None
             try:
@@ -67,7 +63,6 @@ def login_view(request):
 
         if user is not None:
             login(request, user)
-            # Regenerar chave de sessão após login (segurança)
             request.session.cycle_key()
             
             next_url = request.GET.get('next') or request.POST.get('next')
@@ -84,32 +79,22 @@ def login_view(request):
 
 @never_cache
 def logout_view(request):
-    """Logout com limpeza completa de sessão"""
     logout(request)
-    # Limpar completamente a sessão
     request.session.flush()
-    
     messages.success(request, 'Você foi desconectado com sucesso!')
-    
-    # Criar resposta com redirecionamento
     response = redirect('home')
-    
-    # Deletar cookies de sessão e CSRF
     response.delete_cookie('sessionid')
     response.delete_cookie('csrftoken')
-    
     return response
 
 
 @csrf_protect
 def register_view(request):
-    """View de registro com proteção CSRF"""
     return render(request, 'usuarios/register.html')
 
 
 @csrf_protect
 def registro_pendente(request):
-    """Registro pendente de aprovação com proteção CSRF"""
     if request.method == 'POST':
         primeiro_nome = request.POST.get('primeiro_nome', '').strip()
         sobrenome = request.POST.get('sobrenome', '').strip()
@@ -122,22 +107,15 @@ def registro_pendente(request):
         senha_confirmar = request.POST.get('senha_confirmar', '').strip()
         
         erros = []
-        if not primeiro_nome:
-            erros.append('Primeiro nome é obrigatório.')
-        if not sobrenome:
-            erros.append('Sobrenome é obrigatório.')
-        if not email:
-            erros.append('Email é obrigatório.')
-        if not username:
-            erros.append('Usuário é obrigatório.')
-        if not tipo_solicitado:
-            erros.append('Tipo de perfil é obrigatório.')
-        if not senha:
-            erros.append('Senha é obrigatória.')
-        if senha != senha_confirmar:
-            erros.append('As senhas não coincidem.')
-        if len(senha) < 8:
-            erros.append('A senha deve ter pelo menos 8 caracteres.')
+        if not primeiro_nome: erros.append('Primeiro nome é obrigatório.')
+        if not sobrenome: erros.append('Sobrenome é obrigatório.')
+        if not email: erros.append('Email é obrigatório.')
+        if not username: erros.append('Usuário é obrigatório.')
+        if not tipo_solicitado: erros.append('Tipo de perfil é obrigatório.')
+        if not senha: erros.append('Senha é obrigatória.')
+        if senha != senha_confirmar: erros.append('As senhas não coincidem.')
+        if len(senha) < 8: erros.append('A senha deve ter pelo menos 8 caracteres.')
+        
         if User.objects.filter(username=username).exists():
             erros.append('Este usuário já está registrado.')
         if PendingRegistration.objects.filter(username=username).exists():
@@ -153,25 +131,15 @@ def registro_pendente(request):
             for erro in erros:
                 messages.error(request, erro)
             return render(request, 'usuarios/registro_pendente.html', {
-                'primeiro_nome': primeiro_nome,
-                'sobrenome': sobrenome,
-                'email': email,
-                'username': username,
-                'telefone': telefone,
-                'cpf': cpf,
-                'tipo_solicitado': tipo_solicitado,
+                'primeiro_nome': primeiro_nome, 'sobrenome': sobrenome, 'email': email,
+                'username': username, 'telefone': telefone, 'cpf': cpf, 'tipo_solicitado': tipo_solicitado,
             })
         
         try:
             PendingRegistration.objects.create(
-                primeiro_nome=primeiro_nome,
-                sobrenome=sobrenome,
-                email=email,
-                username=username,
-                telefone=telefone,
-                cpf=cpf if cpf else None,
-                tipo_solicitado=tipo_solicitado,
-                status='pendente'
+                primeiro_nome=primeiro_nome, sobrenome=sobrenome, email=email,
+                username=username, telefone=telefone, cpf=cpf if cpf else None,
+                tipo_solicitado=tipo_solicitado, status='pendente'
             )
             messages.success(request, f'✓ Cadastro realizado com sucesso! Sua solicitação está pendente de aprovação. Você receberá um email em {email} quando for aprovado.')
             return redirect('/')
@@ -184,18 +152,13 @@ def registro_pendente(request):
 @login_required
 @never_cache
 def redirecionar_dashboard(request):
-    """Redireciona para o dashboard apropriado baseado no tipo de usuário"""
     user = request.user
     if user.is_authenticated and hasattr(user, 'profile'):
         profile = user.profile
-        if getattr(profile, 'is_aluno', False):
-            return redirect('aluno_dashboard')
-        if getattr(profile, 'is_professor', False):
-            return redirect('professor_dashboard')
-        if getattr(profile, 'is_secretaria', False):
-            return redirect('secretaria_dashboard')
-        if getattr(profile, 'is_coordenacao', False):
-            return redirect('coordenacao_dashboard')
+        if getattr(profile, 'is_aluno', False): return redirect('aluno_dashboard')
+        if getattr(profile, 'is_professor', False): return redirect('professor_dashboard')
+        if getattr(profile, 'is_secretaria', False): return redirect('secretaria_dashboard')
+        if getattr(profile, 'is_coordenacao', False): return redirect('coordenacao_dashboard')
         
         logout(request)
         messages.error(request, 'Perfil não reconhecido. Entre em contato com o suporte.')
@@ -208,7 +171,6 @@ def redirecionar_dashboard(request):
 @login_required
 @csrf_protect
 def complete_profile(request):
-    """Completar perfil do usuário com proteção CSRF"""
     user = request.user
     if hasattr(user, 'profile'):
         return redirect('redirecionar_dashboard')
@@ -223,33 +185,23 @@ def complete_profile(request):
     
     return render(request, 'usuarios/complete_profile.html')
 
-# ---------------------------------------------------------------------
-# ALTERAÇÃO AQUI: VIEW DA HOME COM CONTAGEM REAL
-# ---------------------------------------------------------------------
+
 def home_view(request):
     """View da página inicial com estatísticas do Dashboard"""
-    
-    # 1. Contagem de Alunos (Usando o AcadAluno importado lá em cima)
     total_alunos = AcadAluno.objects.count()
-
-    # 2. Contagem de Professores
-    # Verifica se o model Professor foi importado corretamente
+    
     if Professor:
         total_professores = Professor.objects.count()
     else:
         total_professores = 0
 
-    # 3. Contagem de Cursos
-    # Verifica se o model Curso foi importado corretamente
     if Curso:
         total_cursos = Curso.objects.count()
     else:
         total_cursos = 0
 
-    # 4. Taxa de Aprovação (Fixo por enquanto)
     taxa_aprovacao = 94.2
 
-    # Contexto para enviar ao template
     context = {
         'total_alunos': total_alunos,
         'total_professores': total_professores,
@@ -258,3 +210,14 @@ def home_view(request):
     }
 
     return render(request, 'home.html', context)
+
+
+# --- NOVAS VIEWS ADICIONADAS PARA O RODAPÉ ---
+
+def politica_privacidade(request):
+    """Renderiza a página de Política de Privacidade"""
+    return render(request, 'politica_privacidade.html')
+
+def termos_uso(request):
+    """Renderiza a página de Termos de Uso"""
+    return render(request, 'termos_uso.html')
