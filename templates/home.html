@@ -4,14 +4,16 @@
 {% block title %}SENAI - Sistema de Gestão Educacional{% endblock %}
 
 {% block extra_css %}
-    <link rel="stylesheet" href="{% static 'css/home.css' %}">
+<link rel="stylesheet" href="{% static 'css/home.css' %}">
 {% endblock %}
 
 {% block content %}
 
 <section class="hero-banner hero-with-bg text-white">
-    <div style="position: absolute; inset: 0; background: linear-gradient(135deg, rgba(196, 30, 58, 0.92) 0%, rgba(231, 76, 60, 0.88) 100%); z-index: 1;"></div>
-    
+    <div
+        style="position: absolute; inset: 0; background: linear-gradient(135deg, rgba(196, 30, 58, 0.92) 0%, rgba(231, 76, 60, 0.88) 100%); z-index: 1;">
+    </div>
+
     <div class="container-fluid" style="position: relative; z-index: 2;">
         <div class="row align-items-center">
             <div class="col-lg-6 hero-content px-4 px-lg-5">
@@ -19,10 +21,10 @@
                     <img src="{% static 'img/senai-logo.png' %}" alt="SENAI" class="me-3" style="height: 50px;">
                     <div class="badge">Sistema Educacional</div>
                 </div>
-                
+
                 <h1 class="display-3 fw-bold mb-3">Bem-vindo ao SENAI</h1>
                 <p class="lead mb-4">
-                    Transformando vidas através da <strong>educação profissional de qualidade</strong> 
+                    Transformando vidas através da <strong>educação profissional de qualidade</strong>
                     e <strong>inovação tecnológica</strong>. Acesse seu dashboard e continue sua jornada de aprendizado.
                 </p>
 
@@ -47,123 +49,118 @@
             </div>
 
             <div class="col-lg-6 d-flex align-items-center justify-content-center px-4 px-lg-5">
+                {% if not user.is_authenticated %}
                 <div class="auth-card w-100" style="max-width: 450px;">
                     <div class="card-header bg-white border-bottom-0 p-0">
                         <ul class="nav nav-tabs" id="authTabs" role="tablist" style="border-bottom: 2px solid #f0f0f0;">
                             <li class="nav-item w-50" role="presentation">
-                                <button class="nav-link w-100 active fw-bold text-dark py-3" id="login-tab" 
-                                        data-bs-toggle="tab" data-bs-target="#login-pane" type="button" role="tab">
+                                <button class="nav-link w-100 active fw-bold text-dark py-3" id="login-tab"
+                                    data-bs-toggle="tab" data-bs-target="#login-pane" type="button" role="tab">
                                     <i class="fas fa-sign-in-alt me-2"></i> Login
                                 </button>
                             </li>
                             <li class="nav-item w-50" role="presentation">
-                                <button class="nav-link w-100 fw-bold text-dark py-3" id="cadastro-tab" 
-                                        data-bs-toggle="tab" data-bs-target="#cadastro-pane" type="button" role="tab">
+                                <button class="nav-link w-100 fw-bold text-dark py-3" id="cadastro-tab"
+                                    data-bs-toggle="tab" data-bs-target="#cadastro-pane" type="button" role="tab">
                                     <i class="fas fa-user-plus me-2"></i> Cadastro
                                 </button>
                             </li>
                         </ul>
                     </div>
-
                     <div class="tab-content p-4" id="authTabsContent">
                         <div class="tab-pane fade show active" id="login-pane" role="tabpanel">
                             <div class="text-center mb-4">
                                 <h5 class="text-senai-red fw-bold mb-1">Acessar Sistema</h5>
                                 <p class="text-muted small">Use suas credenciais para entrar</p>
                             </div>
-                            
                             <form method="post" action="{% url 'login' %}">
                                 {% csrf_token %}
                                 <input type="hidden" name="next" value="{{ request.GET.next }}">
-                                
                                 {% if messages %}
-                                    {% for message in messages %}
-                                        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                                            {{ message }}
-                                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                                        </div>
-                                    {% endfor %}
+                                {% for message in messages %}
+                                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                    {{ message }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                </div>
+                                {% endfor %}
                                 {% endif %}
-
                                 <div class="mb-3">
-                                    <label for="id_username" class="form-label text-dark fw-600">Usuário, CPF ou Matrícula</label>
+                                    <label for="id_username" class="form-label text-dark fw-600">Usuário, CPF ou
+                                        Matrícula</label>
                                     <div class="input-group">
                                         <span class="input-group-text bg-light border-0">
                                             <i class="fas fa-user text-senai-red"></i>
                                         </span>
-                                        <input type="text" name="username" class="form-control border-0" 
-                                               id="id_username" placeholder="Ex: usuario, 000.000.000-00 ou 2024001" 
-                                               required style="box-shadow: none; border-bottom: 2px solid #ccc;">
+                                        <input type="text" name="username" class="form-control border-0"
+                                            id="id_username" placeholder="Ex: usuario, 000.000.000-00 ou 2024001"
+                                            required style="box-shadow: none; border-bottom: 2px solid #ccc;">
                                     </div>
                                 </div>
-                                
                                 <div class="mb-4">
                                     <label for="id_password" class="form-label text-dark fw-600">Senha</label>
                                     <div class="input-group">
                                         <span class="input-group-text bg-light border-0">
                                             <i class="fas fa-lock text-senai-red"></i>
                                         </span>
-                                        <input type="password" name="password" class="form-control border-0" 
-                                               id="id_password" placeholder="Digite sua senha" required
-                                               style="box-shadow: none; border-bottom: 2px solid #ccc;">
+                                        <input type="password" name="password" class="form-control border-0"
+                                            id="id_password" placeholder="Digite sua senha" required
+                                            style="box-shadow: none; border-bottom: 2px solid #ccc;">
                                     </div>
                                 </div>
-                                
                                 <button type="submit" class="btn bg-senai-red text-white w-100 fw-bold py-2 mb-3">
                                     <i class="fas fa-sign-in-alt me-2"></i> Entrar no Sistema
                                 </button>
                             </form>
-                            
                             <div class="text-center small">
-                                <a href="{% url 'password_reset' %}" class="text-muted text-decoration-none">Esqueceu a senha?</a>
+                                <a href="{% url 'password_reset' %}" class="text-muted text-decoration-none">Esqueceu a
+                                    senha?</a>
                                 <span class="text-muted mx-2">•</span>
                                 <a href="#" class="text-muted text-decoration-none">Suporte</a>
                             </div>
                         </div>
-
                         <div class="tab-pane fade" id="cadastro-pane" role="tabpanel">
                             <div class="text-center mb-4">
                                 <h5 class="text-senai-red fw-bold mb-1">Criar Conta</h5>
                                 <p class="text-muted small">Preencha os dados para se cadastrar</p>
                             </div>
-                            
                             <form method="post" action="{% url 'registro_pendente' %}" id="formCadastro">
                                 {% csrf_token %}
-
                                 <div class="row mb-2">
                                     <div class="col-6">
-                                        <label for="primeiro_nome" class="form-label small text-dark fw-600">Primeiro Nome</label>
-                                        <input type="text" class="form-control form-control-sm" id="primeiro_nome" 
-                                               name="primeiro_nome" required>
+                                        <label for="primeiro_nome" class="form-label small text-dark fw-600">Primeiro
+                                            Nome</label>
+                                        <input type="text" class="form-control form-control-sm" id="primeiro_nome"
+                                            name="primeiro_nome" required>
                                     </div>
                                     <div class="col-6">
-                                        <label for="sobrenome" class="form-label small text-dark fw-600">Sobrenome</label>
-                                        <input type="text" class="form-control form-control-sm" id="sobrenome" 
-                                               name="sobrenome" required>
+                                        <label for="sobrenome"
+                                            class="form-label small text-dark fw-600">Sobrenome</label>
+                                        <input type="text" class="form-control form-control-sm" id="sobrenome"
+                                            name="sobrenome" required>
                                     </div>
                                 </div>
-
                                 <div class="mb-2">
                                     <label for="email_cadastro" class="form-label small text-dark fw-600">Email</label>
-                                    <input type="email" class="form-control form-control-sm" id="email_cadastro" 
-                                           name="email" required>
+                                    <input type="email" class="form-control form-control-sm" id="email_cadastro"
+                                        name="email" required>
                                 </div>
-
                                 <div class="mb-2">
-                                    <label for="username_cadastro" class="form-label small text-dark fw-600">Usuário</label>
-                                    <input type="text" class="form-control form-control-sm" id="username_cadastro" 
-                                           name="username" required>
+                                    <label for="username_cadastro"
+                                        class="form-label small text-dark fw-600">Usuário</label>
+                                    <input type="text" class="form-control form-control-sm" id="username_cadastro"
+                                        name="username" required>
                                 </div>
-
                                 <div class="row mb-2">
                                     <div class="col-6">
                                         <label for="cpf_cadastro" class="form-label small text-dark fw-600">CPF</label>
-                                        <input type="text" class="form-control form-control-sm" id="cpf_cadastro" 
-                                               name="cpf" placeholder="000.000.000-00">
+                                        <input type="text" class="form-control form-control-sm" id="cpf_cadastro"
+                                            name="cpf" placeholder="000.000.000-00">
                                     </div>
                                     <div class="col-6">
-                                        <label for="tipo_solicitado" class="form-label small text-dark fw-600">Perfil</label>
-                                        <select class="form-select form-select-sm" id="tipo_solicitado" name="tipo_solicitado" required>
+                                        <label for="tipo_solicitado"
+                                            class="form-label small text-dark fw-600">Perfil</label>
+                                        <select class="form-select form-select-sm" id="tipo_solicitado"
+                                            name="tipo_solicitado" required>
                                             <option value="">-- Selecione --</option>
                                             <option value="aluno">Aluno</option>
                                             <option value="professor">Professor</option>
@@ -172,69 +169,69 @@
                                         </select>
                                     </div>
                                 </div>
-
                                 <div class="mb-2">
-                                    <label for="telefone_cadastro" class="form-label small text-dark fw-600">Telefone</label>
-                                    <input type="tel" class="form-control form-control-sm" id="telefone_cadastro" 
-                                           name="telefone" placeholder="(00) 00000-0000">
+                                    <label for="telefone_cadastro"
+                                        class="form-label small text-dark fw-600">Telefone</label>
+                                    <input type="tel" class="form-control form-control-sm" id="telefone_cadastro"
+                                        name="telefone" placeholder="(00) 00000-0000">
                                 </div>
-
                                 <div class="mb-2">
                                     <label for="cep_cadastro" class="form-label small text-dark fw-600">CEP</label>
-                                    <input type="text" class="form-control form-control-sm" id="cep_cadastro" 
-                                           name="cep" placeholder="00000-000" maxlength="9">
+                                    <input type="text" class="form-control form-control-sm" id="cep_cadastro" name="cep"
+                                        placeholder="00000-000" maxlength="9">
                                     <span id="mensagemCepCadastro" class="d-block small mt-1"></span>
                                 </div>
-
                                 <div class="row mb-2">
                                     <div class="col-8">
-                                        <label for="logradouro_cadastro" class="form-label small text-dark fw-600">Logradouro</label>
-                                        <input type="text" class="form-control form-control-sm" id="logradouro_cadastro" 
-                                               name="logradouro">
+                                        <label for="logradouro_cadastro"
+                                            class="form-label small text-dark fw-600">Logradouro</label>
+                                        <input type="text" class="form-control form-control-sm" id="logradouro_cadastro"
+                                            name="logradouro">
                                     </div>
                                     <div class="col-4">
-                                        <label for="numero_cadastro" class="form-label small text-dark fw-600">Número</label>
-                                        <input type="text" class="form-control form-control-sm" id="numero_cadastro" 
-                                               name="numero">
+                                        <label for="numero_cadastro"
+                                            class="form-label small text-dark fw-600">Número</label>
+                                        <input type="text" class="form-control form-control-sm" id="numero_cadastro"
+                                            name="numero">
                                     </div>
                                 </div>
-
                                 <div class="row mb-2">
                                     <div class="col-6">
-                                        <label for="bairro_cadastro" class="form-label small text-dark fw-600">Bairro</label>
-                                        <input type="text" class="form-control form-control-sm" id="bairro_cadastro" 
-                                               name="bairro">
+                                        <label for="bairro_cadastro"
+                                            class="form-label small text-dark fw-600">Bairro</label>
+                                        <input type="text" class="form-control form-control-sm" id="bairro_cadastro"
+                                            name="bairro">
                                     </div>
                                     <div class="col-6">
-                                        <label for="cidade_cadastro" class="form-label small text-dark fw-600">Cidade</label>
-                                        <input type="text" class="form-control form-control-sm" id="cidade_cadastro" 
-                                               name="cidade">
+                                        <label for="cidade_cadastro"
+                                            class="form-label small text-dark fw-600">Cidade</label>
+                                        <input type="text" class="form-control form-control-sm" id="cidade_cadastro"
+                                            name="cidade">
                                     </div>
                                 </div>
-
                                 <div class="mb-2">
-                                    <label for="estado_cadastro" class="form-label small text-dark fw-600">Estado (UF)</label>
-                                    <input type="text" class="form-control form-control-sm" id="estado_cadastro" 
-                                           name="estado" maxlength="2">
+                                    <label for="estado_cadastro" class="form-label small text-dark fw-600">Estado
+                                        (UF)</label>
+                                    <input type="text" class="form-control form-control-sm" id="estado_cadastro"
+                                        name="estado" maxlength="2">
                                 </div>
-
                                 <div class="row mb-2">
                                     <div class="col-6">
-                                        <label for="senha_cadastro" class="form-label small text-dark fw-600">Senha</label>
-                                        <input type="password" class="form-control form-control-sm" id="senha_cadastro" 
-                                               name="senha" required>
+                                        <label for="senha_cadastro"
+                                            class="form-label small text-dark fw-600">Senha</label>
+                                        <input type="password" class="form-control form-control-sm" id="senha_cadastro"
+                                            name="senha" required>
                                     </div>
                                     <div class="col-6">
-                                        <label for="senha_conf" class="form-label small text-dark fw-600">Confirmar</label>
-                                        <input type="password" class="form-control form-control-sm" id="senha_conf" 
-                                               name="senha_confirmar" required>
+                                        <label for="senha_conf"
+                                            class="form-label small text-dark fw-600">Confirmar</label>
+                                        <input type="password" class="form-control form-control-sm" id="senha_conf"
+                                            name="senha_confirmar" required>
                                     </div>
                                 </div>
-
                                 <small class="text-muted d-block mb-3">
                                     ℹ️ Sua conta será ativada após aprovação do administrador.
                                 </small>
-
                                 <button type="submit" class="btn bg-senai-red text-white w-100 fw-bold py-2">
                                     <i class="fas fa-user-plus me-2"></i> Cadastrar-se
                                 </button>
@@ -242,6 +239,16 @@
                         </div>
                     </div>
                 </div>
+                {% else %}
+                <div class="card bg-white shadow-sm p-4 text-center w-100" style="max-width: 450px;">
+                    <h4 class="text-senai-red fw-bold mb-2">Bem-vindo(a), {{ user.get_full_name|default:user.username }}!
+                    </h4>
+                    <p class="text-muted mb-3">Seu acesso ao sistema está ativo.</p>
+                    <a href="{% url 'redirecionar_dashboard' %}" class="btn bg-senai-red text-white fw-bold mb-2">
+                        Ir para meu Dashboard
+                    </a>
+                </div>
+                {% endif %}
             </div>
         </div>
     </div>
@@ -258,7 +265,8 @@
                     <div class="comunicado-badge bg-danger">URGENTE</div>
                     <h6 class="fw-bold">Início do Período Letivo 2024</h6>
                     <p class="text-muted small mb-2">Publicado em 23/07/2024</p>
-                    <p class="comunicado-text">Comunicamos o início oficial do período letivo. Todos os alunos devem estar presentes no primeiro dia de aula.</p>
+                    <p class="comunicado-text">Comunicamos o início oficial do período letivo. Todos os alunos devem
+                        estar presentes no primeiro dia de aula.</p>
                     <a href="#" class="btn-link-small">Ler mais <i class="fas fa-arrow-right small"></i></a>
                 </div>
 
@@ -266,7 +274,8 @@
                     <div class="comunicado-badge bg-success">IMPORTANTE</div>
                     <h6 class="fw-bold">Novas Vagas para Cursos Técnicos</h6>
                     <p class="text-muted small mb-2">Publicado em 20/07/2024</p>
-                    <p class="comunicado-text">Estamos com inscrições abertas para novos cursos técnicos. Confira os requisitos e inscreva-se agora!</p>
+                    <p class="comunicado-text">Estamos com inscrições abertas para novos cursos técnicos. Confira os
+                        requisitos e inscreva-se agora!</p>
                     <a href="#" class="btn-link-small">Ler mais <i class="fas fa-arrow-right small"></i></a>
                 </div>
 
@@ -274,7 +283,8 @@
                     <div class="comunicado-badge bg-info">INFORMATIVO</div>
                     <h6 class="fw-bold">Calendário do Processo de 1º Semestre</h6>
                     <p class="text-muted small mb-2">Publicado em 05/07/2024</p>
-                    <p class="comunicado-text">Confira as datas importantes do semestre como avaliações, feriados e recesso escolar.</p>
+                    <p class="comunicado-text">Confira as datas importantes do semestre como avaliações, feriados e
+                        recesso escolar.</p>
                     <a href="#" class="btn-link-small">Ler mais <i class="fas fa-arrow-right small"></i></a>
                 </div>
             </div>
@@ -405,7 +415,7 @@
             <h2>Testemunhos dos Alunos</h2>
             <p class="lead text-muted">Histórias de sucesso que inspiram e transformam vidas através da educação profissional</p>
         </div>
-        
+
         <div class="row g-4">
             <div class="col-lg-4 col-md-6">
                 <div class="testimonial-card">
@@ -467,120 +477,117 @@
             <h2>Nossos Parceiros Estratégicos</h2>
             <p class="lead text-muted">Empresas que confiam na qualidade da educação SENAI</p>
         </div>
-        
+
         <div class="row g-4 justify-content-center">
-            <div class="col-lg-4 col-md-6">
-                <div class="partner-card">
-                    <div class="partner-img-container">
-                        <img src="{% static 'img/Logo_petrobras.gif' %}" alt="Petrobras" class="partner-logo-img">
+            
+            <div class="col-12 col-sm-6 col-md-4 d-flex justify-content-center">
+                <div class="partner-card w-100" style="max-width: 350px;">
+                    <div class="partner-img-container p-4">
+                        <img src="{% static 'img/Logo_petrobras.gif' %}" alt="Petrobras" class="partner-logo-img img-fluid">
                     </div>
-                    <div class="partner-info">
-                        <h5>Petrobras</h5>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-lg-4 col-md-6">
-                <div class="partner-card">
-                    <div class="partner-img-container">
-                        <img src="{% static 'img/vale-logo.png' %}" alt="Vale" class="partner-logo-img">
-                    </div>
-                    <div class="partner-info">
-                        <h5>Vale</h5>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card shadow-sm h-100">
-                    <div class="card-body text-center p-4">
-                        <i class="fas fa-star text-warning"></i><i class="fas fa-star text-warning"></i><i class="fas fa-star text-warning"></i><i class="fas fa-star text-warning"></i><i class="fas fa-star text-warning"></i>
-                        <p class="fst-italic mt-3 mb-4">"Um aprendizado de última geração e metodologia prática. Sou preparado para o mercado de trabalho!"</p>
-                        <h6 class="fw-bold mb-0">João Oliveira</h6>
-                        <small class="text-muted">Mecânica de Precisão</small>
-
-            <div class="col-lg-4 col-md-6">
-                <div class="partner-card">
-                    <div class="partner-img-container">
-                        <img src="{% static 'img/embraer-logo.png' %}" alt="Embraer" class="partner-logo-img">
-                    </div>
-                    <div class="partner-info">
-                        <h5>Embraer</h5>
+                    <div class="partner-info pb-3">
+                        <h6 class="mb-0 fw-bold text-secondary">Petrobras</h6>
                     </div>
                 </div>
             </div>
 
-            <div class="col-lg-4 col-md-6">
-                <div class="partner-card">
-                    <div class="partner-img-container">
-                        <img src="{% static 'img/Volkswagen_logo.png' %}" alt="Volkswagen" class="partner-logo-img">
+            <div class="col-12 col-sm-6 col-md-4 d-flex justify-content-center">
+                <div class="partner-card w-100" style="max-width: 350px;">
+                    <div class="partner-img-container p-4">
+                        <img src="{% static 'img/vale-logo.png' %}" alt="Vale" class="partner-logo-img img-fluid">
                     </div>
-                    <div class="partner-info">
-                        <h5>Volkswagen</h5>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-lg-4 col-md-6">
-                <div class="partner-card">
-                    <div class="partner-img-container">
-                        <img src="{% static 'img/Bosch-Logo.png' %}" alt="Bosch" class="partner-logo-img">
-                    </div>
-                    <div class="partner-info">
-                        <h5>Bosch</h5>
+                    <div class="partner-info pb-3">
+                        <h6 class="mb-0 fw-bold text-secondary">Vale</h6>
                     </div>
                 </div>
             </div>
 
-            <div class="col-lg-4 col-md-6">
-                <div class="partner-card">
-                    <div class="partner-img-container">
-                        <img src="{% static 'img/ambev-logo.png' %}" alt="Ambev" class="partner-logo-img">
+            <div class="col-12 col-sm-6 col-md-4 d-flex justify-content-center">
+                <div class="partner-card w-100" style="max-width: 350px;">
+                    <div class="partner-img-container p-4">
+                        <img src="{% static 'img/embraer-logo.png' %}" alt="Embraer" class="partner-logo-img img-fluid">
                     </div>
-                    <div class="partner-info">
-                        <h5>Ambev</h5>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-lg-4 col-md-6">
-                <div class="partner-card">
-                    <div class="partner-img-container">
-                        <img src="{% static 'img/siemens-logo.png' %}" alt="Siemens" class="partner-logo-img">
-                    </div>
-                    <div class="partner-info">
-                        <h5>Siemens</h5>
+                    <div class="partner-info pb-3">
+                        <h6 class="mb-0 fw-bold text-secondary">Embraer</h6>
                     </div>
                 </div>
             </div>
 
-            <div class="col-lg-4 col-md-6">
-                <div class="partner-card">
-                    <div class="partner-img-container">
-                        <img src="{% static 'img/abb-logo.png' %}" alt="ABB" class="partner-logo-img">
+            <div class="col-12 col-sm-6 col-md-4 d-flex justify-content-center">
+                <div class="partner-card w-100" style="max-width: 350px;">
+                    <div class="partner-img-container p-4">
+                        <img src="{% static 'img/volkswagen-logo.png' %}" alt="Volkswagen" class="partner-logo-img img-fluid">
                     </div>
-                    <div class="partner-info">
-                        <h5>ABB</h5>
+                    <div class="partner-info pb-3">
+                        <h6 class="mb-0 fw-bold text-secondary">Volkswagen</h6>
                     </div>
                 </div>
             </div>
 
-            <div class="col-lg-4 col-md-6">
-                <div class="partner-card">
-                    <div class="partner-img-container">
-                        <img src="{% static 'img/fiat-logo.png' %}" alt="Fiat" class="partner-logo-img">
+            <div class="col-12 col-sm-6 col-md-4 d-flex justify-content-center">
+                <div class="partner-card w-100" style="max-width: 350px;">
+                    <div class="partner-img-container p-4">
+                        <img src="{% static 'img/Bosch-Logo.png' %}" alt="Bosch" class="partner-logo-img img-fluid">
                     </div>
-                    <div class="partner-info">
-                        <h5>Fiat</h5>
+                    <div class="partner-info pb-3">
+                        <h6 class="mb-0 fw-bold text-secondary">Bosch</h6>
                     </div>
                 </div>
             </div>
+
+            <div class="col-12 col-sm-6 col-md-4 d-flex justify-content-center">
+                <div class="partner-card w-100" style="max-width: 350px;">
+                    <div class="partner-img-container p-4">
+                        <img src="{% static 'img/ambev-logo.png' %}" alt="Ambev" class="partner-logo-img img-fluid">
+                    </div>
+                    <div class="partner-info pb-3">
+                        <h6 class="mb-0 fw-bold text-secondary">Ambev</h6>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-sm-6 col-md-4 d-flex justify-content-center">
+                <div class="partner-card w-100" style="max-width: 350px;">
+                    <div class="partner-img-container p-4">
+                        <img src="{% static 'img/siemens_logo.png' %}" alt="Siemens" class="partner-logo-img img-fluid">
+                    </div>
+                    <div class="partner-info pb-3">
+                        <h6 class="mb-0 fw-bold text-secondary">Siemens</h6>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-sm-6 col-md-4 d-flex justify-content-center">
+                <div class="partner-card w-100" style="max-width: 350px;">
+                    <div class="partner-img-container p-4">
+                        <img src="{% static 'img/ABB_logo.png' %}" alt="ABB" class="partner-logo-img img-fluid">
+                    </div>
+                    <div class="partner-info pb-3">
+                        <h6 class="mb-0 fw-bold text-secondary">ABB</h6>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-sm-6 col-md-4 d-flex justify-content-center">
+                <div class="partner-card w-100" style="max-width: 350px;">
+                    <div class="partner-img-container p-4">
+                        <img src="{% static 'img/fiat_logo.png' %}" alt="Fiat" class="partner-logo-img img-fluid">
+                    </div>
+                    <div class="partner-info pb-3">
+                        <h6 class="mb-0 fw-bold text-secondary">Fiat</h6>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </div>
 </section>
+
 <section class="py-5 bg-senai-red text-white">
     <div class="container text-center">
         <h2 class="mb-3">Pronto para transformar seu futuro?</h2>
-        <p class="lead mb-5">Junte-se a milhares de alunos que já escolheram o SENAI para construir uma carreira de sucesso</p>
+        <p class="lead mb-5">Junte-se a milhares de alunos que já escolheram o SENAI para construir uma carreira de
+            sucesso</p>
         <div>
             <a href="{% url 'home' %}#cadastro-pane" class="btn btn-lg btn-light me-3 mb-2 mb-md-0">
                 <i class="fas fa-user-plus me-2"></i> Inscreva-se Agora
@@ -645,8 +652,8 @@
 
         <div class="footer-bottom">
             <p class="mb-0">
-                &copy; 2025 SENAI - Serviço Nacional de Aprendizagem Industrial. 
-                Todos os direitos reservados. | 
+                &copy; 2025 SENAI - Serviço Nacional de Aprendizagem Industrial.
+                Todos os direitos reservados. |
                 <a href="#" class="text-decoration-none">Política de Privacidade</a> |
                 <a href="#" class="text-decoration-none">Termos de Uso</a>
             </p>
@@ -658,124 +665,124 @@
 
 {% block extra_js %}
 <script>
-function getCookie(name) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-        const cookies = document.cookie.split(';');
-        for (let i = 0; i < cookies.length; i++) {
-            const cookie = cookies[i].trim();
-            if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
             }
         }
+        return cookieValue;
     }
-    return cookieValue;
-}
 
-document.getElementById('cpf_cadastro').addEventListener('input', function(e) {
-    let valor = e.target.value.replace(/\D/g, '');
-    if (valor.length <= 11) {
-        valor = valor.replace(/(\d{3})(\d)/, '$1.$2');
-        valor = valor.replace(/(\d{3})(\d)/, '$1.$2');
-        valor = valor.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
-    }
-    e.target.value = valor;
-});
-
-document.getElementById('telefone_cadastro').addEventListener('input', function(e) {
-    let valor = e.target.value.replace(/\D/g, '');
-    if (valor.length <= 11) {
-        valor = valor.replace(/^(\d{2})(\d)/, '($1) $2');
-        valor = valor.replace(/(\d{5})(\d)/, '$1-$2');
-    }
-    e.target.value = valor;
-});
-
-document.getElementById('cep_cadastro').addEventListener('input', function(e) {
-    let valor = e.target.value.replace(/\D/g, '');
-    if (valor.length > 5) {
-        valor = valor.replace(/^(\d{5})(\d)/, '$1-$2');
-    }
-    e.target.value = valor;
-});
-
-document.getElementById('cep_cadastro').addEventListener('blur', function() {
-    const cep = this.value.replace(/\D/g, '');
-    const mensagem = document.getElementById('mensagemCepCadastro');
-    
-    mensagem.textContent = '';
-    mensagem.className = '';
-    
-    if (cep.length !== 8) {
-        if (cep.length > 0) {
-            mensagem.textContent = '⚠ CEP deve ter 8 dígitos';
-            mensagem.className = 'text-warning small';
+    document.getElementById('cpf_cadastro').addEventListener('input', function (e) {
+        let valor = e.target.value.replace(/\D/g, '');
+        if (valor.length <= 11) {
+            valor = valor.replace(/(\d{3})(\d)/, '$1.$2');
+            valor = valor.replace(/(\d{3})(\d)/, '$1.$2');
+            valor = valor.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
         }
-        return;
-    }
-    
-    mensagem.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Buscando...';
-    mensagem.className = 'text-info small';
-    
-    const campos = ['logradouro_cadastro', 'bairro_cadastro', 'cidade_cadastro', 'estado_cadastro'];
-    campos.forEach(id => document.getElementById(id).disabled = true);
-    
-    fetch(`/academico/api/consultar-cep/?cep=${cep}`, {
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': getCookie('csrftoken')
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        campos.forEach(id => document.getElementById(id).disabled = false);
-        
-        if (data.erro) {
-            mensagem.innerHTML = `<i class="fas fa-times-circle"></i> ${data.mensagem}`;
-            mensagem.className = 'text-danger small';
-        } else {
-            document.getElementById('logradouro_cadastro').value = data.logradouro;
-            document.getElementById('bairro_cadastro').value = data.bairro;
-            document.getElementById('cidade_cadastro').value = data.cidade;
-            document.getElementById('estado_cadastro').value = data.estado;
-            
-            mensagem.innerHTML = '<i class="fas fa-check-circle"></i> Encontrado!';
-            mensagem.className = 'text-success small';
-            
-            document.getElementById('numero_cadastro').focus();
-            
-            setTimeout(() => mensagem.textContent = '', 3000);
-        }
-    })
-    .catch(error => {
-        campos.forEach(id => document.getElementById(id).disabled = false);
-        console.error('Erro:', error);
-        mensagem.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Erro ao buscar CEP';
-        mensagem.className = 'text-danger small';
+        e.target.value = valor;
     });
-});
 
-document.getElementById('estado_cadastro').addEventListener('input', function(e) {
-    e.target.value = e.target.value.toUpperCase();
-});
+    document.getElementById('telefone_cadastro').addEventListener('input', function (e) {
+        let valor = e.target.value.replace(/\D/g, '');
+        if (valor.length <= 11) {
+            valor = valor.replace(/^(\d{2})(\d)/, '($1) $2');
+            valor = valor.replace(/(\d{5})(\d)/, '$1-$2');
+        }
+        e.target.value = valor;
+    });
 
-document.getElementById('formCadastro').addEventListener('submit', function(e) {
-    const senha = document.getElementById('senha_cadastro').value;
-    const senhaConf = document.getElementById('senha_conf').value;
-    
-    if (senha !== senhaConf) {
-        e.preventDefault();
-        alert('As senhas não coincidem!');
-        return false;
-    }
-    
-    if (senha.length < 8) {
-        e.preventDefault();
-        alert('A senha deve ter no mínimo 8 caracteres!');
-        return false;
-    }
-});
+    document.getElementById('cep_cadastro').addEventListener('input', function (e) {
+        let valor = e.target.value.replace(/\D/g, '');
+        if (valor.length > 5) {
+            valor = valor.replace(/^(\d{5})(\d)/, '$1-$2');
+        }
+        e.target.value = valor;
+    });
+
+    document.getElementById('cep_cadastro').addEventListener('blur', function () {
+        const cep = this.value.replace(/\D/g, '');
+        const mensagem = document.getElementById('mensagemCepCadastro');
+
+        mensagem.textContent = '';
+        mensagem.className = '';
+
+        if (cep.length !== 8) {
+            if (cep.length > 0) {
+                mensagem.textContent = '⚠ CEP deve ter 8 dígitos';
+                mensagem.className = 'text-warning small';
+            }
+            return;
+        }
+
+        mensagem.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Buscando...';
+        mensagem.className = 'text-info small';
+
+        const campos = ['logradouro_cadastro', 'bairro_cadastro', 'cidade_cadastro', 'estado_cadastro'];
+        campos.forEach(id => document.getElementById(id).disabled = true);
+
+        fetch(`/academico/api/consultar-cep/?cep=${cep}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            }
+        })
+            .then(response => response.json())
+            .then(data => {
+                campos.forEach(id => document.getElementById(id).disabled = false);
+
+                if (data.erro) {
+                    mensagem.innerHTML = `<i class="fas fa-times-circle"></i> ${data.mensagem}`;
+                    mensagem.className = 'text-danger small';
+                } else {
+                    document.getElementById('logradouro_cadastro').value = data.logradouro;
+                    document.getElementById('bairro_cadastro').value = data.bairro;
+                    document.getElementById('cidade_cadastro').value = data.cidade;
+                    document.getElementById('estado_cadastro').value = data.estado;
+
+                    mensagem.innerHTML = '<i class="fas fa-check-circle"></i> Encontrado!';
+                    mensagem.className = 'text-success small';
+
+                    document.getElementById('numero_cadastro').focus();
+
+                    setTimeout(() => mensagem.textContent = '', 3000);
+                }
+            })
+            .catch(error => {
+                campos.forEach(id => document.getElementById(id).disabled = false);
+                console.error('Erro:', error);
+                mensagem.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Erro ao buscar CEP';
+                mensagem.className = 'text-danger small';
+            });
+    });
+
+    document.getElementById('estado_cadastro').addEventListener('input', function (e) {
+        e.target.value = e.target.value.toUpperCase();
+    });
+
+    document.getElementById('formCadastro').addEventListener('submit', function (e) {
+        const senha = document.getElementById('senha_cadastro').value;
+        const senhaConf = document.getElementById('senha_conf').value;
+
+        if (senha !== senhaConf) {
+            e.preventDefault();
+            alert('As senhas não coincidem!');
+            return false;
+        }
+
+        if (senha.length < 8) {
+            e.preventDefault();
+            alert('A senha deve ter no mínimo 8 caracteres!');
+            return false;
+        }
+    });
 </script>
 {% endblock %}
