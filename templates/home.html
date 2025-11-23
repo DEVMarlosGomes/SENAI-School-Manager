@@ -721,6 +721,17 @@
         transform: translateY(-2px);
         transition: all 0.2s ease;
     }
+    .nav-link.active-page {
+    background-color: rgba(0, 0, 0, 0.2) !important;
+    border-left: 4px solid #fff;
+    font-weight: bold;
+    color: white !important;
+}
+
+.nav-link:hover {
+    background-color: rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s;
+}
 </style>
 
 {% endblock %}

@@ -4,18 +4,20 @@
 {% block title %}Gestão - Coordenação{% endblock %}
 
 {% block content %}
-<div class="layout-wrapper d-flex">
-    <!-- Sidebar -->
+<input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+
+<div class="layout-wrapper">
     {% include 'includes/sidebar.html' %}
     
-    <!-- Main Content -->
-    <div class="flex-grow-1" style="margin-left: 250px; min-height: 100vh;">
-        <!-- Top Header Bar -->
+    <div id="main-content">
+        
         <header class="bg-white border-bottom shadow-sm sticky-top">
             <div class="d-flex justify-content-between align-items-center px-4 py-3">
-                <div>
-                    <h6 class="mb-0 text-muted">COORDENAÇÃO ACADÊMICA</h6>
-                    <h3 class="mb-0 fw-bold text-senai-red">Gestão Acadêmica</h3>
+                <div class="d-flex align-items-center gap-3">
+                    <div>
+                        <h6 class="mb-0 text-muted">COORDENAÇÃO ACADÊMICA</h6>
+                        <h3 class="mb-0 fw-bold text-senai-red">Gestão Acadêmica</h3>
+                    </div>
                 </div>
                 <div class="d-flex align-items-center gap-3">
                     <div class="position-relative">
@@ -34,16 +36,14 @@
             </div>
         </header>
 
-        <!-- Page Content -->
         <div class="container-fluid p-4">
             
-            <!-- KPI Cards -->
             <div class="row g-3 mb-4">
                 <div class="col-lg-3 col-md-6">
                     <div class="card shadow-sm border-0 border-top border-4 border-senai-red h-100 position-relative overflow-hidden">
                         <div class="card-body">
                             <h6 class="text-muted small text-uppercase">Total de Alunos</h6>
-                            <h2 class="display-4 fw-bold text-senai-red mb-0" id="kpiTotalAlunos">—</h2>
+                            <h2 class="display-4 fw-bold text-senai-red mb-0" id="kpiTotalAlunos">0</h2>
                             <p class="small text-muted mb-0">Matriculados</p>
                             <i class="fas fa-user-graduate fa-4x text-senai-red opacity-10 position-absolute top-50 end-0 translate-middle-y me-2" style="margin-right: -20px;"></i>
                         </div>
@@ -54,7 +54,7 @@
                     <div class="card shadow-sm border-0 border-top border-4 border-success h-100 position-relative overflow-hidden">
                         <div class="card-body">
                             <h6 class="text-muted small text-uppercase">Alunos Ativos</h6>
-                            <h2 class="display-4 fw-bold text-success mb-0" id="kpiAtivos">—</h2>
+                            <h2 class="display-4 fw-bold text-success mb-0" id="kpiAtivos">0</h2>
                             <p class="small text-muted mb-0">Em aulas</p>
                             <i class="fas fa-check-circle fa-4x text-success opacity-10 position-absolute top-50 end-0 translate-middle-y me-2" style="margin-right: -20px;"></i>
                         </div>
@@ -65,7 +65,7 @@
                     <div class="card shadow-sm border-0 border-top border-4 border-warning h-100 position-relative overflow-hidden">
                         <div class="card-body">
                             <h6 class="text-muted small text-uppercase">Alunos Pendentes</h6>
-                            <h2 class="display-4 fw-bold text-warning mb-0" id="kpiPendentes">—</h2>
+                            <h2 class="display-4 fw-bold text-warning mb-0" id="kpiPendentes">0</h2>
                             <p class="small text-muted mb-0">Pendências</p>
                             <i class="fas fa-hourglass-half fa-4x text-warning opacity-10 position-absolute top-50 end-0 translate-middle-y me-2" style="margin-right: -20px;"></i>
                         </div>
@@ -76,7 +76,7 @@
                     <div class="card shadow-sm border-0 border-top border-4 border-danger h-100 position-relative overflow-hidden">
                         <div class="card-body">
                             <h6 class="text-muted small text-uppercase">Alunos Inativos</h6>
-                            <h2 class="display-4 fw-bold text-danger mb-0" id="kpiInativos">—</h2>
+                            <h2 class="display-4 fw-bold text-danger mb-0" id="kpiInativos">0</h2>
                             <p class="small text-muted mb-0">Sem matrícula</p>
                             <i class="fas fa-ban fa-4x text-danger opacity-10 position-absolute top-50 end-0 translate-middle-y me-2" style="margin-right: -20px;"></i>
                         </div>
@@ -84,7 +84,6 @@
                 </div>
             </div>
 
-            <!-- Tabs de Navegação -->
             <ul class="nav nav-tabs mb-4" role="tablist">
                 <li class="nav-item" role="presentation">
                     <button class="nav-link active fw-bold" id="tab-alunos" data-bs-toggle="tab" data-bs-target="#content-alunos" type="button" role="tab">
@@ -110,7 +109,6 @@
 
             <div class="tab-content">
                 
-                <!-- Tab: Alunos -->
                 <div class="tab-pane fade show active" id="content-alunos" role="tabpanel">
                     <div class="card shadow-sm border-0">
                         <div class="card-header bg-light border-bottom py-3 d-flex justify-content-between align-items-center">
@@ -128,9 +126,9 @@
                                 </div>
                                 <div class="col-md-2">
                                     <select id="filterAlunoStatus" class="form-select form-select-sm">
-                                        <option value="">Todos</option>
+                                        <option value="">Todos Status</option>
                                         <option value="ativo">Ativo</option>
-                                        <option value="inativo">Inativo</option>
+                                        <option value="trancado">Trancado</option>
                                         <option value="pendente">Pendente</option>
                                     </select>
                                 </div>
@@ -157,15 +155,13 @@
                                         </tr>
                                     </thead>
                                     <tbody id="alunosTableBody">
-                                        <!-- Preenchido via JavaScript -->
-                                    </tbody>
+                                        </tbody>
                                 </table>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Tab: Turmas -->
                 <div class="tab-pane fade" id="content-turmas" role="tabpanel">
                     <div class="card shadow-sm border-0">
                         <div class="card-header bg-light border-bottom py-3 d-flex justify-content-between align-items-center">
@@ -178,13 +174,11 @@
                         </div>
                         <div class="card-body">
                             <div class="row g-3" id="turmasContainer">
-                                <!-- Preenchido via JavaScript -->
-                            </div>
+                                </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Tab: Professores -->
                 <div class="tab-pane fade" id="content-professores" role="tabpanel">
                     <div class="card shadow-sm border-0">
                         <div class="card-header bg-light border-bottom py-3 d-flex justify-content-between align-items-center">
@@ -208,15 +202,13 @@
                                         </tr>
                                     </thead>
                                     <tbody id="professoresTableBody">
-                                        <!-- Preenchido via JavaScript -->
-                                    </tbody>
+                                        </tbody>
                                 </table>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Tab: Disciplinas -->
                 <div class="tab-pane fade" id="content-disciplinas" role="tabpanel">
                     <div class="card shadow-sm border-0">
                         <div class="card-header bg-light border-bottom py-3 d-flex justify-content-between align-items-center">
@@ -240,8 +232,7 @@
                                         </tr>
                                     </thead>
                                     <tbody id="disciplinasTableBody">
-                                        <!-- Preenchido via JavaScript -->
-                                    </tbody>
+                                        </tbody>
                                 </table>
                             </div>
                         </div>
@@ -254,7 +245,6 @@
     </div>
 </div>
 
-<!-- MODAL: Novo/Editar Aluno -->
 <div class="modal fade" id="modalAluno" tabindex="-1">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -282,9 +272,9 @@
                         <div class="col-md-6">
                             <label class="form-label fw-bold">Status *</label>
                             <select class="form-select" id="inputAlunoStatus" required>
-                                <option value="ativo">Ativo</option>
-                                <option value="pendente">Pendente</option>
-                                <option value="inativo">Inativo</option>
+                                <option value="Ativo">Ativo</option>
+                                <option value="Trancado">Trancado</option>
+                                <option value="Pendente">Pendente</option>
                             </select>
                         </div>
                     </div>
@@ -298,7 +288,6 @@
     </div>
 </div>
 
-<!-- MODAL: Novo/Editar Turma -->
 <div class="modal fade" id="modalTurma" tabindex="-1">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -338,7 +327,6 @@
     </div>
 </div>
 
-<!-- MODAL: Novo/Editar Professor -->
 <div class="modal fade" id="modalProfessor" tabindex="-1">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -372,7 +360,6 @@
     </div>
 </div>
 
-<!-- MODAL: Nova/Editar Disciplina -->
 <div class="modal fade" id="modalDisciplina" tabindex="-1">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -406,28 +393,73 @@
     </div>
 </div>
 
-<!-- Responsive adjustments -->
 <style>
-    @media (max-width: 991.98px) {
-        .layout-wrapper > div {
-            margin-left: 0 !important;
-        }
-        
-        #sidebar {
-            width: 200px;
-            transform: translateX(-100%);
-            transition: transform 0.3s ease;
-            z-index: 1000;
-        }
-        
-        #sidebar.show {
-            transform: translateX(0);
+    /* Remove margens padrão que podem criar gaps */
+    html, body {
+        margin: 0;
+        padding: 0;
+        overflow-x: hidden; 
+    }
+
+    /* SIDEBAR: Fixa e Sólida */
+    #sidebar {
+        width: 250px !important;
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        bottom: 0 !important;
+        height: 100vh !important;
+        z-index: 1050 !important;
+        display: block !important;
+        visibility: visible !important;
+        transform: none !important;
+        right: auto !important; 
+        box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+        margin: 0 !important;
+        padding-top: 0 !important;
+    }
+
+    /* REMOVE O FUNDO PRETO (OVERLAY) */
+    #sidebar::after {
+        content: none !important;
+        display: none !important;
+    }
+
+    /* CONTEÚDO PRINCIPAL: Margem Exata */
+    #main-content {
+        margin-left: 250px !important;
+        width: calc(100% - 250px) !important;
+        min-height: 100vh;
+        padding: 0 !important;
+        position: relative;
+    }
+
+    /* CONFIGURAÇÃO DO CABEÇALHO (HEADER) */
+    header.sticky-top {
+        top: 0;
+        width: 100%;
+        margin: 0 !important;
+        border-radius: 0 !important;
+        z-index: 1020; 
+    }
+
+    /* Ajuste para telas muito pequenas */
+    @media (max-width: 768px) {
+        header .d-flex {
+            flex-wrap: wrap;
         }
     }
 </style>
-
 {% endblock %}
 
 {% block extra_js %}
-    <script src="{% static 'js/coordenacao-gestao.js' %}"></script>
+    <script>
+        window.SCHOOL_DATA = {
+            alunos: {{ alunos_json|safe|default:"[]" }},
+            turmas: {{ turmas_json|safe|default:"[]" }},
+            professores: {{ professores_json|safe|default:"[]" }},
+            disciplinas: {{ disciplinas_json|safe|default:"[]" }}
+        };
+    </script>
+    <script src="{% static 'js/coordenacao-gestao.js' %}?v=4"></script>
 {% endblock %}

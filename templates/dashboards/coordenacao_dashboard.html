@@ -4,21 +4,21 @@
 {% block title %}Coordenação - SENAI School Manager{% endblock %}
 
 {% block content %}
-<div class="layout-wrapper d-flex">
-    <!-- Sidebar -->
+<div class="layout-wrapper">
     {% include 'includes/sidebar.html' %}
     
-    <!-- Main Content -->
-    <div class="flex-grow-1" style="margin-left: 250px; min-height: 100vh;">
-        <!-- Top Header Bar -->
+    <div id="main-content">
+        
         <header class="bg-white border-bottom shadow-sm sticky-top">
             <div class="d-flex justify-content-between align-items-center px-4 py-3">
-                <div>
-                    <h6 class="mb-0 text-muted">COORDENAÇÃO ACADÊMICA</h6>
-                    <h3 class="mb-0 fw-bold text-senai-red">Visão Geral</h3>
-                </div>
                 <div class="d-flex align-items-center gap-3">
-                    <!-- BOTÃO PDF ADICIONADO -->
+                    <div>
+                        <h6 class="mb-0 text-muted">COORDENAÇÃO ACADÊMICA</h6>
+                        <h3 class="mb-0 fw-bold text-senai-red">Visão Geral</h3>
+                    </div>
+                </div>
+
+                <div class="d-flex align-items-center gap-3">
                     <a href="{% url 'relatorio_coordenacao_pdf' user.id %}" class="btn btn-sm btn-danger" target="_blank" title="Gerar Relatório PDF">
                         <i class="fas fa-file-pdf me-1"></i> Relatório PDF
                     </a>
@@ -39,15 +39,13 @@
             </div>
         </header>
 
-        <!-- Page Content -->
         <div class="container-fluid p-4">
-            <!-- KPI Cards -->
             <div class="row g-3 mb-4">
                 <div class="col-lg-3 col-md-6">
                     <div class="card shadow-sm border-0 border-top border-4 border-senai-red h-100 position-relative overflow-hidden">
                         <div class="card-body">
                             <h6 class="text-muted small text-uppercase">Total de Turmas</h6>
-                            <h2 class="display-4 fw-bold text-senai-red mb-0" id="kpiTurmas">—</h2>
+                            <h2 class="display-4 fw-bold text-senai-red mb-0" id="kpiTurmas">{{ total_turmas|default:"—" }}</h2>
                             <p class="small text-muted mb-0"><span id="kpiTurmasTrend" class="me-1"></span></p>
                             <i class="fas fa-chalkboard fa-4x text-senai-red opacity-10 position-absolute top-50 end-0 translate-middle-y me-2" style="margin-right: -20px;"></i>
                         </div>
@@ -58,7 +56,7 @@
                     <div class="card shadow-sm border-0 border-top border-4 border-success h-100 position-relative overflow-hidden">
                         <div class="card-body">
                             <h6 class="text-muted small text-uppercase">Professores Ativos</h6>
-                            <h2 class="display-4 fw-bold text-success mb-0" id="kpiProfessores">—</h2>
+                            <h2 class="display-4 fw-bold text-success mb-0" id="kpiProfessores">{{ total_professores|default:"—" }}</h2>
                             <p class="small text-muted mb-0"><span id="kpiProfessoresTrend" class="me-1"></span></p>
                             <i class="fas fa-user-tie fa-4x text-success opacity-10 position-absolute top-50 end-0 translate-middle-y me-2" style="margin-right: -20px;"></i>
                         </div>
@@ -69,7 +67,7 @@
                     <div class="card shadow-sm border-0 border-top border-4 border-info h-100 position-relative overflow-hidden">
                         <div class="card-body">
                             <h6 class="text-muted small text-uppercase">Alunos Matriculados</h6>
-                            <h2 class="display-4 fw-bold text-info mb-0" id="kpiAlunos">—</h2>
+                            <h2 class="display-4 fw-bold text-info mb-0" id="kpiAlunos">{{ total_alunos|default:"—" }}</h2>
                             <p class="small text-muted mb-0"><span id="kpiAlunosTrend" class="me-1"></span></p>
                             <i class="fas fa-user-graduate fa-4x text-info opacity-10 position-absolute top-50 end-0 translate-middle-y me-2" style="margin-right: -20px;"></i>
                         </div>
@@ -88,7 +86,6 @@
                 </div>
             </div>
 
-            <!-- Charts Section -->
             <div class="row g-3 mb-4">
                 <div class="col-lg-6">
                     <div class="card shadow-sm border-0 h-100">
@@ -116,7 +113,7 @@
                             </h6>
                         </div>
                         <div class="card-body p-4">
-                            <p class="text-end small text-muted">Total: <span id="totalAlunosDonut" class="fw-bold">—</span> alunos</p>
+                            <p class="text-end small text-muted">Total: <span id="totalAlunosDonut" class="fw-bold">{{ total_alunos|default:"—" }}</span> alunos</p>
                             
                             <div class="row align-items-center">
                                 <div class="col-md-6 text-center">
@@ -132,7 +129,6 @@
                 </div>
             </div>
 
-            <!-- Recent Activities -->
             <div class="row g-3 mb-4">
                 <div class="col-12">
                     <div class="card shadow-sm border-0">
@@ -153,44 +149,81 @@
     </div>
 </div>
 
-<!-- Responsive adjustments -->
 <style>
-    @media (max-width: 991.98px) {
-        .layout-wrapper > div {
-            margin-left: 0 !important;
-        }
+    /* Remove margens padrão que podem criar gaps */
+    html, body {
+        margin: 0;
+        padding: 0;
+        overflow-x: hidden; /* Evita rolagem horizontal indesejada */
+    }
+
+    /* CONFIGURAÇÃO DA SIDEBAR FIXA */
+    #sidebar {
+        width: 250px !important;
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        bottom: 0 !important;
+        height: 100vh !important;
+        z-index: 1050 !important;
         
-        #sidebar {
-            width: 200px;
-            transform: translateX(-100%);
-            transition: transform 0.3s ease;
-            z-index: 1000;
-        }
+        /* Garante visibilidade total */
+        display: block !important;
+        visibility: visible !important;
+        transform: none !important;
         
-        #sidebar.show {
-            transform: translateX(0);
-        }
+        /* Remove o efeito de 'esticar' para a direita do fixed-top */
+        right: auto !important; 
+        
+        /* Sombra suave */
+        box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+        
+        /* Garante que não tenha margens estranhas */
+        margin: 0 !important;
+        padding-top: 0 !important;
+    }
+
+    /* REMOVE O FUNDO PRETO (OVERLAY) */
+    #sidebar::after {
+        content: none !important;
+        display: none !important;
+    }
+
+    /* CONFIGURAÇÃO DO CONTEÚDO PRINCIPAL */
+    #main-content {
+        /* Empurra o conteúdo exatamente 250px para a direita */
+        margin-left: 250px !important;
+        
+        /* Ocupa todo o espaço restante */
+        width: calc(100% - 250px) !important;
+        min-height: 100vh;
+        
+        /* Remove paddings que possam criar espaço entre sidebar e header */
+        padding: 0 !important;
+        
+        /* Garante posição relativa para elementos internos */
+        position: relative;
+    }
+
+    /* CONFIGURAÇÃO DO CABEÇALHO (HEADER) */
+    header.sticky-top {
+        /* Garante que o header encoste no topo e nas laterais do main-content */
+        top: 0;
+        width: 100%;
+        margin: 0 !important;
+        border-radius: 0 !important;
+        z-index: 1020; /* Menor que a sidebar (1050) */
+    }
+
+    /* Remove o botão toggle para sempre */
+    #sidebarToggle {
+        display: none !important;
     }
     
+    /* Ajuste para telas muito pequenas não quebrarem o header */
     @media (max-width: 768px) {
-        header {
-            flex-wrap: wrap;
-        }
-        
         header .d-flex {
-            width: 100%;
-        }
-        
-        #chartDesempenho {
-            max-height: 250px !important;
-        }
-        
-        #chartAprovacao {
-            max-height: 200px !important;
-        }
-        
-        .card-body {
-            padding: 1rem !important;
+            flex-wrap: wrap;
         }
     }
 </style>
