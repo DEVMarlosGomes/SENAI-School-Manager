@@ -4,18 +4,18 @@
 {% block title %}Desempenho - Coordenação{% endblock %}
 
 {% block content %}
-<div class="layout-wrapper d-flex">
-    <!-- Sidebar -->
+<div class="layout-wrapper">
     {% include 'includes/sidebar.html' %}
     
-    <!-- Main Content -->
-    <div class="flex-grow-1" style="margin-left: 250px; min-height: 100vh;">
-        <!-- Top Header Bar -->
+    <div id="main-content">
+        
         <header class="bg-white border-bottom shadow-sm sticky-top">
             <div class="d-flex justify-content-between align-items-center px-4 py-3">
-                <div>
-                    <h6 class="mb-0 text-muted">COORDENAÇÃO ACADÊMICA</h6>
-                    <h3 class="mb-0 fw-bold text-senai-red">Desempenho Acadêmico</h3>
+                <div class="d-flex align-items-center gap-3">
+                    <div>
+                        <h6 class="mb-0 text-muted">COORDENAÇÃO ACADÊMICA</h6>
+                        <h3 class="mb-0 fw-bold text-senai-red">Desempenho Acadêmico</h3>
+                    </div>
                 </div>
                 <div class="d-flex align-items-center gap-3">
                     <div class="position-relative">
@@ -34,10 +34,8 @@
             </div>
         </header>
 
-        <!-- Page Content -->
         <div class="container-fluid p-4">
             
-            <!-- Filtros Principais -->
             <div class="card shadow-sm border-0 mb-4">
                 <div class="card-header bg-light border-bottom py-3">
                     <h6 class="mb-0 fw-bold text-dark">
@@ -84,7 +82,6 @@
                 </div>
             </div>
 
-            <!-- Seção de Turmas -->
             <div class="card shadow-sm border-0 mb-4">
                 <div class="card-header bg-light border-bottom py-3">
                     <h6 class="mb-0 fw-bold text-dark">
@@ -93,12 +90,10 @@
                 </div>
                 <div class="card-body p-0">
                     <div class="row g-0" id="turmasContainer">
-                        <!-- Preenchido via JavaScript -->
-                    </div>
+                        </div>
                 </div>
             </div>
 
-            <!-- Seção de Gráficos -->
             <div class="row g-3 mb-4">
                 <div class="col-lg-6">
                     <div class="card shadow-sm border-0">
@@ -126,7 +121,6 @@
                 </div>
             </div>
 
-            <!-- Tabela de Alunos -->
             <div class="card shadow-sm border-0 mb-4">
                 <div class="card-header bg-light border-bottom py-3">
                     <h6 class="mb-0 fw-bold text-dark">
@@ -148,8 +142,7 @@
                                 </tr>
                             </thead>
                             <tbody id="alunosTableBody">
-                                <!-- Preenchido via JavaScript -->
-                            </tbody>
+                                </tbody>
                         </table>
                     </div>
                 </div>
@@ -159,7 +152,6 @@
     </div>
 </div>
 
-<!-- Modal de Detalhes do Aluno -->
 <div class="modal fade" id="alunoDetailsModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -193,8 +185,7 @@
 
                 <h6 class="fw-bold mb-3"><i class="fas fa-book text-senai-red me-2"></i>Notas por Disciplina</h6>
                 <div id="detailsNotas" class="mb-3">
-                    <!-- Preenchido via JavaScript -->
-                </div>
+                    </div>
 
                 <hr>
 
@@ -217,22 +208,60 @@
     </div>
 </div>
 
-<!-- Responsive adjustments -->
 <style>
-    @media (max-width: 991.98px) {
-        .layout-wrapper > div {
-            margin-left: 0 !important;
-        }
-        
-        #sidebar {
-            width: 200px;
-            transform: translateX(-100%);
-            transition: transform 0.3s ease;
-            z-index: 1000;
-        }
-        
-        #sidebar.show {
-            transform: translateX(0);
+    /* Remove margens padrão */
+    html, body {
+        margin: 0;
+        padding: 0;
+        overflow-x: hidden;
+    }
+
+    /* SIDEBAR: Fixa e Sólida */
+    #sidebar {
+        width: 250px !important;
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        bottom: 0 !important;
+        height: 100vh !important;
+        z-index: 1050 !important;
+        display: block !important;
+        visibility: visible !important;
+        transform: none !important;
+        right: auto !important;
+        box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+        margin: 0 !important;
+        padding-top: 0 !important;
+    }
+
+    /* REMOVE O FUNDO PRETO (OVERLAY) */
+    #sidebar::after {
+        content: none !important;
+        display: none !important;
+    }
+
+    /* CONTEÚDO PRINCIPAL: Margem Exata */
+    #main-content {
+        margin-left: 250px !important;
+        width: calc(100% - 250px) !important;
+        min-height: 100vh;
+        padding: 0 !important;
+        position: relative;
+    }
+
+    /* CONFIGURAÇÃO DO CABEÇALHO (HEADER) */
+    header.sticky-top {
+        top: 0;
+        width: 100%;
+        margin: 0 !important;
+        border-radius: 0 !important;
+        z-index: 1020;
+    }
+
+    /* Ajuste para telas muito pequenas */
+    @media (max-width: 768px) {
+        header .d-flex {
+            flex-wrap: wrap;
         }
     }
 </style>

@@ -22,6 +22,8 @@ from .views import (
     api_coordenacao_desempenho,
     api_coordenacao_aprovacao,
     api_coordenacao_atividades,
+    save_aluno_view,
+    delete_aluno_view
 )
 
 urlpatterns = [
@@ -40,6 +42,10 @@ urlpatterns = [
     path('coordenacao/comunicacao/', coordenacao_comunicacao_view, name='coordenacao_comunicacao'),
     path('coordenacao/relatorios/', coordenacao_relatorios_view, name='coordenacao_relatorios'),
 
+    # APIs para Gestão de Alunos (Salvar e Deletar)
+    path('api/gestao/aluno/save/', save_aluno_view, name='save_aluno'),
+    path('api/gestao/aluno/delete/<int:pk>/', delete_aluno_view, name='delete_aluno'),
+
     # Funcionalidades do aluno
     path('aluno/materiais/', materiais_estudo_view, name='materiais_estudo'),
     path('aluno/boletim/', boletim_view, name='boletim'),
@@ -55,7 +61,7 @@ urlpatterns = [
     # Perfil do usuário
     path('perfil/', perfil_view, name='perfil'),
 
-    # APIs Coordenação
+    # APIs Coordenação (Placeholders)
     path('api/coordenacao/kpis/', api_coordenacao_kpis, name='api_coordenacao_kpis'),
     path('api/coordenacao/desempenho/', api_coordenacao_desempenho, name='api_coordenacao_desempenho'),
     path('api/coordenacao/aprovacao/', api_coordenacao_aprovacao, name='api_coordenacao_aprovacao'),

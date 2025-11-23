@@ -4,13 +4,10 @@
 {% block title %}Relatórios - Coordenação{% endblock %}
 
 {% block content %}
-<div class="layout-wrapper d-flex">
-    <!-- Sidebar -->
+<div class="layout-wrapper">
     {% include 'includes/sidebar.html' %}
     
-    <!-- Main Content -->
-    <div class="flex-grow-1" style="margin-left: 250px; min-height: 100vh;">
-        <!-- Top Header Bar -->
+    <div id="main-content">
         <header class="bg-white border-bottom shadow-sm sticky-top">
             <div class="d-flex justify-content-between align-items-center px-4 py-3">
                 <div>
@@ -34,10 +31,8 @@
             </div>
         </header>
 
-        <!-- Page Content -->
         <div class="container-fluid p-4">
             
-            <!-- Filtros de Relatório -->
             <div class="card shadow-sm border-0 mb-4">
                 <div class="card-header bg-light border-bottom py-3">
                     <h6 class="mb-0 fw-bold text-dark">
@@ -89,7 +84,6 @@
                 </div>
             </div>
 
-            <!-- Relatórios Rápidos -->
             <h5 class="fw-bold mb-3"><i class="fas fa-bolt text-senai-red me-2"></i>Relatórios Rápidos</h5>
             <div class="row g-3 mb-4">
                 
@@ -127,7 +121,6 @@
 
             </div>
 
-            <!-- Resultado do Relatório -->
             <div id="relatorioContainer" style="display: none;">
                 <div class="card shadow-sm border-0">
                     <div class="card-header bg-light border-bottom py-3 d-flex justify-content-between align-items-center">
@@ -139,12 +132,10 @@
                         </button>
                     </div>
                     <div class="card-body" id="relatorioContent">
-                        <!-- Preenchido via JavaScript -->
-                    </div>
+                        </div>
                 </div>
             </div>
 
-            <!-- Histórico de Relatórios -->
             <div id="historicoContainer" style="display: none;">
                 <h5 class="fw-bold mb-3 mt-4"><i class="fas fa-history text-senai-red me-2"></i>Histórico de Relatórios</h5>
                 <div class="card shadow-sm border-0">
@@ -190,42 +181,49 @@
     </div>
 </div>
 
-<!-- Responsive adjustments -->
 <style>
-    .card-hover {
-        cursor: pointer;
-        transition: all 0.3s ease;
-    }
-    
-    .card-hover:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 8px 24px rgba(255, 0, 0, 0.15) !important;
-    }
+    .card-hover { cursor: pointer; transition: all 0.3s ease; }
+    .card-hover:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(255, 0, 0, 0.15) !important; }
 
-    @media (max-width: 991.98px) {
-        .layout-wrapper > div {
-            margin-left: 0 !important;
-        }
-        
-        #sidebar {
-            width: 200px;
-            transform: translateX(-100%);
-            transition: transform 0.3s ease;
-            z-index: 1000;
-        }
-        
-        #sidebar.show {
-            transform: translateX(0);
-        }
+    html, body { margin: 0; padding: 0; overflow-x: hidden; }
+    #sidebar {
+        width: 250px !important;
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        bottom: 0 !important;
+        height: 100vh !important;
+        z-index: 1050 !important;
+        display: block !important;
+        visibility: visible !important;
+        transform: none !important;
+        right: auto !important;
+        box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+        margin: 0 !important;
+        padding-top: 0 !important;
     }
+    #sidebar::after { content: none !important; display: none !important; }
+    #main-content {
+        margin-left: 250px !important;
+        width: calc(100% - 250px) !important;
+        min-height: 100vh;
+        padding: 0 !important;
+        position: relative;
+    }
+    header.sticky-top {
+        top: 0;
+        width: 100%;
+        margin: 0 !important;
+        border-radius: 0 !important;
+        z-index: 1020;
+    }
+    @media (max-width: 768px) { header .d-flex { flex-wrap: wrap; } }
 </style>
 
 {% endblock %}
 
 {% block extra_js %}
-    <!-- jsPDF para PDF -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-    <!-- SheetJS para Excel -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.min.js"></script>
     <script src="{% static 'js/coordenacao-relatorios.js' %}"></script>
 {% endblock %}
