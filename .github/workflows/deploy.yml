@@ -3,37 +3,21 @@ name: Deploy no PythonAnywhere
 on:
   push:
     branches:
-      - main  # ATENÇÃO: Mude para 'master' se esse for o nome do seu branch principal
+      - main
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
       - name: Fazer o deploy no PythonAnywhere
-        # Esta é uma "Action" oficial do PythonAnywhere
         uses: pythonanywhere/github-action@v1
         with:
+          # O nome da Secret deve ser exatamente este que você criou no GitHub
           api_token: ${{ secrets.PA_API_TOKEN }}
-          python_version: '3.13' # A versão do Python que você usa (pelo seu log)
+          python_version: '3.13' 
+          # O caminho do seu ambiente virtual
           virtualenv_dir: '/home/romulofamiglietti/SENAI-School-Manager/venv'
+          # O caminho da pasta do projeto
           repo_dir: '/home/romulofamiglietti/SENAI-School-Manager'
-          reload_webapp: 'romulofamiglietti.pythonanywhere.com' # Seu domínioname: Deploy no PythonAnywhere
-
-on:
-  push:
-    branches:
-      - main  # ATENÇÃO: Mude para 'master' se esse for o nome do seu branch principal
-
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Fazer o deploy no PythonAnywhere
-        # Esta é uma "Action" oficial do PythonAnywhere
-        uses: pythonanywhere/github-action@v1
-        with:
-          api_token: ${{ secrets.PA_API_TOKEN }}
-          python_version: '3.13' # A versão do Python que você usa (pelo seu log)
-          virtualenv_dir: '/home/romulofamiglietti/SENAI-School-Manager/venv'
-          repo_dir: '/home/romulofamiglietti/SENAI-School-Manager'
-          reload_webapp: 'romulofamiglietti.pythonanywhere.com' # Seu domínio
+          # O domínio do seu site
+          reload_webapp: 'romulofamiglietti.pythonanywhere.com'
