@@ -8,7 +8,6 @@
     {% include 'includes/sidebar.html' %}
     
     <div id="main-content">
-        
         <header class="bg-white border-bottom shadow-sm sticky-top">
             <div class="d-flex justify-content-between align-items-center px-4 py-3">
                 <div class="d-flex align-items-center gap-3">
@@ -17,16 +16,8 @@
                         <h3 class="mb-0 fw-bold text-senai-red">Visão Geral</h3>
                     </div>
                 </div>
-
                 <div class="d-flex align-items-center gap-3">
-                    <a href="{% url 'relatorio_coordenacao_pdf' user.id %}" class="btn btn-sm btn-danger" target="_blank" title="Gerar Relatório PDF">
-                        <i class="fas fa-file-pdf me-1"></i> Relatório PDF
-                    </a>
-                    
-                    <div class="position-relative">
-                        <i class="fas fa-bell text-muted fa-lg" style="cursor: pointer;"></i>
-                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.6em; margin-top: -8px; margin-left: -12px;">3</span>
-                    </div>
+                     <a href="#" class="btn btn-sm btn-danger"><i class="fas fa-file-pdf me-1"></i> Relatório PDF</a>
                     <div class="vr"></div>
                     <div class="d-flex align-items-center gap-2">
                         <div>
@@ -42,87 +33,82 @@
         <div class="container-fluid p-4">
             <div class="row g-3 mb-4">
                 <div class="col-lg-3 col-md-6">
-                    <div class="card shadow-sm border-0 border-top border-4 border-senai-red h-100 position-relative overflow-hidden">
+                    <div class="card shadow-sm border-0 border-top border-4 border-senai-red h-100">
                         <div class="card-body">
-                            <h6 class="text-muted small text-uppercase">Total de Turmas</h6>
-                            <h2 class="display-4 fw-bold text-senai-red mb-0" id="kpiTurmas">{{ total_turmas|default:"—" }}</h2>
-                            <p class="small text-muted mb-0"><span id="kpiTurmasTrend" class="me-1"></span></p>
-                            <i class="fas fa-chalkboard fa-4x text-senai-red opacity-10 position-absolute top-50 end-0 translate-middle-y me-2" style="margin-right: -20px;"></i>
+                            <h6 class="text-muted small text-uppercase">Turmas</h6>
+                            <h2 class="display-4 fw-bold text-senai-red mb-0">{{ total_turmas }}</h2>
                         </div>
                     </div>
                 </div>
-
                 <div class="col-lg-3 col-md-6">
-                    <div class="card shadow-sm border-0 border-top border-4 border-success h-100 position-relative overflow-hidden">
+                    <div class="card shadow-sm border-0 border-top border-4 border-success h-100">
                         <div class="card-body">
-                            <h6 class="text-muted small text-uppercase">Professores Ativos</h6>
-                            <h2 class="display-4 fw-bold text-success mb-0" id="kpiProfessores">{{ total_professores|default:"—" }}</h2>
-                            <p class="small text-muted mb-0"><span id="kpiProfessoresTrend" class="me-1"></span></p>
-                            <i class="fas fa-user-tie fa-4x text-success opacity-10 position-absolute top-50 end-0 translate-middle-y me-2" style="margin-right: -20px;"></i>
+                            <h6 class="text-muted small text-uppercase">Professores</h6>
+                            <h2 class="display-4 fw-bold text-success mb-0">{{ total_professores }}</h2>
                         </div>
                     </div>
                 </div>
-
                 <div class="col-lg-3 col-md-6">
-                    <div class="card shadow-sm border-0 border-top border-4 border-info h-100 position-relative overflow-hidden">
+                    <div class="card shadow-sm border-0 border-top border-4 border-info h-100">
                         <div class="card-body">
-                            <h6 class="text-muted small text-uppercase">Alunos Matriculados</h6>
-                            <h2 class="display-4 fw-bold text-info mb-0" id="kpiAlunos">{{ total_alunos|default:"—" }}</h2>
-                            <p class="small text-muted mb-0"><span id="kpiAlunosTrend" class="me-1"></span></p>
-                            <i class="fas fa-user-graduate fa-4x text-info opacity-10 position-absolute top-50 end-0 translate-middle-y me-2" style="margin-right: -20px;"></i>
+                            <h6 class="text-muted small text-uppercase">Alunos</h6>
+                            <h2 class="display-4 fw-bold text-info mb-0">{{ total_alunos }}</h2>
                         </div>
                     </div>
                 </div>
-                
                 <div class="col-lg-3 col-md-6">
-                    <div class="card shadow-sm border-0 border-top border-4 border-danger h-100 position-relative overflow-hidden">
+                    <div class="card shadow-sm border-0 border-top border-4 border-danger h-100">
                         <div class="card-body">
-                            <h6 class="text-muted small text-uppercase">Alunos em Risco</h6>
-                            <h2 class="display-4 fw-bold text-danger mb-0" id="kpiRisco">—</h2>
-                            <p class="small text-muted mb-0"><span id="kpiRiscoTrend" class="me-1"></span></p>
-                            <i class="fas fa-exclamation-circle fa-4x text-danger opacity-10 position-absolute top-50 end-0 translate-middle-y me-2" style="margin-right: -20px;"></i>
+                            <h6 class="text-muted small text-uppercase">Em Risco</h6>
+                            <h2 class="display-4 fw-bold text-danger mb-0">{{ alunos_risco|default:"0" }}</h2>
                         </div>
                     </div>
                 </div>
             </div>
 
             <div class="row g-3 mb-4">
-                <div class="col-lg-6">
+                
+                <div class="col-lg-7">
                     <div class="card shadow-sm border-0 h-100">
                         <div class="card-header bg-light border-bottom py-3">
                             <h6 class="mb-0 fw-bold text-dark">
-                                <i class="fas fa-chart-bar text-senai-red me-2"></i>Desempenho por Turma
+                                <i class="fas fa-crosshairs text-senai-red me-2"></i>Diagnóstico: Desempenho x Engajamento
                             </h6>
                         </div>
                         <div class="card-body p-4">
-                            <div class="d-flex justify-content-end small mb-3 gap-3">
-                                <span><i class="fas fa-circle text-success me-1" style="font-size: 0.5em;"></i> Excelente (≥7.8)</span>
-                                <span><i class="fas fa-circle text-warning me-1" style="font-size: 0.5em;"></i> Atenção (7.0-7.79)</span>
-                                <span><i class="fas fa-circle text-danger me-1" style="font-size: 0.5em;"></i> Crítico (<7.0)</span>
+                            <div class="d-flex justify-content-center small mb-2 gap-3">
+                                <span><i class="fas fa-circle text-success me-1"></i> Bom</span>
+                                <span><i class="fas fa-circle text-warning me-1"></i> Atenção</span>
+                                <span><i class="fas fa-circle text-danger me-1"></i> Risco</span>
                             </div>
-                            <canvas id="chartDesempenho" style="max-height:320px;"></canvas>
+                            <div style="height: 320px; position: relative;">
+                                <canvas id="chartDispersao"></canvas>
+                            </div>
+                            <small class="text-muted d-block text-center mt-2">
+                                Linhas de Corte: Nota 6.0 e Frequência 75%
+                            </small>
                         </div>
                     </div>
                 </div>
                 
-                <div class="col-lg-6">
+                <div class="col-lg-5">
                     <div class="card shadow-sm border-0 h-100">
                         <div class="card-header bg-light border-bottom py-3">
                             <h6 class="mb-0 fw-bold text-dark">
-                                <i class="fas fa-pie-chart text-senai-red me-2"></i>Índice de Aprovação
+                                <i class="fas fa-layer-group text-senai-red me-2"></i>Eficiência por Curso
                             </h6>
                         </div>
                         <div class="card-body p-4">
-                            <p class="text-end small text-muted">Total: <span id="totalAlunosDonut" class="fw-bold">{{ total_alunos|default:"—" }}</span> alunos</p>
+                            <p class="small text-muted mb-3">Situação acadêmica dos alunos agrupada por curso.</p>
                             
-                            <div class="row align-items-center">
-                                <div class="col-md-6 text-center">
-                                    <canvas id="chartAprovacao" style="max-height: 250px;"></canvas>
-                                </div>
-                                <div class="col-md-6">
-                                    <ul class="list-unstyled fw-bold small" id="legendAprovacao">
-                                    </ul>
-                                </div>
+                            <div style="height: 280px; position: relative;">
+                                <canvas id="chartComparativo"></canvas>
+                            </div>
+                            
+                            <div class="d-flex justify-content-center gap-3 mt-3 small fw-bold">
+                                <span class="text-success"><i class="fas fa-square me-1"></i>Aprovados</span>
+                                <span class="text-warning"><i class="fas fa-square me-1"></i>Recuperação</span>
+                                <span class="text-danger"><i class="fas fa-square me-1"></i>Reprovados</span>
                             </div>
                         </div>
                     </div>
@@ -132,14 +118,21 @@
             <div class="row g-3 mb-4">
                 <div class="col-12">
                     <div class="card shadow-sm border-0">
-                        <div class="card-header bg-light border-bottom py-3 d-flex justify-content-between align-items-center">
+                        <div class="card-header bg-light border-bottom py-3">
                             <h6 class="mb-0 fw-bold text-dark">
                                 <i class="fas fa-history text-senai-red me-2"></i>Atividades Recentes
                             </h6>
-                            <a href="#" class="small text-senai-red text-decoration-none">Ver Todas <i class="fas fa-arrow-right ms-1 small"></i></a>
                         </div>
                         <div class="card-body p-0">
-                            <div class="list-group list-group-flush" id="atividadesRecentes">
+                            <div class="list-group list-group-flush">
+                                {% for atividade in atividades_recentes %}
+                                <div class="list-group-item d-flex justify-content-between p-3">
+                                    <div><i class="fas fa-user-plus text-primary me-2"></i> {{ atividade.texto }}</div>
+                                    <small class="text-muted">{{ atividade.data }}</small>
+                                </div>
+                                {% empty %}
+                                <div class="p-3 text-center text-muted">Nenhuma atividade recente.</div>
+                                {% endfor %}
                             </div>
                         </div>
                     </div>
@@ -150,86 +143,20 @@
 </div>
 
 <style>
-    /* Remove margens padrão que podem criar gaps */
-    html, body {
-        margin: 0;
-        padding: 0;
-        overflow-x: hidden; /* Evita rolagem horizontal indesejada */
-    }
-
-    /* CONFIGURAÇÃO DA SIDEBAR FIXA */
-    #sidebar {
-        width: 250px !important;
-        position: fixed !important;
-        top: 0 !important;
-        left: 0 !important;
-        bottom: 0 !important;
-        height: 100vh !important;
-        z-index: 1050 !important;
-        
-        /* Garante visibilidade total */
-        display: block !important;
-        visibility: visible !important;
-        transform: none !important;
-        
-        /* Remove o efeito de 'esticar' para a direita do fixed-top */
-        right: auto !important; 
-        
-        /* Sombra suave */
-        box-shadow: 2px 0 5px rgba(0,0,0,0.1);
-        
-        /* Garante que não tenha margens estranhas */
-        margin: 0 !important;
-        padding-top: 0 !important;
-    }
-
-    /* REMOVE O FUNDO PRETO (OVERLAY) */
-    #sidebar::after {
-        content: none !important;
-        display: none !important;
-    }
-
-    /* CONFIGURAÇÃO DO CONTEÚDO PRINCIPAL */
-    #main-content {
-        /* Empurra o conteúdo exatamente 250px para a direita */
-        margin-left: 250px !important;
-        
-        /* Ocupa todo o espaço restante */
-        width: calc(100% - 250px) !important;
-        min-height: 100vh;
-        
-        /* Remove paddings que possam criar espaço entre sidebar e header */
-        padding: 0 !important;
-        
-        /* Garante posição relativa para elementos internos */
-        position: relative;
-    }
-
-    /* CONFIGURAÇÃO DO CABEÇALHO (HEADER) */
-    header.sticky-top {
-        /* Garante que o header encoste no topo e nas laterais do main-content */
-        top: 0;
-        width: 100%;
-        margin: 0 !important;
-        border-radius: 0 !important;
-        z-index: 1020; /* Menor que a sidebar (1050) */
-    }
-
-    /* Remove o botão toggle para sempre */
-    #sidebarToggle {
-        display: none !important;
-    }
-    
-    /* Ajuste para telas muito pequenas não quebrarem o header */
+    html, body { margin: 0; padding: 0; overflow-x: hidden; }
+    #sidebar { width: 250px; position: fixed; top: 0; bottom: 0; z-index: 1000; }
+    #main-content { margin-left: 250px; width: calc(100% - 250px); }
     @media (max-width: 768px) {
-        header .d-flex {
-            flex-wrap: wrap;
-        }
+        #sidebar { display: none; }
+        #main-content { margin-left: 0; width: 100%; }
     }
 </style>
 {% endblock %}
 
 {% block extra_js %}
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <script>
+        window.DASHBOARD_DATA = {{ dashboard_data_json|safe }};
+    </script>
     <script src="{% static 'js/coordenacao.js' %}"></script>
 {% endblock %}

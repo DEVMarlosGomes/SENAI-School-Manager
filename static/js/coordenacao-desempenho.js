@@ -1,228 +1,215 @@
-/**
- * Página de Desempenho - Coordenação
- * Gerencia filtros, gráficos e tabelas de desempenho acadêmico
- */
-
 document.addEventListener('DOMContentLoaded', function() {
     
-    // Mock data
-    const mockTurmas = [
-        { id: 1, codigo: 'TI-2023A', nome: 'Técnico em TI - 2023A' },
-        { id: 2, codigo: 'MEC-2023B', nome: 'Técnico em Mecânica - 2023B' },
-        { id: 3, codigo: 'ELE-2023B', nome: 'Técnico em Eletrônica - 2023B' },
-    ];
+    // Recupera dados REAIS injetados pelo Django
+    const dbData = window.DESEMPENHO_DATA || {
+        alunos: [],
+        turmas: [],
+        grafico_notas: {},
+        grafico_frequencia: { labels: [], data: [] }
+    };
 
-    const mockAlunos = [
-        { id: 1, nome: 'João Silva', matricula: '2023001', turma: 'TI-2023A', media: 8.5, frequencia: 95, situacao: 'Aprovado' },
-        { id: 2, nome: 'Maria Santos', matricula: '2023002', turma: 'TI-2023A', media: 7.2, frequencia: 88, situacao: 'Recuperação' },
-        { id: 3, nome: 'Pedro Oliveira', matricula: '2023003', turma: 'MEC-2023B', media: 6.0, frequencia: 70, situacao: 'Recuperação' },
-        { id: 4, nome: 'Ana Costa', matricula: '2023004', turma: 'ELE-2023B', media: 9.0, frequencia: 98, situacao: 'Aprovado' },
-    ];
+    const realAlunos = dbData.alunos;
+    const realTurmas = dbData.turmas;
 
-    // Preencher filtro de turmas
+    // --- 1. PREENCHER FILTRO DE TURMAS ---
     const filterTurma = document.getElementById('filterTurma');
-    mockTurmas.forEach(turma => {
-        const option = document.createElement('option');
-        option.value = turma.id;
-        option.textContent = turma.nome;
-        filterTurma.appendChild(option);
-    });
-
-    // Preencher cards de turmas
-    function renderTurmas() {
-        const container = document.getElementById('turmasContainer');
-        container.innerHTML = '';
-        mockTurmas.forEach(turma => {
-            const alunosTurma = mockAlunos.filter(a => a.turma === turma.codigo).length;
-            const div = document.createElement('div');
-            div.className = 'col-lg-4 col-md-6 mb-3';
-            div.innerHTML = `
-                <a href="#" class="card shadow-sm border-0 p-4 text-decoration-none h-100 card-hover" style="cursor: pointer;">
-                    <div class="d-flex justify-content-between align-items-start mb-2">
-                        <div>
-                            <h6 class="fw-bold text-dark">${turma.codigo}</h6>
-                            <small class="text-muted">${turma.nome}</small>
-                        </div>
-                        <i class="fas fa-chalkboard fa-2x text-senai-red opacity-50"></i>
-                    </div>
-                    <hr>
-                    <div class="row g-2">
-                        <div class="col-6">
-                            <p class="small text-muted mb-1">Alunos</p>
-                            <p class="fw-bold">${alunosTurma}</p>
-                        </div>
-                        <div class="col-6">
-                            <p class="small text-muted mb-1">Média Geral</p>
-                            <p class="fw-bold text-success">7.9</p>
-                        </div>
-                    </div>
-                </a>
-            `;
-            container.appendChild(div);
+    if (filterTurma) {
+        filterTurma.innerHTML = '<option value="">Todas as Turmas</option>';
+        realTurmas.forEach(turma => {
+            const option = document.createElement('option');
+            option.value = turma.codigo;
+            option.textContent = turma.codigo;
+            filterTurma.appendChild(option);
         });
     }
 
-    // Renderizar tabela de alunos
-    function renderAlunosTable(alunos = mockAlunos) {
+    // --- 2. RENDERIZAR CARDS DE TURMAS ---
+    const containerTurmas = document.getElementById('turmasContainer');
+    if (containerTurmas) {
+        containerTurmas.innerHTML = '';
+        if (realTurmas.length === 0) {
+            containerTurmas.innerHTML = '<div class="col-12 p-3 text-center text-muted">Nenhuma turma encontrada.</div>';
+        } else {
+            realTurmas.forEach(turma => {
+                const div = document.createElement('div');
+                div.className = 'col-lg-4 col-md-6 mb-3';
+                
+                let corMedia = 'text-dark';
+                if (turma.media_geral >= 7) corMedia = 'text-success';
+                else if (turma.media_geral < 5) corMedia = 'text-danger'; // Regra < 5
+                else corMedia = 'text-warning';
+    
+                div.innerHTML = `
+                    <div class="card shadow-sm border-0 p-3 h-100 card-hover">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <div>
+                                <h6 class="fw-bold text-dark mb-0">${turma.codigo}</h6>
+                                <small class="text-muted" style="font-size:0.8em">${turma.nome}</small>
+                            </div>
+                            <i class="fas fa-chalkboard fa-2x text-senai-red opacity-25"></i>
+                        </div>
+                        <hr class="my-2">
+                        <div class="row g-2 text-center">
+                            <div class="col-6 border-end">
+                                <small class="text-muted d-block">Alunos</small>
+                                <span class="fw-bold">${turma.alunos}</span>
+                            </div>
+                            <div class="col-6">
+                                <small class="text-muted d-block">Média Geral</small>
+                                <span class="fw-bold ${corMedia}">${turma.media_geral}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                containerTurmas.appendChild(div);
+            });
+        }
+    }
+
+    // --- 3. RENDERIZAR TABELA DE ALUNOS ---
+    function renderAlunosTable(listaAlunos) {
         const tbody = document.getElementById('alunosTableBody');
+        if (!tbody) return;
+
         tbody.innerHTML = '';
         
-        alunos.forEach(aluno => {
+        if (listaAlunos.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="6" class="text-center p-3 text-muted">Nenhum aluno encontrado.</td></tr>';
+            return;
+        }
+        
+        listaAlunos.forEach(aluno => {
             const tr = document.createElement('tr');
-            const situacaoClass = aluno.situacao === 'Aprovado' ? 'bg-success' : (aluno.situacao === 'Recuperação' ? 'bg-warning' : 'bg-danger');
-            const situacaoBadge = aluno.situacao === 'Aprovado' ? 'success' : (aluno.situacao === 'Recuperação' ? 'warning' : 'danger');
             
+            // Badges
+            let badgeClass = 'bg-secondary';
+            if (aluno.situacao === 'Aprovado') badgeClass = 'bg-success';
+            else if (aluno.situacao === 'Recuperação') badgeClass = 'bg-warning text-dark';
+            else if (aluno.situacao.includes('Reprovado')) badgeClass = 'bg-danger';
+
+            // Cores Texto Média
+            let mediaClass = 'text-dark';
+            if (aluno.media >= 7) mediaClass = 'text-success fw-bold';
+            else if (aluno.media < 5) mediaClass = 'text-danger fw-bold';
+
+            // Cores Barra Frequência
+            let freqColor = 'bg-success';
+            if (aluno.frequencia < 75) freqColor = 'bg-danger';
+            else if (aluno.frequencia < 85) freqColor = 'bg-warning';
+
             tr.innerHTML = `
-                <td>${aluno.nome}</td>
-                <td><span class="badge bg-light text-dark">${aluno.matricula}</span></td>
+                <td class="ps-3 fw-bold text-dark">${aluno.nome}</td>
+                <td><span class="badge bg-light text-dark border">${aluno.matricula}</span></td>
                 <td>${aluno.turma}</td>
-                <td class="text-center">
-                    <span class="fw-bold ${aluno.media >= 7 ? 'text-success' : 'text-danger'}">${aluno.media.toFixed(1)}</span>
-                </td>
-                <td class="text-center">
-                    <div class="progress" style="height: 20px;">
-                        <div class="progress-bar ${aluno.frequencia >= 75 ? 'bg-success' : 'bg-warning'}" style="width: ${aluno.frequencia}%;">
-                            <small>${aluno.frequencia}%</small>
+                <td class="text-center ${mediaClass}">${aluno.media}</td>
+                <td class="text-center" style="width: 150px;">
+                    <div class="d-flex align-items-center">
+                        <div class="progress flex-grow-1" style="height: 10px; background-color: #e9ecef;">
+                            <div class="progress-bar ${freqColor}" style="width: ${aluno.frequencia}%"></div>
                         </div>
+                        <span class="ms-2 small text-muted">${aluno.frequencia}%</span>
                     </div>
                 </td>
                 <td class="text-center">
-                    <span class="badge bg-${situacaoBadge}">${aluno.situacao}</span>
-                </td>
-                <td class="text-end">
-                    <button class="btn btn-xs btn-outline-primary me-1" onclick="abrirDetalhesAluno(${aluno.id})">
-                        <i class="fas fa-eye me-1"></i>Detalhes
-                    </button>
+                    <span class="badge ${badgeClass}">${aluno.situacao}</span>
                 </td>
             `;
             tbody.appendChild(tr);
         });
     }
 
-    // Abrir modal de detalhes
-    window.abrirDetalhesAluno = function(id) {
-        const aluno = mockAlunos.find(a => a.id === id);
-        if (aluno) {
-            document.getElementById('detailsNome').textContent = aluno.nome;
-            document.getElementById('detailsMatricula').textContent = aluno.matricula;
-            document.getElementById('detailsTurma').textContent = aluno.turma;
-            document.getElementById('detailsStatus').innerHTML = `<span class="badge bg-success">${aluno.situacao}</span>`;
-            document.getElementById('detailsFrequencia').textContent = aluno.frequencia + '%';
-            document.getElementById('detailsAulasPresentes').textContent = Math.floor(aluno.frequencia / 5) + ' de 20 aulas';
-            
-            // Mock de notas por disciplina
-            const notasHtml = `
-                <div class="row">
-                    <div class="col-md-6 mb-2">
-                        <p class="small text-muted mb-1">Português</p>
-                        <p class="fw-bold">8.5</p>
-                    </div>
-                    <div class="col-md-6 mb-2">
-                        <p class="small text-muted mb-1">Matemática</p>
-                        <p class="fw-bold">7.2</p>
-                    </div>
-                </div>
-            `;
-            document.getElementById('detailsNotas').innerHTML = notasHtml;
-            
-            const modal = new bootstrap.Modal(document.getElementById('alunoDetailsModal'));
-            modal.show();
-        }
-    };
+    renderAlunosTable(realAlunos);
 
-    // Gráfico de distribuição de notas
-    if (document.getElementById('chartNotas')) {
-        const ctx = document.getElementById('chartNotas').getContext('2d');
-        const notasDistribuicao = {
-            '9-10': 5,
-            '8-8.9': 12,
-            '7-7.9': 18,
-            '6-6.9': 8,
-            '<6': 3
-        };
+    // --- 4. GRÁFICO DE NOTAS (MODIFICADO: 3 BARRAS) ---
+    const ctxNotas = document.getElementById('chartNotas');
+    if (ctxNotas) {
+        const dadosNotas = dbData.grafico_notas || {}; 
         
-        new Chart(ctx, {
+        new Chart(ctxNotas, {
             type: 'bar',
             data: {
-                labels: Object.keys(notasDistribuicao),
+                // Labels fixas para as 3 categorias
+                labels: ['Aprovado (≥7)', 'Recuperação (5-6.9)', 'Reprovado (<5)'],
                 datasets: [{
-                    label: 'Quantidade de Alunos',
-                    data: Object.values(notasDistribuicao),
-                    backgroundColor: ['#198754', '#20c997', '#ffc107', '#ff9800', '#dc3545'],
-                    borderRadius: 6,
-                    borderWidth: 0
+                    label: 'Qtd Alunos',
+                    data: [
+                        dadosNotas['Aprovado'] || 0,
+                        dadosNotas['Recuperação'] || 0,
+                        dadosNotas['Reprovado'] || 0
+                    ],
+                    backgroundColor: ['#198754', '#ffc107', '#dc3545'], // Verde, Amarelo, Vermelho
+                    borderRadius: 4,
+                    barPercentage: 0.6
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: { 
+                    y: { 
+                        beginAtZero: true, 
+                        ticks: { stepSize: 1 } 
+                    } 
+                }
+            }
+        });
+    }
+
+    // --- 5. GRÁFICO DE FREQUÊNCIA ---
+    const ctxFreq = document.getElementById('chartFrequencia');
+    if (ctxFreq) {
+        const dadosFreq = dbData.grafico_frequencia || { labels: [], data: [] };
+        
+        new Chart(ctxFreq, {
+            type: 'bar',
+            data: {
+                labels: dadosFreq.labels,
+                datasets: [{
+                    label: 'Frequência Média (%)',
+                    data: dadosFreq.data,
+                    backgroundColor: '#E30613',
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                indexAxis: 'y', 
                 scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: { stepSize: 5 }
-                    }
+                    x: { min: 0, max: 100 },
+                    y: { grid: {display: false} }
                 },
                 plugins: { legend: { display: false } }
             }
         });
     }
 
-    // Gráfico de frequência
-    if (document.getElementById('chartFrequencia')) {
-        const ctx = document.getElementById('chartFrequencia').getContext('2d');
-        new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: ['Semana 1', 'Semana 2', 'Semana 3', 'Semana 4', 'Semana 5', 'Semana 6'],
-                datasets: [{
-                    label: 'Frequência Média (%)',
-                    data: [95, 93, 92, 91, 89, 88],
-                    borderColor: '#FF0000',
-                    backgroundColor: 'rgba(255, 0, 0, 0.1)',
-                    borderWidth: 3,
-                    tension: 0.4,
-                    fill: true,
-                    pointBackgroundColor: '#FF0000',
-                    pointRadius: 5
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    y: {
-                        min: 0,
-                        max: 100,
-                        ticks: { stepSize: 10 }
+    // --- 6. EVENTO DE FILTRAR ---
+    const btnFiltrar = document.getElementById('btnFiltrar');
+    if (btnFiltrar) {
+        btnFiltrar.addEventListener('click', function() {
+            const turmaSelecionada = document.getElementById('filterTurma').value;
+            const nomeBusca = document.getElementById('filterAluno').value.toLowerCase();
+            const situacaoSelecionada = document.getElementById('filterSituacao').value;
+
+            const filtrados = realAlunos.filter(a => {
+                const matchTurma = !turmaSelecionada || a.turma === turmaSelecionada;
+                const matchNome = !nomeBusca || a.nome.toLowerCase().includes(nomeBusca) || a.matricula.includes(nomeBusca);
+                
+                let matchSituacao = true;
+                if (situacaoSelecionada) {
+                    if (situacaoSelecionada === 'Reprovado') {
+                         matchSituacao = a.situacao.includes('Reprovado');
+                    } else {
+                         matchSituacao = a.situacao === situacaoSelecionada;
                     }
                 }
-            }
+
+                return matchTurma && matchNome && matchSituacao;
+            });
+
+            renderAlunosTable(filtrados);
         });
     }
-
-    // Eventos de filtro
-    document.getElementById('btnFiltrar').addEventListener('click', function() {
-        const turmaId = document.getElementById('filterTurma').value;
-        const alunoNome = document.getElementById('filterAluno').value.toLowerCase();
-        
-        let alunosFiltrados = mockAlunos;
-        
-        if (turmaId) {
-            const turma = mockTurmas.find(t => t.id == turmaId);
-            alunosFiltrados = alunosFiltrados.filter(a => a.turma === turma.codigo);
-        }
-        
-        if (alunoNome) {
-            alunosFiltrados = alunosFiltrados.filter(a => 
-                a.nome.toLowerCase().includes(alunoNome) ||
-                a.matricula.includes(alunoNome)
-            );
-        }
-        
-        renderAlunosTable(alunosFiltrados);
-    });
-
-    // Inicializar
-    renderTurmas();
-    renderAlunosTable();
 });
