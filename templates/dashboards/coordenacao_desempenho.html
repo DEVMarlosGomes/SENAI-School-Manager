@@ -4,20 +4,24 @@
 {% block title %}Desempenho - Coordenação{% endblock %}
 
 {% block content %}
-<div class="layout-wrapper">
+<div class="layout-wrapper d-flex">
     {% include 'includes/sidebar.html' %}
     
-    <div id="main-content">
+    <div id="main-content" class="flex-grow-1 transition-all" style="margin-left: 250px; width: calc(100% - 250px);">
+        
         <header class="bg-white border-bottom shadow-sm sticky-top">
             <div class="d-flex justify-content-between align-items-center px-4 py-3">
                 <div class="d-flex align-items-center gap-3">
+                    <button class="btn btn-outline-secondary d-md-none" id="sidebarToggle">
+                        <i class="fas fa-bars"></i>
+                    </button>
                     <div>
-                        <h6 class="mb-0 text-muted">COORDENAÇÃO ACADÊMICA</h6>
-                        <h3 class="mb-0 fw-bold text-senai-red">Desempenho Acadêmico</h3>
+                        <h6 class="mb-0 text-muted d-none d-sm-block">COORDENAÇÃO ACADÊMICA</h6>
+                        <h3 class="mb-0 fw-bold text-senai-red fs-4">Desempenho Acadêmico</h3>
                     </div>
                 </div>
                 <div class="d-flex align-items-center gap-2">
-                    <div>
+                    <div class="d-none d-sm-block text-end">
                         <p class="mb-0 small fw-bold">{{ user.first_name|default:'Usuário' }}</p>
                         <p class="mb-0 small text-muted">Coordenador</p>
                     </div>
@@ -26,44 +30,8 @@
             </div>
         </header>
 
-        <div class="container-fluid p-4">
+        <div class="container-fluid p-3 p-md-4">
             
-            <div class="card shadow-sm border-0 mb-4">
-                <div class="card-header bg-light border-bottom py-3">
-                    <h6 class="mb-0 fw-bold text-dark">
-                        <i class="fas fa-filter text-senai-red me-2"></i>Filtros e Busca
-                    </h6>
-                </div>
-                <div class="card-body">
-                    <div class="row g-3">
-                        <div class="col-md-4">
-                            <label class="form-label small fw-bold">Turma</label>
-                            <select id="filterTurma" class="form-select form-select-sm">
-                                <option value="">Todas as Turmas</option>
-                                </select>
-                        </div>
-                        <div class="col-md-4">
-                            <label class="form-label small fw-bold">Aluno</label>
-                            <input type="text" id="filterAluno" class="form-control form-control-sm" placeholder="Nome ou matrícula">
-                        </div>
-                        <div class="col-md-2">
-                            <label class="form-label small fw-bold">Situação</label>
-                            <select id="filterSituacao" class="form-select form-select-sm">
-                                <option value="">Todos</option>
-                                <option value="Aprovado">Aprovado</option>
-                                <option value="Recuperação">Recuperação</option>
-                                <option value="Reprovado">Reprovado</option>
-                            </select>
-                        </div>
-                        <div class="col-md-2 d-flex align-items-end">
-                            <button class="btn btn-sm btn-senai-red w-100" id="btnFiltrar">
-                                <i class="fas fa-search me-1"></i>Filtrar
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
             <div class="card shadow-sm border-0 mb-4">
                 <div class="card-header bg-light border-bottom py-3">
                     <h6 class="mb-0 fw-bold text-dark">
@@ -85,7 +53,7 @@
                             </h6>
                         </div>
                         <div class="card-body p-4">
-                            <div style="height: 300px; position: relative;">
+                            <div style="height: 300px; position: relative; width: 100%;">
                                 <canvas id="chartNotas"></canvas>
                             </div>
                         </div>
@@ -99,9 +67,45 @@
                             </h6>
                         </div>
                         <div class="card-body p-4">
-                            <div style="height: 300px; position: relative;">
+                            <div style="height: 300px; position: relative; width: 100%;">
                                 <canvas id="chartFrequencia"></canvas>
                             </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-light border-bottom py-3">
+                    <h6 class="mb-0 fw-bold text-dark">
+                        <i class="fas fa-filter text-senai-red me-2"></i>Filtros e Busca
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-12 col-md-4">
+                            <label class="form-label small fw-bold">Turma</label>
+                            <select id="filterTurma" class="form-select form-select-sm">
+                                <option value="">Todas as Turmas</option>
+                            </select>
+                        </div>
+                        <div class="col-12 col-md-4">
+                            <label class="form-label small fw-bold">Aluno</label>
+                            <input type="text" id="filterAluno" class="form-control form-control-sm" placeholder="Nome ou matrícula">
+                        </div>
+                        <div class="col-6 col-md-2">
+                            <label class="form-label small fw-bold">Situação</label>
+                            <select id="filterSituacao" class="form-select form-select-sm">
+                                <option value="">Todos</option>
+                                <option value="Aprovado">Aprovado</option>
+                                <option value="Recuperação">Recuperação</option>
+                                <option value="Reprovado">Reprovado</option>
+                            </select>
+                        </div>
+                        <div class="col-6 col-md-2 d-flex align-items-end">
+                            <button class="btn btn-sm btn-senai-red w-100" id="btnFiltrar">
+                                <i class="fas fa-search me-1"></i> <span class="d-none d-lg-inline">Filtrar</span>
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -119,10 +123,10 @@
                             <thead class="table-light">
                                 <tr>
                                     <th class="ps-3">Nome</th>
-                                    <th>Matrícula</th>
-                                    <th>Turma</th>
+                                    <th class="d-none d-sm-table-cell">Matrícula</th>
+                                    <th class="d-none d-md-table-cell">Turma</th>
                                     <th class="text-center">Média Geral</th>
-                                    <th class="text-center">Frequência</th>
+                                    <th class="text-center d-none d-sm-table-cell">Frequência</th>
                                     <th class="text-center">Situação</th>
                                 </tr>
                             </thead>
@@ -138,23 +142,39 @@
 </div>
 
 <style>
-    html, body { margin: 0; padding: 0; overflow-x: hidden; }
-    #sidebar { width: 250px; position: fixed; top: 0; bottom: 0; z-index: 1050; }
-    #main-content { margin-left: 250px; width: calc(100% - 250px); min-height: 100vh; position: relative; }
     @media (max-width: 768px) {
-        #sidebar { display: none; }
-        #main-content { margin-left: 0; width: 100%; }
+        #sidebar { margin-left: -250px; }
+        #sidebar.active { margin-left: 0; }
+        #main-content { margin-left: 0 !important; width: 100% !important; }
+        .overlay { display: none; position: fixed; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.5); z-index: 998; }
+        .overlay.active { display: block; }
     }
-    .card-hover:hover { transform: translateY(-3px); transition: transform 0.2s; cursor: default; }
+    .transition-all { transition: all 0.3s; }
 </style>
+<div class="overlay"></div>
 {% endblock %}
 
 {% block extra_js %}
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-    
     <script>
         window.DESEMPENHO_DATA = {{ desempenho_data_json|safe }};
+        
+        // Script de toggle para esta página também
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebar = document.getElementById('sidebar');
+            const sidebarCollapse = document.getElementById('sidebarToggle');
+            const overlay = document.querySelector('.overlay');
+            if(sidebarCollapse) {
+                sidebarCollapse.addEventListener('click', () => {
+                    sidebar.classList.toggle('active');
+                    overlay.classList.toggle('active');
+                });
+                overlay.addEventListener('click', () => {
+                    sidebar.classList.remove('active');
+                    overlay.classList.remove('active');
+                });
+            }
+        });
     </script>
-    
     <script src="{% static 'js/coordenacao-desempenho.js' %}"></script>
 {% endblock %}

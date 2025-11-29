@@ -22,7 +22,12 @@ class Profile(models.Model):
     telefone = models.CharField(max_length=15, blank=True, null=True)
     data_nascimento = models.DateField(null=True, blank=True)
     cpf = models.CharField(max_length=14, unique=True, null=True)
-    endereco = models.TextField(blank=True, null=True)
+    logradouro = models.CharField(max_length=255, blank=True, null=True)
+    numero = models.CharField(max_length=30, blank=True, null=True)
+    bairro = models.CharField(max_length=100, blank=True, null=True)
+    cidade = models.CharField(max_length=80, blank=True, null=True)
+    estado = models.CharField(max_length=2, blank=True, null=True)
+    cep = models.CharField(max_length=9, blank=True, null=True)
 
     class Meta:
         verbose_name = 'Perfil'
@@ -47,7 +52,23 @@ class Profile(models.Model):
     def is_coordenacao(self):
         return self.tipo == 'coordenacao'
 
+class DocumentoUsuario(models.Model):
+    TIPOS_DOC = (
+        ('rg', 'RG / Cartão Cidadão'),
+        ('cpf', 'CPF'),
+        ('comprovante_residencia', 'Comprovativo de Morada'),
+        ('historico', 'Histórico Escolar'),
+        ('foto', 'Foto de Perfil'),
+    )
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='documentos')
+    tipo = models.CharField(max_length=30, choices=TIPOS_DOC)
+    arquivo = models.FileField(upload_to='documentos_usuarios/%Y/%m/')
+    data_upload = models.DateTimeField(auto_now_add=True)
+    validado = models.BooleanField(default=False) # Secretaria valida se o doc é real
 
+    def __str__(self):
+        return f"{self.get_tipo_display()} - {self.user.username}"
+    
 class PendingRegistration(models.Model):
     """
     Modelo para armazenar registros (cadastros) pendentes de aprovação do admin
