@@ -1,37 +1,48 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Coordenação - SENAI School Manager{% endblock %}
+{% block title %}Coordenação - Visão Geral{% endblock %}
 
 {% block content %}
 <div class="layout-wrapper d-flex">
     {% include 'includes/sidebar.html' %}
     
-    <div id="main-content" class="flex-grow-1 transition-all" style="margin-left: 250px; width: calc(100% - 250px);">
+    <div id="main-content" class="flex-grow-1 transition-all">
         
-        <header class="bg-white border-bottom shadow-sm sticky-top">
-            <div class="d-flex justify-content-between align-items-center px-4 py-3">
+        <header class="header-modern sticky-top shadow-sm py-3 px-4">
+            <div class="d-flex justify-content-between align-items-center">
                 <div class="d-flex align-items-center gap-3">
-                    <button class="btn btn-outline-secondary d-md-none" id="sidebarToggle">
+                    <button class="btn btn-light d-md-none shadow-sm" id="sidebarToggle">
                         <i class="fas fa-bars"></i>
                     </button>
                     <div>
-                        <h6 class="mb-0 text-muted d-none d-sm-block">COORDENAÇÃO ACADÊMICA</h6>
-                        <h3 class="mb-0 fw-bold text-senai-red fs-4">Visão Geral</h3>
+                        <div class="header-breadcrumb">
+                            <i class="fas fa-layer-group me-1"></i> Coordenação Acadêmica
+                        </div>
+                        <h1 class="header-title mb-0">Visão Geral</h1>
                     </div>
                 </div>
                 
-                <div class="d-flex align-items-center gap-2 gap-md-3">
-                     <a href="{% url 'relatorio_coordenacao_pdf' user.id %}" class="btn btn-sm btn-danger d-flex align-items-center" target="_blank">
-                        <i class="fas fa-file-pdf me-1"></i> <span class="d-none d-sm-inline">Relatório PDF</span>
-                     </a>
-                    <div class="vr d-none d-sm-block"></div>
-                    <div class="d-flex align-items-center gap-2">
-                        <div class="text-end d-none d-sm-block">
-                            <p class="mb-0 small fw-bold">{{ user.first_name|default:'Usuário' }}</p>
-                            <p class="mb-0 small text-muted">Coordenador</p>
+                <div class="d-flex align-items-center gap-3">
+                    <div class="d-none d-lg-block text-end me-2">
+                        <small class="text-muted d-block" style="font-size: 0.7rem;">HOJE</small>
+                        <span class="fw-bold text-dark small">{% now "d \d\e F \d\e Y" %}</span>
+                    </div>
+                    
+                    <div class="vr d-none d-lg-block mx-2 h-50 align-self-center"></div>
+
+                    <a href="{% url 'relatorio_coordenacao_pdf' user.id %}" class="btn btn-outline-danger btn-sm d-flex align-items-center" target="_blank" title="Gerar Relatório PDF">
+                        <i class="fas fa-file-pdf"></i>
+                    </a>
+                    
+                    <div class="header-profile-box d-flex align-items-center gap-3 cursor-pointer">
+                        <div class="text-end d-none d-sm-block" style="line-height: 1.1;">
+                            <p class="mb-0 fw-bold text-dark small">{{ user.first_name|default:'Usuário' }}</p>
+                            <p class="mb-0 text-muted" style="font-size: 0.7rem;">Coordenador</p>
                         </div>
-                        <i class="fas fa-user-circle fa-2x text-senai-red"></i>
+                        <div class="rounded-circle bg-white d-flex align-items-center justify-content-center shadow-sm" style="width: 38px; height: 38px; border: 2px solid var(--primary-color);">
+                            <i class="fas fa-user text-senai-red"></i>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -77,7 +88,7 @@
             <div class="row g-3 mb-4">
                 <div class="col-lg-7">
                     <div class="card shadow-sm border-0 h-100">
-                        <div class="card-header bg-light border-bottom py-3">
+                        <div class="card-header bg-white border-bottom py-3">
                             <h6 class="mb-0 fw-bold text-dark">
                                 <i class="fas fa-crosshairs text-senai-red me-2"></i>Diagnóstico: Desempenho x Engajamento
                             </h6>
@@ -100,7 +111,7 @@
                 
                 <div class="col-lg-5">
                     <div class="card shadow-sm border-0 h-100">
-                        <div class="card-header bg-light border-bottom py-3">
+                        <div class="card-header bg-white border-bottom py-3">
                             <h6 class="mb-0 fw-bold text-dark">
                                 <i class="fas fa-layer-group text-senai-red me-2"></i>Eficiência por Curso
                             </h6>
@@ -123,7 +134,7 @@
             <div class="row g-3 mb-4">
                 <div class="col-12">
                     <div class="card shadow-sm border-0">
-                        <div class="card-header bg-light border-bottom py-3">
+                        <div class="card-header bg-white border-bottom py-3">
                             <h6 class="mb-0 fw-bold text-dark">
                                 <i class="fas fa-history text-senai-red me-2"></i>Atividades Recentes
                             </h6>
@@ -147,20 +158,6 @@
     </div>
 </div>
 
-<style>
-    /* Estilos Responsivos */
-    @media (max-width: 768px) {
-        #sidebar { margin-left: -250px; }
-        #sidebar.active { margin-left: 0; }
-        #main-content { margin-left: 0 !important; width: 100% !important; }
-        #main-content.active { margin-left: 250px !important; }
-        /* Overlay para escurecer o fundo quando o menu abre */
-        .overlay { display: none; position: fixed; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.5); z-index: 998; opacity: 0; transition: all 0.5s ease-in-out; }
-        .overlay.active { display: block; opacity: 1; }
-    }
-    .transition-all { transition: all 0.3s; }
-</style>
-
 <div class="overlay"></div>
 
 {% endblock %}
@@ -170,10 +167,9 @@
     <script>
         window.DASHBOARD_DATA = {{ dashboard_data_json|safe }};
         
-        // Script simples para Toggle da Sidebar em Mobile
+        // Toggle Sidebar Mobile
         document.addEventListener('DOMContentLoaded', function() {
             const sidebar = document.getElementById('sidebar');
-            const mainContent = document.getElementById('main-content');
             const sidebarCollapse = document.getElementById('sidebarToggle');
             const overlay = document.querySelector('.overlay');
 
@@ -183,7 +179,6 @@
                     overlay.classList.toggle('active');
                 });
             }
-            
             if(overlay) {
                 overlay.addEventListener('click', function() {
                     sidebar.classList.remove('active');

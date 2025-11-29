@@ -1,31 +1,43 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Desempenho - Coordenação{% endblock %}
+{% block title %}Coordenação - Desempenho{% endblock %}
 
 {% block content %}
 <div class="layout-wrapper d-flex">
     {% include 'includes/sidebar.html' %}
     
-    <div id="main-content" class="flex-grow-1 transition-all" style="margin-left: 250px; width: calc(100% - 250px);">
+    <div id="main-content" class="flex-grow-1 transition-all">
         
-        <header class="bg-white border-bottom shadow-sm sticky-top">
-            <div class="d-flex justify-content-between align-items-center px-4 py-3">
+        <header class="header-modern sticky-top shadow-sm py-3 px-4">
+            <div class="d-flex justify-content-between align-items-center">
                 <div class="d-flex align-items-center gap-3">
-                    <button class="btn btn-outline-secondary d-md-none" id="sidebarToggle">
+                    <button class="btn btn-light d-md-none shadow-sm" id="sidebarToggle">
                         <i class="fas fa-bars"></i>
                     </button>
                     <div>
-                        <h6 class="mb-0 text-muted d-none d-sm-block">COORDENAÇÃO ACADÊMICA</h6>
-                        <h3 class="mb-0 fw-bold text-senai-red fs-4">Desempenho Acadêmico</h3>
+                        <div class="header-breadcrumb">
+                            <i class="fas fa-layer-group me-1"></i> Coordenação Acadêmica
+                        </div>
+                        <h1 class="header-title mb-0">Desempenho Acadêmico</h1>
                     </div>
                 </div>
-                <div class="d-flex align-items-center gap-2">
-                    <div class="d-none d-sm-block text-end">
-                        <p class="mb-0 small fw-bold">{{ user.first_name|default:'Usuário' }}</p>
-                        <p class="mb-0 small text-muted">Coordenador</p>
+                
+                <div class="d-flex align-items-center gap-3">
+                    <div class="d-none d-lg-block text-end me-2">
+                        <small class="text-muted d-block" style="font-size: 0.7rem;">HOJE</small>
+                        <span class="fw-bold text-dark small">{% now "d \d\e F \d\e Y" %}</span>
                     </div>
-                    <i class="fas fa-user-circle fa-2x text-senai-red"></i>
+                    
+                    <div class="header-profile-box d-flex align-items-center gap-3 cursor-pointer">
+                        <div class="text-end d-none d-sm-block" style="line-height: 1.1;">
+                            <p class="mb-0 fw-bold text-dark small">{{ user.first_name|default:'Usuário' }}</p>
+                            <p class="mb-0 text-muted" style="font-size: 0.7rem;">Coordenador</p>
+                        </div>
+                        <div class="rounded-circle bg-white d-flex align-items-center justify-content-center shadow-sm" style="width: 38px; height: 38px; border: 2px solid var(--primary-color);">
+                            <i class="fas fa-user text-senai-red"></i>
+                        </div>
+                    </div>
                 </div>
             </div>
         </header>
@@ -33,12 +45,12 @@
         <div class="container-fluid p-3 p-md-4">
             
             <div class="card shadow-sm border-0 mb-4">
-                <div class="card-header bg-light border-bottom py-3">
+                <div class="card-header bg-white border-bottom py-3">
                     <h6 class="mb-0 fw-bold text-dark">
                         <i class="fas fa-chalkboard text-senai-red me-2"></i>Visão Geral das Turmas
                     </h6>
                 </div>
-                <div class="card-body bg-light">
+                <div class="card-body bg-light-subtle">
                     <div class="row" id="turmasContainer">
                         </div>
                 </div>
@@ -47,7 +59,7 @@
             <div class="row g-3 mb-4">
                 <div class="col-lg-6">
                     <div class="card shadow-sm border-0 h-100">
-                        <div class="card-header bg-light border-bottom py-3">
+                        <div class="card-header bg-white border-bottom py-3">
                             <h6 class="mb-0 fw-bold text-dark">
                                 <i class="fas fa-chart-bar text-senai-red me-2"></i>Distribuição de Notas (Global)
                             </h6>
@@ -61,7 +73,7 @@
                 </div>
                 <div class="col-lg-6">
                     <div class="card shadow-sm border-0 h-100">
-                        <div class="card-header bg-light border-bottom py-3">
+                        <div class="card-header bg-white border-bottom py-3">
                             <h6 class="mb-0 fw-bold text-dark">
                                 <i class="fas fa-chart-line text-senai-red me-2"></i>Frequência Média por Turma
                             </h6>
@@ -76,7 +88,7 @@
             </div>
 
             <div class="card shadow-sm border-0 mb-4">
-                <div class="card-header bg-light border-bottom py-3">
+                <div class="card-header bg-white border-bottom py-3">
                     <h6 class="mb-0 fw-bold text-dark">
                         <i class="fas fa-filter text-senai-red me-2"></i>Filtros e Busca
                     </h6>
@@ -112,7 +124,7 @@
             </div>
 
             <div class="card shadow-sm border-0 mb-4">
-                <div class="card-header bg-light border-bottom py-3">
+                <div class="card-header bg-white border-bottom py-3">
                     <h6 class="mb-0 fw-bold text-dark">
                         <i class="fas fa-list text-senai-red me-2"></i>Detalhamento de Alunos
                     </h6>
@@ -141,17 +153,8 @@
     </div>
 </div>
 
-<style>
-    @media (max-width: 768px) {
-        #sidebar { margin-left: -250px; }
-        #sidebar.active { margin-left: 0; }
-        #main-content { margin-left: 0 !important; width: 100% !important; }
-        .overlay { display: none; position: fixed; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.5); z-index: 998; }
-        .overlay.active { display: block; }
-    }
-    .transition-all { transition: all 0.3s; }
-</style>
 <div class="overlay"></div>
+
 {% endblock %}
 
 {% block extra_js %}
@@ -159,7 +162,7 @@
     <script>
         window.DESEMPENHO_DATA = {{ desempenho_data_json|safe }};
         
-        // Script de toggle para esta página também
+        // Toggle Sidebar Mobile
         document.addEventListener('DOMContentLoaded', function() {
             const sidebar = document.getElementById('sidebar');
             const sidebarCollapse = document.getElementById('sidebarToggle');

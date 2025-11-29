@@ -1,31 +1,42 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Comunicação - Coordenação{% endblock %}
+{% block title %}Coordenação - Comunicação{% endblock %}
 
 {% block content %}
-<div class="layout-wrapper">
+<div class="layout-wrapper d-flex">
     {% include 'includes/sidebar.html' %}
     
-    <div id="main-content">
-        <header class="bg-white border-bottom shadow-sm sticky-top">
-            <div class="d-flex justify-content-between align-items-center px-4 py-3">
-                <div>
-                    <h6 class="mb-0 text-muted">COORDENAÇÃO ACADÊMICA</h6>
-                    <h3 class="mb-0 fw-bold text-senai-red">Comunicação</h3>
-                </div>
+    <div id="main-content" class="flex-grow-1 transition-all">
+        
+        <header class="header-modern sticky-top shadow-sm py-3 px-4">
+            <div class="d-flex justify-content-between align-items-center">
                 <div class="d-flex align-items-center gap-3">
-                    <div class="position-relative">
-                        <i class="fas fa-bell text-muted fa-lg" style="cursor: pointer;"></i>
-                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.6em; margin-top: -8px; margin-left: -12px;">3</span>
-                    </div>
-                    <div class="vr"></div>
-                    <div class="d-flex align-items-center gap-2">
-                        <div>
-                            <p class="mb-0 small fw-bold">{{ user.first_name|default:'Usuário' }}</p>
-                            <p class="mb-0 small text-muted">Coordenador</p>
+                    <button class="btn btn-light d-md-none shadow-sm" id="sidebarToggle">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <div>
+                        <div class="header-breadcrumb">
+                            <i class="fas fa-layer-group me-1"></i> Coordenação Acadêmica
                         </div>
-                        <i class="fas fa-user-circle fa-2x text-senai-red"></i>
+                        <h1 class="header-title mb-0">Comunicação</h1>
+                    </div>
+                </div>
+                
+                <div class="d-flex align-items-center gap-3">
+                    <div class="d-none d-lg-block text-end me-2">
+                        <small class="text-muted d-block" style="font-size: 0.7rem;">HOJE</small>
+                        <span class="fw-bold text-dark small">{% now "d \d\e F \d\e Y" %}</span>
+                    </div>
+
+                    <div class="header-profile-box d-flex align-items-center gap-3 cursor-pointer">
+                        <div class="text-end d-none d-sm-block" style="line-height: 1.1;">
+                            <p class="mb-0 fw-bold text-dark small">{{ user.first_name|default:'Usuário' }}</p>
+                            <p class="mb-0 text-muted" style="font-size: 0.7rem;">Coordenador</p>
+                        </div>
+                        <div class="rounded-circle bg-white d-flex align-items-center justify-content-center shadow-sm" style="width: 38px; height: 38px; border: 2px solid var(--primary-color);">
+                            <i class="fas fa-user text-senai-red"></i>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -62,7 +73,7 @@
                     <div class="row g-3">
                         <div class="col-lg-4">
                             <div class="card shadow-sm border-0">
-                                <div class="card-header bg-light border-bottom py-3">
+                                <div class="card-header bg-white border-bottom py-3">
                                     <h6 class="mb-0 fw-bold text-dark">
                                         <i class="fas fa-list text-senai-red me-2"></i>Conversas
                                     </h6>
@@ -87,7 +98,7 @@
                         </div>
                         <div class="col-lg-8">
                             <div class="card shadow-sm border-0">
-                                <div class="card-header bg-light border-bottom py-3">
+                                <div class="card-header bg-white border-bottom py-3">
                                     <h6 class="mb-0 fw-bold text-dark">
                                         <i class="fas fa-comments text-senai-red me-2"></i>Secretária Geral
                                     </h6>
@@ -112,7 +123,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="card-footer bg-light border-top">
+                                <div class="card-footer bg-white border-top">
                                     <div class="input-group">
                                         <input type="text" class="form-control form-control-sm" placeholder="Digite uma mensagem...">
                                         <button class="btn btn-senai-red btn-sm" type="button">
@@ -203,17 +214,6 @@
                                         <button class="btn btn-xs btn-outline-danger"><i class="fas fa-trash"></i></button>
                                     </td>
                                 </tr>
-                                <tr>
-                                    <td>Apresentação de Projetos</td>
-                                    <td>20/11/2025</td>
-                                    <td>16:30</td>
-                                    <td>Auditório</td>
-                                    <td><span class="badge bg-primary">45</span></td>
-                                    <td class="text-end">
-                                        <button class="btn btn-xs btn-outline-primary me-1"><i class="fas fa-edit"></i></button>
-                                        <button class="btn btn-xs btn-outline-danger"><i class="fas fa-trash"></i></button>
-                                    </td>
-                                </tr>
                             </tbody>
                         </table>
                     </div>
@@ -230,25 +230,7 @@
                                 <small class="text-muted">há 2 horas</small>
                             </div>
                         </a>
-                        <a href="#" class="list-group-item list-group-item-action py-3 border-0 border-bottom">
-                            <div class="d-flex justify-content-between align-items-start">
-                                <div>
-                                    <h6 class="fw-bold mb-1">Mensagem urgente</h6>
-                                    <p class="small text-muted mb-0">Secretária comunicou sobre falta de materiais</p>
-                                </div>
-                                <small class="text-muted">há 4 horas</small>
-                            </div>
-                        </a>
-                        <a href="#" class="list-group-item list-group-item-action py-3 border-0">
-                            <div class="d-flex justify-content-between align-items-start">
-                                <div>
-                                    <h6 class="fw-bold mb-1">Atualização no sistema</h6>
-                                    <p class="small text-muted mb-0">Novo relatório gerado com sucesso</p>
-                                </div>
-                                <small class="text-muted">há 1 dia</small>
-                            </div>
-                        </a>
-                    </div>
+                        </div>
                 </div>
 
             </div>
@@ -352,44 +334,28 @@
     </div>
 </div>
 
-<style>
-    html, body { margin: 0; padding: 0; overflow-x: hidden; }
-    #sidebar {
-        width: 250px !important;
-        position: fixed !important;
-        top: 0 !important;
-        left: 0 !important;
-        bottom: 0 !important;
-        height: 100vh !important;
-        z-index: 1050 !important;
-        display: block !important;
-        visibility: visible !important;
-        transform: none !important;
-        right: auto !important;
-        box-shadow: 2px 0 5px rgba(0,0,0,0.1);
-        margin: 0 !important;
-        padding-top: 0 !important;
-    }
-    #sidebar::after { content: none !important; display: none !important; }
-    #main-content {
-        margin-left: 250px !important;
-        width: calc(100% - 250px) !important;
-        min-height: 100vh;
-        padding: 0 !important;
-        position: relative;
-    }
-    header.sticky-top {
-        top: 0;
-        width: 100%;
-        margin: 0 !important;
-        border-radius: 0 !important;
-        z-index: 1020;
-    }
-    @media (max-width: 768px) { header .d-flex { flex-wrap: wrap; } }
-</style>
+<div class="overlay"></div>
 
 {% endblock %}
 
 {% block extra_js %}
+    <script>
+        // Toggle Sidebar Mobile (Global)
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebar = document.getElementById('sidebar');
+            const sidebarCollapse = document.getElementById('sidebarToggle');
+            const overlay = document.querySelector('.overlay');
+            if(sidebarCollapse) {
+                sidebarCollapse.addEventListener('click', () => {
+                    sidebar.classList.toggle('active');
+                    overlay.classList.toggle('active');
+                });
+                overlay.addEventListener('click', () => {
+                    sidebar.classList.remove('active');
+                    overlay.classList.remove('active');
+                });
+            }
+        });
+    </script>
     <script src="{% static 'js/coordenacao-comunicacao.js' %}"></script>
 {% endblock %}
