@@ -4,23 +4,30 @@
 {% block title %}Coordenação - SENAI School Manager{% endblock %}
 
 {% block content %}
-<div class="layout-wrapper">
+<div class="layout-wrapper d-flex">
     {% include 'includes/sidebar.html' %}
     
-    <div id="main-content">
+    <div id="main-content" class="flex-grow-1 transition-all" style="margin-left: 250px; width: calc(100% - 250px);">
+        
         <header class="bg-white border-bottom shadow-sm sticky-top">
             <div class="d-flex justify-content-between align-items-center px-4 py-3">
                 <div class="d-flex align-items-center gap-3">
+                    <button class="btn btn-outline-secondary d-md-none" id="sidebarToggle">
+                        <i class="fas fa-bars"></i>
+                    </button>
                     <div>
-                        <h6 class="mb-0 text-muted">COORDENAÇÃO ACADÊMICA</h6>
-                        <h3 class="mb-0 fw-bold text-senai-red">Visão Geral</h3>
+                        <h6 class="mb-0 text-muted d-none d-sm-block">COORDENAÇÃO ACADÊMICA</h6>
+                        <h3 class="mb-0 fw-bold text-senai-red fs-4">Visão Geral</h3>
                     </div>
                 </div>
-                <div class="d-flex align-items-center gap-3">
-                     <a href="#" class="btn btn-sm btn-danger"><i class="fas fa-file-pdf me-1"></i> Relatório PDF</a>
-                    <div class="vr"></div>
+                
+                <div class="d-flex align-items-center gap-2 gap-md-3">
+                     <a href="{% url 'relatorio_coordenacao_pdf' user.id %}" class="btn btn-sm btn-danger d-flex align-items-center" target="_blank">
+                        <i class="fas fa-file-pdf me-1"></i> <span class="d-none d-sm-inline">Relatório PDF</span>
+                     </a>
+                    <div class="vr d-none d-sm-block"></div>
                     <div class="d-flex align-items-center gap-2">
-                        <div>
+                        <div class="text-end d-none d-sm-block">
                             <p class="mb-0 small fw-bold">{{ user.first_name|default:'Usuário' }}</p>
                             <p class="mb-0 small text-muted">Coordenador</p>
                         </div>
@@ -30,44 +37,44 @@
             </div>
         </header>
 
-        <div class="container-fluid p-4">
+        <div class="container-fluid p-3 p-md-4">
+            
             <div class="row g-3 mb-4">
-                <div class="col-lg-3 col-md-6">
+                <div class="col-6 col-md-3">
                     <div class="card shadow-sm border-0 border-top border-4 border-senai-red h-100">
-                        <div class="card-body">
-                            <h6 class="text-muted small text-uppercase">Turmas</h6>
-                            <h2 class="display-4 fw-bold text-senai-red mb-0">{{ total_turmas }}</h2>
+                        <div class="card-body p-3">
+                            <h6 class="text-muted small text-uppercase mb-1">Turmas</h6>
+                            <h2 class="display-6 fw-bold text-senai-red mb-0">{{ total_turmas }}</h2>
                         </div>
                     </div>
                 </div>
-                <div class="col-lg-3 col-md-6">
+                <div class="col-6 col-md-3">
                     <div class="card shadow-sm border-0 border-top border-4 border-success h-100">
-                        <div class="card-body">
-                            <h6 class="text-muted small text-uppercase">Professores</h6>
-                            <h2 class="display-4 fw-bold text-success mb-0">{{ total_professores }}</h2>
+                        <div class="card-body p-3">
+                            <h6 class="text-muted small text-uppercase mb-1">Professores</h6>
+                            <h2 class="display-6 fw-bold text-success mb-0">{{ total_professores }}</h2>
                         </div>
                     </div>
                 </div>
-                <div class="col-lg-3 col-md-6">
+                <div class="col-6 col-md-3">
                     <div class="card shadow-sm border-0 border-top border-4 border-info h-100">
-                        <div class="card-body">
-                            <h6 class="text-muted small text-uppercase">Alunos</h6>
-                            <h2 class="display-4 fw-bold text-info mb-0">{{ total_alunos }}</h2>
+                        <div class="card-body p-3">
+                            <h6 class="text-muted small text-uppercase mb-1">Alunos</h6>
+                            <h2 class="display-6 fw-bold text-info mb-0">{{ total_alunos }}</h2>
                         </div>
                     </div>
                 </div>
-                <div class="col-lg-3 col-md-6">
+                <div class="col-6 col-md-3">
                     <div class="card shadow-sm border-0 border-top border-4 border-danger h-100">
-                        <div class="card-body">
-                            <h6 class="text-muted small text-uppercase">Em Risco</h6>
-                            <h2 class="display-4 fw-bold text-danger mb-0">{{ alunos_risco|default:"0" }}</h2>
+                        <div class="card-body p-3">
+                            <h6 class="text-muted small text-uppercase mb-1">Em Risco</h6>
+                            <h2 class="display-6 fw-bold text-danger mb-0">{{ alunos_risco|default:"0" }}</h2>
                         </div>
                     </div>
                 </div>
             </div>
 
             <div class="row g-3 mb-4">
-                
                 <div class="col-lg-7">
                     <div class="card shadow-sm border-0 h-100">
                         <div class="card-header bg-light border-bottom py-3">
@@ -75,13 +82,13 @@
                                 <i class="fas fa-crosshairs text-senai-red me-2"></i>Diagnóstico: Desempenho x Engajamento
                             </h6>
                         </div>
-                        <div class="card-body p-4">
-                            <div class="d-flex justify-content-center small mb-2 gap-3">
+                        <div class="card-body p-3 p-md-4">
+                            <div class="d-flex justify-content-center flex-wrap small mb-2 gap-2 gap-md-3">
                                 <span><i class="fas fa-circle text-success me-1"></i> Bom</span>
                                 <span><i class="fas fa-circle text-warning me-1"></i> Atenção</span>
                                 <span><i class="fas fa-circle text-danger me-1"></i> Risco</span>
                             </div>
-                            <div style="height: 320px; position: relative;">
+                            <div style="height: 300px; position: relative; width: 100%;">
                                 <canvas id="chartDispersao"></canvas>
                             </div>
                             <small class="text-muted d-block text-center mt-2">
@@ -98,14 +105,12 @@
                                 <i class="fas fa-layer-group text-senai-red me-2"></i>Eficiência por Curso
                             </h6>
                         </div>
-                        <div class="card-body p-4">
-                            <p class="small text-muted mb-3">Situação acadêmica dos alunos agrupada por curso.</p>
-                            
-                            <div style="height: 280px; position: relative;">
+                        <div class="card-body p-3 p-md-4">
+                            <p class="small text-muted mb-3">Situação acadêmica agrupada.</p>
+                            <div style="height: 250px; position: relative; width: 100%;">
                                 <canvas id="chartComparativo"></canvas>
                             </div>
-                            
-                            <div class="d-flex justify-content-center gap-3 mt-3 small fw-bold">
+                            <div class="d-flex justify-content-center flex-wrap gap-2 gap-md-3 mt-3 small fw-bold">
                                 <span class="text-success"><i class="fas fa-square me-1"></i>Aprovados</span>
                                 <span class="text-warning"><i class="fas fa-square me-1"></i>Recuperação</span>
                                 <span class="text-danger"><i class="fas fa-square me-1"></i>Reprovados</span>
@@ -127,8 +132,8 @@
                             <div class="list-group list-group-flush">
                                 {% for atividade in atividades_recentes %}
                                 <div class="list-group-item d-flex justify-content-between p-3">
-                                    <div><i class="fas fa-user-plus text-primary me-2"></i> {{ atividade.texto }}</div>
-                                    <small class="text-muted">{{ atividade.data }}</small>
+                                    <div class="text-truncate me-2"><i class="fas fa-user-plus text-primary me-2"></i> {{ atividade.texto }}</div>
+                                    <small class="text-muted text-nowrap">{{ atividade.data }}</small>
                                 </div>
                                 {% empty %}
                                 <div class="p-3 text-center text-muted">Nenhuma atividade recente.</div>
@@ -143,20 +148,49 @@
 </div>
 
 <style>
-    html, body { margin: 0; padding: 0; overflow-x: hidden; }
-    #sidebar { width: 250px; position: fixed; top: 0; bottom: 0; z-index: 1000; }
-    #main-content { margin-left: 250px; width: calc(100% - 250px); }
+    /* Estilos Responsivos */
     @media (max-width: 768px) {
-        #sidebar { display: none; }
-        #main-content { margin-left: 0; width: 100%; }
+        #sidebar { margin-left: -250px; }
+        #sidebar.active { margin-left: 0; }
+        #main-content { margin-left: 0 !important; width: 100% !important; }
+        #main-content.active { margin-left: 250px !important; }
+        /* Overlay para escurecer o fundo quando o menu abre */
+        .overlay { display: none; position: fixed; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.5); z-index: 998; opacity: 0; transition: all 0.5s ease-in-out; }
+        .overlay.active { display: block; opacity: 1; }
     }
+    .transition-all { transition: all 0.3s; }
 </style>
+
+<div class="overlay"></div>
+
 {% endblock %}
 
 {% block extra_js %}
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
     <script>
         window.DASHBOARD_DATA = {{ dashboard_data_json|safe }};
+        
+        // Script simples para Toggle da Sidebar em Mobile
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('main-content');
+            const sidebarCollapse = document.getElementById('sidebarToggle');
+            const overlay = document.querySelector('.overlay');
+
+            if(sidebarCollapse) {
+                sidebarCollapse.addEventListener('click', function() {
+                    sidebar.classList.toggle('active');
+                    overlay.classList.toggle('active');
+                });
+            }
+            
+            if(overlay) {
+                overlay.addEventListener('click', function() {
+                    sidebar.classList.remove('active');
+                    overlay.classList.remove('active');
+                });
+            }
+        });
     </script>
     <script src="{% static 'js/coordenacao.js' %}"></script>
 {% endblock %}

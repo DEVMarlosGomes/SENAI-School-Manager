@@ -1,6 +1,6 @@
 {% load static %}
 
-<nav id="sidebar" class="bg-senai-red text-white fixed-top" style="width: 250px; height: 100vh; padding-top: 0;">
+<nav id="sidebar" class="bg-senai-red text-white fixed-top transition-all" style="width: 250px; height: 100vh; padding-top: 0; z-index: 1000;">
     
     <div class="sidebar-header text-center py-4 bg-senai-dark">
         <i class="fas fa-user-circle fa-3x mb-2 text-white"></i>
@@ -39,55 +39,13 @@
                         <i class="fas fa-tachometer-alt me-2"></i> Dashboard
                     </a>
                 </li>
-                <li class="mb-1">
-                    <a href="{% url 'gestao_alunos' %}" class="btn {% if url_name == 'gestao_alunos' %}bg-senai-dark{% else %}btn-block{% endif %} text-white w-100 text-start rounded-0">
-                        <i class="fas fa-user-graduate me-2"></i> Gestão de Alunos
-                    </a>
-                </li>
-                <li class="mb-1">
-                    <a href="{% url 'controle_financeiro' %}" class="btn {% if url_name == 'controle_financeiro' %}bg-senai-dark{% else %}btn-block{% endif %} text-white w-100 text-start rounded-0">
-                        <i class="fas fa-dollar-sign me-2"></i> Financeiro
-                    </a>
-                </li>
-                <li class="mb-1">
-                    <a href="{% url 'gestao_documentos' %}" class="btn {% if url_name == 'gestao_documentos' %}bg-senai-dark{% else %}btn-block{% endif %} text-white w-100 text-start rounded-0">
-                        <i class="fas fa-file-alt me-2"></i> Documentos
-                    </a>
-                </li>
-                <li class="mb-1">
-                    <a href="{% url 'comunicacao_secretaria' %}" class="btn {% if url_name == 'comunicacao_secretaria' %}bg-senai-dark{% else %}btn-block{% endif %} text-white w-100 text-start rounded-0">
-                        <i class="fas fa-comments me-2"></i> Mensagens
-                    </a>
-                </li>
-
-        {% elif user.profile.is_aluno %}
-            <li class="mb-1">
+                {% elif user.profile.is_aluno %}
+             <li class="mb-1">
                 <a href="{% url 'aluno_dashboard' %}" class="btn {% if url_name == 'aluno_dashboard' %}bg-senai-dark{% else %}btn-block{% endif %} text-white w-100 text-start rounded-0">
                     <i class="fas fa-tachometer-alt me-2"></i> Dashboard
                 </a>
             </li>
-            <li class="mb-1">
-                <a href="{% url 'boletim' %}" class="btn {% if url_name == 'boletim' %}bg-senai-dark{% else %}btn-block{% endif %} text-white w-100 text-start rounded-0">
-                    <i class="fas fa-clipboard-list me-2"></i> Boletim
-                </a>
-            </li>
-            <li class="mb-1">
-                <a href="{% url 'calendario' %}" class="btn {% if url_name == 'calendario' %}bg-senai-dark{% else %}btn-block{% endif %} text-white w-100 text-start rounded-0">
-                    <i class="fas fa-calendar me-2"></i> Calendário Acadêmico
-                </a>
-            </li>
-            <li class="mb-1">
-                <a href="{% url 'avisos_eventos' %}" class="btn {% if url_name == 'avisos_eventos' %}bg-senai-dark{% else %}btn-block{% endif %} text-white w-100 text-start rounded-0">
-                    <i class="fas fa-bell me-2"></i> Avisos e Eventos
-                </a>
-            </li>
-             <li class="mb-1">
-                <a href="{% url 'materiais_estudo' %}" class="btn {% if url_name == 'materiais_estudo' %}bg-senai-dark{% else %}btn-block{% endif %} text-white w-100 text-start rounded-0">
-                    <i class="fas fa-book me-2"></i> Materiais
-                </a>
-            </li>
-
-        {% elif user.profile.is_coordenacao %}
+            {% elif user.profile.is_coordenacao %}
             <li class="mb-1">
                 <a href="{% url 'coordenacao_dashboard' %}" class="btn {% if url_name == 'coordenacao_dashboard' %}bg-senai-dark{% else %}btn-block{% endif %} text-white w-100 text-start rounded-0">
                     <i class="fas fa-tachometer-alt me-2"></i> Visão Geral
@@ -108,29 +66,13 @@
                     <i class="fas fa-comments me-2"></i> Comunicação
                 </a>
             </li>
-            <li class="mb-1">
-                <a href="{% url 'coordenacao_relatorios' %}" class="btn {% if url_name == 'coordenacao_relatorios' %}bg-senai-dark{% else %}btn-block{% endif %} text-white w-100 text-start rounded-0">
-                    <i class="fas fa-file-pdf me-2"></i> Relatórios
-                </a>
-            </li>
-
-        {% elif user.profile.is_professor %}
-            <li class="mb-1">
+            {% elif user.profile.is_professor %}
+             <li class="mb-1">
                 <a href="{% url 'professor_dashboard' %}" class="btn {% if url_name == 'professor_dashboard' %}bg-senai-dark{% else %}btn-block{% endif %} text-white w-100 text-start rounded-0">
                     <i class="fas fa-tachometer-alt me-2"></i> Dashboard
                 </a>
             </li>
-            <li class="mb-1">
-                <a href="#" class="btn btn-block text-white w-100 text-start rounded-0">
-                    <i class="fas fa-edit me-2"></i> Lance Dados
-                </a>
-            </li>
-            <li class="mb-1">
-                <a href="#" class="btn btn-block text-white w-100 text-start rounded-0">
-                    <i class="fas fa-calendar-alt me-2"></i> Agenda
-                </a>
-            </li>
-        {% endif %}
+            {% endif %}
         
         {% endwith %}
     </ul>
