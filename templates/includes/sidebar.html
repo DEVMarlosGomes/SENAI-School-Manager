@@ -1,79 +1,90 @@
 {% load static %}
 
-<nav id="sidebar" class="bg-senai-red text-white fixed-top transition-all" style="width: 250px; height: 100vh; padding-top: 0; z-index: 1000;">
-    
-    <div class="sidebar-header text-center py-4 bg-senai-dark">
-        <i class="fas fa-user-circle fa-3x mb-2 text-white"></i>
-        <h5 class="fw-bold mb-0">
-            {% if user.is_authenticated %}
-                {{ user.first_name|default:'Usuário' }}
-            {% else %}
-                Visitante
-            {% endif %}
-        </h5>
-        <small class="text-muted">
-            {% if user.profile.is_secretaria %}
-                Perfil: Secretária
-            {% elif user.profile.is_coordenacao %}
-                Perfil: Coordenador
-            {% elif user.profile.is_professor %}
-                Perfil: Professor
-            {% else %}
-                SENAI Manager
-            {% endif %}
-        </small>
+<nav id="sidebar">
+    <div class="sidebar-header">
+        <a href="{% url 'home' %}" class="d-flex align-items-center gap-2 text-decoration-none">
+            <div class="bg-white rounded-circle p-1 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                <i class="fas fa-graduation-cap text-senai-red fa-lg"></i>
+            </div>
+            <h5 class="mb-0 text-white fw-bold">SENAI Manager</h5>
+        </a>
     </div>
 
-    <ul class="list-unstyled components p-3">
-        {% if user.is_authenticated %}
-            <li class="mb-1">
-                <a href="#" data-bs-toggle="modal" data-bs-target="#logoutModal" class="btn btn-block text-white w-100 text-start rounded-0"><i class="fas fa-sign-out-alt me-2"></i>Sair</a>
+    <ul class="list-unstyled components">
+        
+        {% if user.profile.is_coordenacao %}
+            <p class="text-uppercase px-3 small text-white-50 mb-2 mt-3 fw-bold" style="font-size: 0.75rem; letter-spacing: 1px;">Coordenação</p>
+            <li class="{% if request.resolver_match.url_name == 'coordenacao_dashboard' %}active{% endif %}">
+                <a href="{% url 'coordenacao_dashboard' %}" class="d-flex align-items-center"><i class="fas fa-chart-line me-3"></i> Visão Geral</a>
+            </li>
+            <li class="{% if request.resolver_match.url_name == 'coordenacao_desempenho' %}active{% endif %}">
+                <a href="{% url 'coordenacao_desempenho' %}" class="d-flex align-items-center"><i class="fas fa-poll me-3"></i> Desempenho</a>
+            </li>
+            <li class="{% if request.resolver_match.url_name == 'coordenacao_gestao' %}active{% endif %}">
+                <a href="{% url 'coordenacao_gestao' %}" class="d-flex align-items-center"><i class="fas fa-users-cog me-3"></i> Gestão Acadêmica</a>
+            </li>
+            <li class="{% if request.resolver_match.url_name == 'coordenacao_comunicacao' %}active{% endif %}">
+                <a href="{% url 'coordenacao_comunicacao' %}" class="d-flex align-items-center"><i class="fas fa-bullhorn me-3"></i> Comunicação</a>
             </li>
         {% endif %}
 
-        {% with url_name=request.resolver_match.url_name %}
-
         {% if user.profile.is_secretaria %}
-                <li class="mb-1">
-                    <a href="{% url 'secretaria_dashboard' %}" class="btn {% if url_name == 'secretaria_dashboard' %}bg-senai-dark{% else %}btn-block{% endif %} text-white w-100 text-start rounded-0">
-                        <i class="fas fa-tachometer-alt me-2"></i> Dashboard
-                    </a>
-                </li>
-                {% elif user.profile.is_aluno %}
-             <li class="mb-1">
-                <a href="{% url 'aluno_dashboard' %}" class="btn {% if url_name == 'aluno_dashboard' %}bg-senai-dark{% else %}btn-block{% endif %} text-white w-100 text-start rounded-0">
-                    <i class="fas fa-tachometer-alt me-2"></i> Dashboard
-                </a>
+            <p class="text-uppercase px-3 small text-white-50 mb-2 mt-3 fw-bold" style="font-size: 0.75rem; letter-spacing: 1px;">Secretaria</p>
+            <li class="{% if request.resolver_match.url_name == 'secretaria_dashboard' %}active{% endif %}">
+                <a href="{% url 'secretaria_dashboard' %}" class="d-flex align-items-center"><i class="fas fa-th-large me-3"></i> Visão Geral</a>
             </li>
-            {% elif user.profile.is_coordenacao %}
-            <li class="mb-1">
-                <a href="{% url 'coordenacao_dashboard' %}" class="btn {% if url_name == 'coordenacao_dashboard' %}bg-senai-dark{% else %}btn-block{% endif %} text-white w-100 text-start rounded-0">
-                    <i class="fas fa-tachometer-alt me-2"></i> Visão Geral
-                </a>
+            <li class="{% if request.resolver_match.url_name == 'gestao_alunos' %}active{% endif %}">
+                <a href="{% url 'gestao_alunos' %}" class="d-flex align-items-center"><i class="fas fa-user-graduate me-3"></i> Alunos</a>
             </li>
-            <li class="mb-1">
-                <a href="{% url 'coordenacao_desempenho' %}" class="btn {% if url_name == 'coordenacao_desempenho' %}bg-senai-dark{% else %}btn-block{% endif %} text-white w-100 text-start rounded-0">
-                    <i class="fas fa-chart-line me-2"></i> Desempenho
-                </a>
+            <li class="{% if request.resolver_match.url_name == 'controle_financeiro' %}active{% endif %}">
+                <a href="{% url 'controle_financeiro' %}" class="d-flex align-items-center"><i class="fas fa-dollar-sign me-3"></i> Financeiro</a>
             </li>
-            <li class="mb-1">
-                <a href="{% url 'coordenacao_gestao' %}" class="btn {% if url_name == 'coordenacao_gestao' %}bg-senai-dark{% else %}btn-block{% endif %} text-white w-100 text-start rounded-0">
-                    <i class="fas fa-cogs me-2"></i> Gestão
-                </a>
+            <li class="{% if request.resolver_match.url_name == 'gestao_documentos' %}active{% endif %}">
+                <a href="{% url 'gestao_documentos' %}" class="d-flex align-items-center"><i class="fas fa-file-alt me-3"></i> Documentos</a>
             </li>
-            <li class="mb-1">
-                <a href="{% url 'coordenacao_comunicacao' %}" class="btn {% if url_name == 'coordenacao_comunicacao' %}bg-senai-dark{% else %}btn-block{% endif %} text-white w-100 text-start rounded-0">
-                    <i class="fas fa-comments me-2"></i> Comunicação
-                </a>
+            <li class="{% if request.resolver_match.url_name == 'comunicacao_secretaria' %}active{% endif %}">
+                <a href="{% url 'comunicacao_secretaria' %}" class="d-flex align-items-center"><i class="fas fa-comments me-3"></i> Comunicação</a>
             </li>
-            {% elif user.profile.is_professor %}
-             <li class="mb-1">
-                <a href="{% url 'professor_dashboard' %}" class="btn {% if url_name == 'professor_dashboard' %}bg-senai-dark{% else %}btn-block{% endif %} text-white w-100 text-start rounded-0">
-                    <i class="fas fa-tachometer-alt me-2"></i> Dashboard
-                </a>
+        {% endif %}
+
+        {% if user.profile.is_professor %}
+            <p class="text-uppercase px-3 small text-white-50 mb-2 mt-3 fw-bold" style="font-size: 0.75rem; letter-spacing: 1px;">Docente</p>
+            <li class="{% if request.resolver_match.url_name == 'professor_dashboard' %}active{% endif %}">
+                <a href="{% url 'professor_dashboard' %}" class="d-flex align-items-center"><i class="fas fa-chalkboard-teacher me-3"></i> Painel de Aulas</a>
             </li>
-            {% endif %}
-        
-        {% endwith %}
+        {% endif %}
+
+        {% if user.profile.is_aluno %}
+            <p class="text-uppercase px-3 small text-white-50 mb-2 mt-3 fw-bold" style="font-size: 0.75rem; letter-spacing: 1px;">Aluno</p>
+            <li class="{% if request.resolver_match.url_name == 'aluno_dashboard' %}active{% endif %}">
+                <a href="{% url 'aluno_dashboard' %}" class="d-flex align-items-center"><i class="fas fa-home me-3"></i> Início</a>
+            </li>
+            <li class="{% if request.resolver_match.url_name == 'boletim' %}active{% endif %}">
+                <a href="{% url 'boletim' %}" class="d-flex align-items-center"><i class="fas fa-book-open me-3"></i> Boletim</a>
+            </li>
+            <li class="{% if request.resolver_match.url_name == 'materiais_estudo' %}active{% endif %}">
+                <a href="{% url 'materiais_estudo' %}" class="d-flex align-items-center"><i class="fas fa-folder-open me-3"></i> Materiais</a>
+            </li>
+            <li class="{% if request.resolver_match.url_name == 'calendario' %}active{% endif %}">
+                <a href="{% url 'calendario' %}" class="d-flex align-items-center"><i class="fas fa-calendar-alt me-3"></i> Calendário</a>
+            </li>
+            <li class="{% if request.resolver_match.url_name == 'avisos_eventos' %}active{% endif %}">
+                <a href="{% url 'avisos_eventos' %}" class="d-flex align-items-center"><i class="fas fa-bell me-3"></i> Avisos</a>
+            </li>
+        {% endif %}
+
+        <hr class="mx-3 border-secondary opacity-50">
+
+        <li>
+            <a href="{% url 'perfil' %}" class="d-flex align-items-center"><i class="fas fa-user-circle me-3"></i> Meu Perfil</a>
+        </li>
+        <li>
+            <form action="{% url 'logout' %}" method="post" class="d-inline">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-link text-white text-decoration-none w-100 text-start px-3 py-2 d-flex align-items-center" style="opacity: 0.8;">
+                    <i class="fas fa-sign-out-alt me-3 text-center" style="width: 25px;"></i> Sair
+                </button>
+            </form>
+        </li>
     </ul>
 </nav>

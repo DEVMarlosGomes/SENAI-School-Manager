@@ -1,110 +1,129 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Controle Financeiro - Secretaria{% endblock %}
+{% block title %}Secretaria - Financeiro{% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h2 class="mb-0">Controle Financeiro</h2>
-    <div>
-        <button class="btn btn-success me-2" id="btnRegistrarPagamento"><i class="fas fa-plus me-2"></i>Registrar Pagamento</button>
-        <button class="btn btn-outline-secondary" id="btnExportarRelatorio">Exportar Relatórios</button>
+<div class="layout-wrapper d-flex">
+    {% include 'includes/sidebar.html' %}
+    
+    <div id="main-content" class="flex-grow-1 transition-all">
+        <header class="header-modern sticky-top shadow-sm py-3 px-4">
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center gap-3">
+                    <button class="btn btn-light d-md-none shadow-sm" id="sidebarToggle"><i class="fas fa-bars"></i></button>
+                    <div>
+                        <div class="header-breadcrumb"><i class="fas fa-university me-1"></i> Secretaria</div>
+                        <h1 class="header-title mb-0">Controle Financeiro</h1>
+                    </div>
+                </div>
+                <div class="d-flex align-items-center gap-3">
+                    <div class="d-none d-lg-block text-end me-2">
+                        <small class="text-muted d-block" style="font-size: 0.7rem;">HOJE</small>
+                        <span class="fw-bold text-dark small">{% now "d \d\e F \d\e Y" %}</span>
+                    </div>
+                    <div class="header-profile-box d-flex align-items-center gap-3 cursor-pointer">
+                        <div class="text-end d-none d-sm-block" style="line-height: 1.1;">
+                            <p class="mb-0 fw-bold text-dark small">{{ user.first_name|default:'Usuário' }}</p>
+                            <p class="mb-0 text-muted" style="font-size: 0.7rem;">Secretaria</p>
+                        </div>
+                        <div class="rounded-circle bg-white d-flex align-items-center justify-content-center shadow-sm" style="width: 38px; height: 38px; border: 2px solid var(--primary-color);">
+                            <i class="fas fa-user text-senai-red"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div class="container-fluid p-4">
+            <div class="row g-3 mb-4">
+                <div class="col-md-4">
+                    <div class="card p-3 border-0 shadow-sm h-100 bg-white">
+                        <div class="d-flex align-items-center">
+                            <div class="bg-success-subtle p-3 rounded me-3 text-success"><i class="fas fa-arrow-up fa-lg"></i></div>
+                            <div>
+                                <h6 class="text-muted small text-uppercase mb-1">Recebido</h6>
+                                <h3 class="fw-bold text-success mb-0">R$ 45.320,00</h3>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card p-3 border-0 shadow-sm h-100 bg-white">
+                        <div class="d-flex align-items-center">
+                            <div class="bg-warning-subtle p-3 rounded me-3 text-warning"><i class="fas fa-clock fa-lg"></i></div>
+                            <div>
+                                <h6 class="text-muted small text-uppercase mb-1">Pendente</h6>
+                                <h3 class="fw-bold text-warning mb-0">R$ 6.750,00</h3>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card p-3 border-0 shadow-sm h-100 bg-white">
+                        <div class="d-flex align-items-center">
+                            <div class="bg-danger-subtle p-3 rounded me-3 text-danger"><i class="fas fa-chart-line fa-lg"></i></div>
+                            <div>
+                                <h6 class="text-muted small text-uppercase mb-1">Inadimplência</h6>
+                                <h3 class="fw-bold text-danger mb-0">6.8%</h3>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold text-dark mb-0">Lançamentos</h5>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-outline-secondary btn-sm" id="btnExportarRelatorio"><i class="fas fa-download me-2"></i>Exportar</button>
+                    <button class="btn btn-success btn-sm text-white" id="btnRegistrarPagamento"><i class="fas fa-plus me-2"></i>Novo Pagamento</button>
+                </div>
+            </div>
+
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0 align-middle" id="tableFinanceiro">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th class="ps-4 py-3 text-uppercase small text-muted fw-bold">Aluno</th>
+                                    <th class="py-3 text-uppercase small text-muted fw-bold">Curso</th>
+                                    <th class="py-3 text-uppercase small text-muted fw-bold">Vencimento</th>
+                                    <th class="py-3 text-uppercase small text-muted fw-bold">Valor</th>
+                                    <th class="py-3 text-uppercase small text-muted fw-bold">Status</th>
+                                    <th class="text-end pe-4 py-3 text-uppercase small text-muted fw-bold">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="ps-4 fw-bold text-dark">Ana Silva <br><span class="small text-muted fw-normal">Mat: 2023001</span></td>
+                                    <td>Programação Web</td>
+                                    <td>10 Out, 2025</td>
+                                    <td class="fw-bold text-dark">R$ 320,00</td>
+                                    <td><span class="badge bg-success-subtle text-success rounded-pill px-3">Pago</span></td>
+                                    <td class="text-end pe-4">
+                                        <button class="btn btn-sm btn-light text-secondary"><i class="fas fa-ellipsis-v"></i></button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="ps-4 fw-bold text-dark">Carlos Pereira <br><span class="small text-muted fw-normal">Mat: 2022995</span></td>
+                                    <td>Automação Industrial</td>
+                                    <td>01 Set, 2025</td>
+                                    <td class="fw-bold text-dark">R$ 450,00</td>
+                                    <td><span class="badge bg-danger-subtle text-danger rounded-pill px-3">Atrasado</span></td>
+                                    <td class="text-end pe-4">
+                                        <button class="btn btn-sm btn-light text-secondary"><i class="fas fa-ellipsis-v"></i></button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
-
-<!-- Cards resumo financeiro -->
-<div class="row g-3 mb-4">
-    <div class="col-md-4">
-        <div class="card p-3 shadow-sm h-100">
-            <h6 class="text-muted">Total Recebido</h6>
-            <h3 class="fw-bold text-success">R$ 45.320,00</h3>
-        </div>
-    </div>
-    <div class="col-md-4">
-        <div class="card p-3 shadow-sm h-100">
-            <h6 class="text-muted">Mensalidades Pendentes</h6>
-            <h3 class="fw-bold text-warning">R$ 6.750,00</h3>
-        </div>
-    </div>
-    <div class="col-md-4">
-        <div class="card p-3 shadow-sm h-100">
-            <h6 class="text-muted">Inadimplência (%)</h6>
-            <h3 class="fw-bold text-danger">6.8%</h3>
-        </div>
-    </div>
-</div>
-
-<!-- Filtros -->
-<div class="card p-3 mb-4">
-    <form id="filtrosFinanceiro" class="row g-2">
-        <div class="col-md-3">
-            <input type="date" id="f_inicio" class="form-control">
-        </div>
-        <div class="col-md-3">
-            <input type="date" id="f_fim" class="form-control">
-        </div>
-        <div class="col-md-3">
-            <input type="text" id="f_aluno" class="form-control" placeholder="Aluno">
-        </div>
-        <div class="col-md-2">
-            <select id="f_status_pag" class="form-select">
-                <option value="">Todos</option>
-                <option value="pago">Pago</option>
-                <option value="atrasado">Atrasado</option>
-                <option value="parcial">Parcial</option>
-            </select>
-        </div>
-        <div class="col-md-1 text-end">
-            <button type="button" class="btn btn-outline-secondary" id="btnFiltrarFin">Filtrar</button>
-        </div>
-    </form>
-</div>
-
-<!-- Tabela financeira -->
-<div class="card shadow-sm">
-    <div class="table-responsive">
-        <table class="table table-hover mb-0" id="tableFinanceiro">
-            <thead class="table-light">
-                <tr>
-                    <th>Aluno</th>
-                    <th>Matrícula</th>
-                    <th>Curso</th>
-                    <th>Valor</th>
-                    <th>Status</th>
-                    <th>Vencimento</th>
-                    <th class="text-end">Ações</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>Ana Silva</td>
-                    <td>2023001</td>
-                    <td>Programação Web</td>
-                    <td>R$ 320,00</td>
-                    <td><span class="badge bg-success">Pago</span></td>
-                    <td>2025-10-10</td>
-                    <td class="text-end">
-                        <button class="btn btn-sm btn-success btn-registrar">Registrar</button>
-                        <button class="btn btn-sm btn-outline-primary">Detalhes</button>
-                    </td>
-                </tr>
-                <tr>
-                    <td>Carlos Pereira</td>
-                    <td>2022995</td>
-                    <td>Automação Industrial</td>
-                    <td>R$ 450,00</td>
-                    <td><span class="badge bg-danger">Atrasado</span></td>
-                    <td>2025-09-01</td>
-                    <td class="text-end">
-                        <button class="btn btn-sm btn-success btn-registrar">Registrar</button>
-                        <button class="btn btn-sm btn-outline-primary">Detalhes</button>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
-</div>
-
+<div class="overlay"></div>
 {% endblock %}
 
 {% block extra_js %}
