@@ -1,161 +1,252 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Gestão de Alunos - Secretaria{% endblock %}
+{% block title %}Secretaria - Alunos{% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h2 class="mb-0">Gestão de Alunos</h2>
-    <div>
-        <button class="btn btn-primary" id="btnNovoAluno"><i class="fas fa-user-plus me-2"></i>Novo Aluno</button>
-    </div>
-</div>
-
-<!-- Cards de status -->
-<div class="row g-3 mb-4">
-    <div class="col-md-3">
-        <div class="card p-3 shadow-sm h-100">
-            <h6 class="text-muted">Total de Alunos</h6>
-            <h3 class="fw-bold" id="totalAlunos">{{ total_alunos|default:0 }}</h3>
-        </div>
-    </div>
-    <div class="col-md-3">
-        <div class="card p-3 shadow-sm h-100">
-            <h6 class="text-muted">Matrículas Pendentes</h6>
-            <h3 class="fw-bold text-warning">8</h3>
-        </div>
-    </div>
-    <div class="col-md-3">
-        <div class="card p-3 shadow-sm h-100">
-            <h6 class="text-muted">Alunos Ativos</h6>
-            <h3 class="fw-bold text-success" id="alunosAtivos">{{ matriculas_ativas|default:0 }}</h3>
-        </div>
-    </div>
-    <div class="col-md-3">
-        <div class="card p-3 shadow-sm h-100">
-            <h6 class="text-muted">Alunos Inativos</h6>
-            <h3 class="fw-bold text-danger">5</h3>
-        </div>
-    </div>
-</div>
-
-<!-- Filtros -->
-<div class="card p-3 mb-4">
-    <form id="filtrosAlunos" class="row g-2">
-        <div class="col-md-4">
-            <input type="text" id="f_nome" class="form-control" placeholder="Nome">
-        </div>
-        <div class="col-md-2">
-            <input type="text" id="f_matricula" class="form-control" placeholder="Matrícula">
-        </div>
-        <div class="col-md-3">
-            <select id="f_turma" class="form-select">
-                <option value="">Todas as turmas</option>
-                <option>Automação Industrial</option>
-                <option>Programação Web</option>
-            </select>
-        </div>
-        <div class="col-md-2">
-            <select id="f_status" class="form-select">
-                <option value="">Todos os status</option>
-                <option value="ativa">Ativa</option>
-                <option value="pendente">Pendente</option>
-                <option value="inativa">Inativa</option>
-            </select>
-        </div>
-        <div class="col-md-1 text-end">
-            <button type="button" class="btn btn-outline-secondary" id="btnFiltrar">Filtrar</button>
-        </div>
-    </form>
-</div>
-
-<!-- Tabela -->
-<div class="card shadow-sm">
-    <div class="table-responsive">
-        <table class="table table-hover mb-0" id="tableAlunos">
-            <thead class="table-light">
-                <tr>
-                    <th>Nome</th>
-                    <th>Matrícula</th>
-                    <th>Curso</th>
-                    <th>Status</th>
-                    <th>Último Pagamento</th>
-                    <th class="text-end">Ações</th>
-                </tr>
-            </thead>
-            <tbody>
-                <!-- Exemplo de linhas estáticas; JS permite adicionar dinamicamente -->
-                <tr data-nome="Ana Silva" data-matricula="2023001" data-turma="Programação Web" data-status="ativa">
-                    <td>Ana Silva</td>
-                    <td>2023001</td>
-                    <td>Programação Web</td>
-                    <td><span class="badge bg-success">Ativa</span></td>
-                    <td>2025-10-10</td>
-                    <td class="text-end">
-                        <button class="btn btn-sm btn-primary btn-editar me-1">Editar</button>
-                        <button class="btn btn-sm btn-outline-primary btn-detalhe me-1">Detalhar</button>
-                        <button class="btn btn-sm btn-danger btn-excluir">Excluir</button>
-                    </td>
-                </tr>
-                <tr data-nome="Carlos Pereira" data-matricula="2022995" data-turma="Automação Industrial" data-status="pendente">
-                    <td>Carlos Pereira</td>
-                    <td>2022995</td>
-                    <td>Automação Industrial</td>
-                    <td><span class="badge bg-warning text-dark">Pendente</span></td>
-                    <td>—</td>
-                    <td class="text-end">
-                        <button class="btn btn-sm btn-primary btn-editar me-1">Editar</button>
-                        <button class="btn btn-sm btn-outline-primary btn-detalhe me-1">Detalhar</button>
-                        <button class="btn btn-sm btn-danger btn-excluir">Excluir</button>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
-</div>
-
-<!-- Modal Novo/Editar -->
-<div class="modal fade" id="modalAluno" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="modalAlunoTitle">Novo Aluno</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+<div class="layout-wrapper d-flex">
+    {% include 'includes/sidebar.html' %}
+    
+    <div id="main-content" class="flex-grow-1 transition-all">
+        <header class="header-modern sticky-top shadow-sm py-3 px-4">
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center gap-3">
+                    <button class="btn btn-light d-md-none shadow-sm" id="sidebarToggle"><i class="fas fa-bars"></i></button>
+                    <div>
+                        <div class="header-breadcrumb"><i class="fas fa-university me-1"></i> Secretaria</div>
+                        <h1 class="header-title mb-0">Gestão de Alunos</h1>
+                    </div>
+                </div>
+                <div class="d-flex align-items-center gap-3">
+                    <div class="d-none d-lg-block text-end me-2">
+                        <small class="text-muted d-block" style="font-size: 0.7rem;">HOJE</small>
+                        <span class="fw-bold text-dark small">{% now "d \d\e F \d\e Y" %}</span>
+                    </div>
+                    <div class="header-profile-box d-flex align-items-center gap-3 cursor-pointer">
+                        <div class="text-end d-none d-sm-block" style="line-height: 1.1;">
+                            <p class="mb-0 fw-bold text-dark small">{{ user.first_name|default:'Usuário' }}</p>
+                            <p class="mb-0 text-muted" style="font-size: 0.7rem;">Secretaria</p>
+                        </div>
+                        <div class="rounded-circle bg-white d-flex align-items-center justify-content-center shadow-sm" style="width: 38px; height: 38px; border: 2px solid var(--primary-color);">
+                            <i class="fas fa-user text-senai-red"></i>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="modal-body">
+        </header>
+
+        <div class="container-fluid p-4">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h5 class="fw-bold text-muted mb-0"><i class="fas fa-list me-2"></i>Base de Dados</h5>
+                <button class="btn btn-senai-red shadow-sm" id="btnNovoAluno">
+                    <i class="fas fa-user-plus me-2"></i>Novo Aluno
+                </button>
+            </div>
+
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body p-3">
+                    <form id="filtrosAlunos" class="row g-2 align-items-end">
+                        <div class="col-md-4">
+                            <label class="form-label small fw-bold text-muted mb-1">Buscar Aluno</label>
+                            <div class="input-group input-group-sm">
+                                <span class="input-group-text bg-light border-end-0"><i class="fas fa-search text-muted"></i></span>
+                                <input type="text" id="f_nome" class="form-control border-start-0 ps-0" placeholder="Nome completo...">
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label small fw-bold text-muted mb-1">Matrícula</label>
+                            <input type="text" id="f_matricula" class="form-control form-control-sm" placeholder="Ex: 2023001">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label small fw-bold text-muted mb-1">Turma</label>
+                            <select id="f_turma" class="form-select form-select-sm">
+                                <option value="">Todas as turmas</option>
+                                <option>Automação Industrial</option>
+                                <option>Programação Web</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label small fw-bold text-muted mb-1">Status</label>
+                            <select id="f_status" class="form-select form-select-sm">
+                                <option value="">Todos</option>
+                                <option value="ativa">Ativa</option>
+                                <option value="pendente">Pendente</option>
+                                <option value="inativa">Inativa</option>
+                            </select>
+                        </div>
+                        <div class="col-md-1">
+                            <button type="button" class="btn btn-sm btn-dark w-100" id="btnFiltrar">Filtrar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card border-0 shadow-sm overflow-hidden">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0 align-middle" id="tableAlunos">
+                        <thead class="bg-light">
+                            <tr>
+                                <th class="ps-4 py-3 text-uppercase small text-muted fw-bold">Aluno</th>
+                                <th class="py-3 text-uppercase small text-muted fw-bold">Matrícula</th>
+                                <th class="py-3 text-uppercase small text-muted fw-bold">Curso/Turma</th>
+                                <th class="py-3 text-uppercase small text-muted fw-bold">Status</th>
+                                <th class="text-end pe-4 py-3 text-uppercase small text-muted fw-bold">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for aluno in alunos %}
+                            <tr>
+                                <td class="ps-4">
+                                    <div class="d-flex align-items-center">
+                                        <div class="rounded-circle bg-light d-flex align-items-center justify-content-center text-muted me-3" style="width: 35px; height: 35px; font-size: 0.8rem;">
+                                            <i class="fas fa-user"></i>
+                                        </div>
+                                        <div>
+                                            <div class="fw-bold text-dark">{{ aluno.user.get_full_name }}</div>
+                                            <div class="small text-muted">{{ aluno.user.email }}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="font-monospace text-muted">{{ aluno.RA_aluno }}</td>
+                                <td>
+                                    {% if aluno.turma_atual %}
+                                        <span class="d-block text-dark fw-bold" style="font-size: 0.9rem;">{{ aluno.turma_atual.nome }}</span>
+                                    {% else %}
+                                        <span class="text-muted small fst-italic">Sem turma</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if aluno.status_matricula|lower == 'ativo' or aluno.status_matricula|lower == 'ativa' %}
+                                        <span class="badge bg-success-subtle text-success rounded-pill border border-success-subtle px-3">Ativo</span>
+                                    {% elif aluno.status_matricula|lower == 'pendente' %}
+                                        <span class="badge bg-warning-subtle text-warning-emphasis rounded-pill border border-warning-subtle px-3">Pendente</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary-subtle text-secondary rounded-pill px-3">{{ aluno.status_matricula }}</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-end pe-4">
+                                    <div class="btn-group">
+                                        <button class="btn btn-sm btn-light text-primary btn-editar" title="Editar" 
+                                            data-id="{{ aluno.id }}" 
+                                            data-nome="{{ aluno.user.get_full_name }}" 
+                                            data-matricula="{{ aluno.RA_aluno }}"
+                                            data-turma="{{ aluno.turma_atual.nome }}"
+                                            data-status="{{ aluno.status_matricula }}">
+                                            <i class="fas fa-pen"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-light text-danger btn-excluir" title="Excluir" data-id="{{ aluno.id }}">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="5" class="text-center py-5 text-muted">
+                                    <i class="fas fa-user-slash fa-2x mb-3 d-block opacity-25"></i>
+                                    Nenhum aluno encontrado na base de dados.
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalAluno" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header border-bottom-0 pb-0">
+                <h5 class="modal-title fw-bold" id="modalAlunoTitle">Novo Aluno</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4 pt-3">
                 <form id="formAluno">
+                    <input type="hidden" id="alunoId">
                     <div class="mb-3">
-                        <label class="form-label">Nome</label>
+                        <label class="form-label small fw-bold text-muted">Nome Completo</label>
                         <input type="text" class="form-control" id="alunoNome" required>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label">Matrícula</label>
-                        <input type="text" class="form-control" id="alunoMatricula" required>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label small fw-bold text-muted">Matrícula</label>
+                            <input type="text" class="form-control" id="alunoMatricula" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label small fw-bold text-muted">Status</label>
+                            <select id="alunoStatus" class="form-select">
+                                <option value="Ativo">Ativo</option>
+                                <option value="Pendente">Pendente</option>
+                                <option value="Trancado">Trancado</option>
+                            </select>
+                        </div>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Curso/Turma</label>
-                        <input type="text" class="form-control" id="alunoTurma">
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Status</label>
-                        <select id="alunoStatus" class="form-select">
-                            <option value="ativa">Ativa</option>
-                            <option value="pendente">Pendente</option>
-                            <option value="inativa">Inativa</option>
-                        </select>
+                        <label class="form-label small fw-bold text-muted">Turma (Nome)</label>
+                        <input type="text" class="form-control" id="alunoTurma" placeholder="Ex: Programação Web">
                     </div>
                 </form>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-primary" id="salvarAluno">Salvar</button>
+            <div class="modal-footer border-top-0 pt-0">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-senai-red px-4" id="salvarAluno">Salvar</button>
             </div>
         </div>
     </div>
 </div>
 
+<div class="overlay"></div>
 {% endblock %}
 
 {% block extra_js %}
+<script>
+    // Scripts de Toggle e Modal (mesma lógica, mantida para garantir funcionamento)
+    document.addEventListener('DOMContentLoaded', function() {
+        // Toggle Sidebar
+        const sidebar = document.getElementById('sidebar');
+        const sidebarCollapse = document.getElementById('sidebarToggle');
+        const overlay = document.querySelector('.overlay');
+        if(sidebarCollapse) {
+            sidebarCollapse.addEventListener('click', () => {
+                sidebar.classList.toggle('active');
+                overlay.classList.toggle('active');
+            });
+            overlay.addEventListener('click', () => {
+                sidebar.classList.remove('active');
+                overlay.classList.remove('active');
+            });
+        }
+
+        // Modal Logic
+        const modalEl = document.getElementById('modalAluno');
+        if (modalEl) {
+            const modal = new bootstrap.Modal(modalEl);
+            document.getElementById('btnNovoAluno').addEventListener('click', () => {
+                document.getElementById('formAluno').reset();
+                document.getElementById('alunoId').value = '';
+                document.getElementById('modalAlunoTitle').textContent = 'Novo Aluno';
+                modal.show();
+            });
+            document.querySelectorAll('.btn-editar').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.getElementById('alunoId').value = this.dataset.id;
+                    document.getElementById('alunoNome').value = this.dataset.nome;
+                    document.getElementById('alunoMatricula').value = this.dataset.matricula;
+                    document.getElementById('alunoTurma').value = this.dataset.turma || '';
+                    document.getElementById('alunoStatus').value = this.dataset.status || 'Ativo';
+                    document.getElementById('modalAlunoTitle').textContent = 'Editar Aluno';
+                    modal.show();
+                });
+            });
+            // (Lógica de Save/Delete mantida no JS externo ou aqui se preferir inline)
+            document.getElementById('salvarAluno').addEventListener('click', function() {
+                // ... Lógica de fetch ...
+            });
+        }
+    });
+</script>
 <script src="{% static 'js/secretaria.js' %}"></script>
 {% endblock %}
