@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Secretaria - Alunos{% endblock %}
+{% block title %}Gestão de Alunos{% endblock %}
 
 {% block content %}
 <div class="layout-wrapper d-flex">
@@ -13,19 +13,18 @@
                 <div class="d-flex align-items-center gap-3">
                     <button class="btn btn-light d-md-none shadow-sm" id="sidebarToggle"><i class="fas fa-bars"></i></button>
                     <div>
-                        <div class="header-breadcrumb"><i class="fas fa-university me-1"></i> Secretaria</div>
-                        <h1 class="header-title mb-0">Gestão de Alunos</h1>
+                        <div class="header-breadcrumb"><i class="fas fa-users me-1"></i> Gestão Acadêmica</div>
+                        <h1 class="header-title mb-0">Alunos</h1>
                     </div>
                 </div>
+                <!-- Perfil no Topo -->
                 <div class="d-flex align-items-center gap-3">
-                    <div class="d-none d-lg-block text-end me-2">
-                        <small class="text-muted d-block" style="font-size: 0.7rem;">HOJE</small>
-                        <span class="fw-bold text-dark small">{% now "d \d\e F \d\e Y" %}</span>
-                    </div>
                     <div class="header-profile-box d-flex align-items-center gap-3 cursor-pointer">
-                        <div class="text-end d-none d-sm-block" style="line-height: 1.1;">
-                            <p class="mb-0 fw-bold text-dark small">{{ user.first_name|default:'Usuário' }}</p>
-                            <p class="mb-0 text-muted" style="font-size: 0.7rem;">Secretaria</p>
+                        <div class="text-end d-none d-sm-block">
+                            <p class="mb-0 fw-bold text-dark small">{{ user.first_name }}</p>
+                            <p class="mb-0 text-muted" style="font-size: 0.7rem;">
+                                {% if pode_editar %}Coordenação{% else %}Secretaria{% endif %}
+                            </p>
                         </div>
                         <div class="rounded-circle bg-white d-flex align-items-center justify-content-center shadow-sm" style="width: 38px; height: 38px; border: 2px solid var(--primary-color);">
                             <i class="fas fa-user text-senai-red"></i>
@@ -36,217 +35,262 @@
         </header>
 
         <div class="container-fluid p-4">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h5 class="fw-bold text-muted mb-0"><i class="fas fa-list me-2"></i>Base de Dados</h5>
-                <button class="btn btn-senai-red shadow-sm" id="btnNovoAluno">
-                    <i class="fas fa-user-plus me-2"></i>Novo Aluno
-                </button>
-            </div>
-
+            
+            <!-- Painel de Filtros e Ações -->
             <div class="card border-0 shadow-sm mb-4">
-                <div class="card-body p-3">
-                    <form id="filtrosAlunos" class="row g-2 align-items-end">
+                <div class="card-body p-4">
+                    <form method="get" class="row g-3">
+                        <!-- Busca Textual -->
                         <div class="col-md-4">
-                            <label class="form-label small fw-bold text-muted mb-1">Buscar Aluno</label>
-                            <div class="input-group input-group-sm">
-                                <span class="input-group-text bg-light border-end-0"><i class="fas fa-search text-muted"></i></span>
-                                <input type="text" id="f_nome" class="form-control border-start-0 ps-0" placeholder="Nome completo...">
+                            <label class="form-label small text-muted fw-bold">BUSCAR</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0"><i class="fas fa-search text-secondary"></i></span>
+                                <input type="text" name="q" class="form-control border-start-0 bg-light" placeholder="Nome, RA ou Email..." value="{{ search_query|default:'' }}">
                             </div>
                         </div>
-                        <div class="col-md-2">
-                            <label class="form-label small fw-bold text-muted mb-1">Matrícula</label>
-                            <input type="text" id="f_matricula" class="form-control form-control-sm" placeholder="Ex: 2023001">
-                        </div>
+
+                        <!-- Filtro por Turma -->
                         <div class="col-md-3">
-                            <label class="form-label small fw-bold text-muted mb-1">Turma</label>
-                            <select id="f_turma" class="form-select form-select-sm">
-                                <option value="">Todas as turmas</option>
-                                <option>Automação Industrial</option>
-                                <option>Programação Web</option>
+                            <label class="form-label small text-muted fw-bold">TURMA</label>
+                            <select name="turma" class="form-select bg-light" onchange="this.form.submit()">
+                                <option value="todas">Todas as Turmas</option>
+                                {% for t in turmas %}
+                                    <option value="{{ t.id }}" {% if filter_turma == t.id|stringformat:"s" %}selected{% endif %}>{{ t.nome }}</option>
+                                {% endfor %}
                             </select>
                         </div>
-                        <div class="col-md-2">
-                            <label class="form-label small fw-bold text-muted mb-1">Status</label>
-                            <select id="f_status" class="form-select form-select-sm">
-                                <option value="">Todos</option>
-                                <option value="ativa">Ativa</option>
-                                <option value="pendente">Pendente</option>
-                                <option value="inativa">Inativa</option>
+
+                        <!-- Filtro por Status -->
+                        <div class="col-md-3">
+                            <label class="form-label small text-muted fw-bold">STATUS</label>
+                            <select name="status" class="form-select bg-light" onchange="this.form.submit()">
+                                <option value="todos">Todos os Status</option>
+                                {% for s in status_choices %}
+                                    <option value="{{ s }}" {% if filter_status == s %}selected{% endif %}>{{ s }}</option>
+                                {% endfor %}
                             </select>
                         </div>
-                        <div class="col-md-1">
-                            <button type="button" class="btn btn-sm btn-dark w-100" id="btnFiltrar">Filtrar</button>
+
+                        <!-- Botão Novo Aluno (Só para Coordenador) -->
+                        <div class="col-md-2 d-flex align-items-end justify-content-end">
+                            {% if pode_editar %}
+                                <a href="{% url 'admin:academico_aluno_add' %}" target="_blank" class="btn btn-success text-white w-100 fw-bold">
+                                    <i class="fas fa-plus me-2"></i>Novo
+                                </a>
+                            {% else %}
+                                <button type="button" class="btn btn-light text-muted w-100 fw-bold" disabled title="Apenas coordenação pode criar alunos">
+                                    <i class="fas fa-lock me-2"></i>Novo
+                                </button>
+                            {% endif %}
                         </div>
                     </form>
                 </div>
             </div>
 
-            <div class="card border-0 shadow-sm overflow-hidden">
+            <!-- Tabela de Resultados -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                    <h6 class="fw-bold mb-0 text-dark">Resultados <span class="badge bg-light text-dark border ms-2">{{ total_alunos }}</span></h6>
+                    {% if search_query or filter_turma or filter_status %}
+                        <a href="{% url 'gestao_alunos' %}" class="btn btn-sm btn-link text-decoration-none">Limpar Filtros</a>
+                    {% endif %}
+                </div>
                 <div class="table-responsive">
-                    <table class="table table-hover mb-0 align-middle" id="tableAlunos">
+                    <table class="table table-hover align-middle mb-0">
                         <thead class="bg-light">
                             <tr>
-                                <th class="ps-4 py-3 text-uppercase small text-muted fw-bold">Aluno</th>
-                                <th class="py-3 text-uppercase small text-muted fw-bold">Matrícula</th>
-                                <th class="py-3 text-uppercase small text-muted fw-bold">Curso/Turma</th>
-                                <th class="py-3 text-uppercase small text-muted fw-bold">Status</th>
-                                <th class="text-end pe-4 py-3 text-uppercase small text-muted fw-bold">Ações</th>
+                                <th class="ps-4 py-3 text-secondary small fw-bold">ALUNO</th>
+                                <th class="py-3 text-secondary small fw-bold">RA</th>
+                                <th class="py-3 text-secondary small fw-bold">TURMA</th>
+                                <th class="py-3 text-secondary small fw-bold">STATUS</th>
+                                <th class="py-3 text-end pe-4 text-secondary small fw-bold">AÇÕES</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {% for aluno in alunos %}
+                            {% for aluno in page_obj %}
                             <tr>
                                 <td class="ps-4">
                                     <div class="d-flex align-items-center">
-                                        <div class="rounded-circle bg-light d-flex align-items-center justify-content-center text-muted me-3" style="width: 35px; height: 35px; font-size: 0.8rem;">
-                                            <i class="fas fa-user"></i>
+                                        <div class="avatar-circle bg-light-primary text-primary fw-bold me-3 small">
+                                            {{ aluno.user.first_name|first|default:"A" }}{{ aluno.user.last_name|first|default:"L" }}
                                         </div>
                                         <div>
-                                            <div class="fw-bold text-dark">{{ aluno.user.get_full_name }}</div>
-                                            <div class="small text-muted">{{ aluno.user.email }}</div>
+                                            <div class="fw-bold text-dark">{{ aluno.user.get_full_name|default:aluno.user.username }}</div>
+                                            <div class="small text-muted" style="font-size: 0.75rem;">{{ aluno.user.email }}</div>
                                         </div>
                                     </div>
                                 </td>
-                                <td class="font-monospace text-muted">{{ aluno.RA_aluno }}</td>
+                                <td class="fw-bold text-secondary font-monospace">{{ aluno.RA_aluno }}</td>
                                 <td>
                                     {% if aluno.turma_atual %}
-                                        <span class="d-block text-dark fw-bold" style="font-size: 0.9rem;">{{ aluno.turma_atual.nome }}</span>
+                                        <span class="badge bg-light text-dark border">{{ aluno.turma_atual.nome }}</span>
                                     {% else %}
-                                        <span class="text-muted small fst-italic">Sem turma</span>
+                                        <span class="text-muted small">-</span>
                                     {% endif %}
                                 </td>
                                 <td>
-                                    {% if aluno.status_matricula|lower == 'ativo' or aluno.status_matricula|lower == 'ativa' %}
-                                        <span class="badge bg-success-subtle text-success rounded-pill border border-success-subtle px-3">Ativo</span>
-                                    {% elif aluno.status_matricula|lower == 'pendente' %}
-                                        <span class="badge bg-warning-subtle text-warning-emphasis rounded-pill border border-warning-subtle px-3">Pendente</span>
+                                    {% if aluno.status_matricula == 'Ativo' %}
+                                        <span class="badge bg-success-subtle text-success rounded-pill px-3">Ativo</span>
+                                    {% elif aluno.status_matricula == 'Inativo' %}
+                                        <span class="badge bg-danger-subtle text-danger rounded-pill px-3">Inativo</span>
                                     {% else %}
-                                        <span class="badge bg-secondary-subtle text-secondary rounded-pill px-3">{{ aluno.status_matricula }}</span>
+                                        <span class="badge bg-warning-subtle text-warning rounded-pill px-3">{{ aluno.status_matricula }}</span>
                                     {% endif %}
                                 </td>
                                 <td class="text-end pe-4">
                                     <div class="btn-group">
-                                        <button class="btn btn-sm btn-light text-primary btn-editar" title="Editar" 
-                                            data-id="{{ aluno.id }}" 
-                                            data-nome="{{ aluno.user.get_full_name }}" 
-                                            data-matricula="{{ aluno.RA_aluno }}"
-                                            data-turma="{{ aluno.turma_atual.nome }}"
-                                            data-status="{{ aluno.status_matricula }}">
-                                            <i class="fas fa-pen"></i>
+                                        <!-- Detalhes (Todos veem) -->
+                                        <button type="button" class="btn btn-sm btn-light text-primary" 
+                                                data-bs-toggle="modal" 
+                                                data-bs-target="#modalDetalhesAluno"
+                                                data-nome="{{ aluno.user.get_full_name }}"
+                                                data-ra="{{ aluno.RA_aluno }}"
+                                                data-email="{{ aluno.user.email }}"
+                                                data-turma="{{ aluno.turma_atual.nome|default:'-' }}"
+                                                data-curso="{{ aluno.turma_atual.id_curso.nome_curso|default:'-' }}"
+                                                data-nascimento="{{ aluno.data_nascimento|date:'d/m/Y' }}"
+                                                data-rg="{{ aluno.RG_aluno|default:'-' }}"
+                                                data-cpf="{{ aluno.CPF_aluno|default:'-' }}"
+                                                data-status="{{ aluno.status_matricula }}"
+                                                onclick="preencherModalDetalhes(this)">
+                                            <i class="fas fa-eye"></i>
                                         </button>
-                                        <button class="btn btn-sm btn-light text-danger btn-excluir" title="Excluir" data-id="{{ aluno.id }}">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
+                                        
+                                        <!-- Edição e Exclusão (Só Coordenador) -->
+                                        {% if pode_editar and aluno.pk %}
+                                            <a href="{% url 'admin:academico_aluno_change' aluno.pk %}" target="_blank" class="btn btn-sm btn-light text-secondary" title="Editar">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <button type="button" class="btn btn-sm btn-light text-danger" title="Excluir" onclick="confirmarExclusao('{{ aluno.pk }}', '{{ aluno.user.get_full_name }}')">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </button>
+                                        {% endif %}
                                     </div>
                                 </td>
                             </tr>
                             {% empty %}
                             <tr>
                                 <td colspan="5" class="text-center py-5 text-muted">
-                                    <i class="fas fa-user-slash fa-2x mb-3 d-block opacity-25"></i>
-                                    Nenhum aluno encontrado na base de dados.
+                                    <i class="fas fa-filter fa-3x mb-3 opacity-25"></i>
+                                    <p class="mb-0">Nenhum aluno encontrado com esses filtros.</p>
                                 </td>
                             </tr>
                             {% endfor %}
                         </tbody>
                     </table>
                 </div>
+                
+                <!-- Paginação -->
+                {% if page_obj.has_other_pages %}
+                <div class="card-footer bg-white py-3">
+                    <nav>
+                        <ul class="pagination justify-content-center mb-0">
+                            {% if page_obj.has_previous %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}&q={{ search_query }}&turma={{ filter_turma }}&status={{ filter_status }}">Anterior</a>
+                                </li>
+                            {% endif %}
+                            <li class="page-item disabled">
+                                <span class="page-link">Pág {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span>
+                            </li>
+                            {% if page_obj.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ page_obj.next_page_number }}&q={{ search_query }}&turma={{ filter_turma }}&status={{ filter_status }}">Próxima</a>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                </div>
+                {% endif %}
             </div>
         </div>
     </div>
 </div>
 
-<div class="modal fade" id="modalAluno" tabindex="-1" aria-hidden="true">
+<!-- Modal Detalhes (Mantido igual, apenas visualização) -->
+<div class="modal fade" id="modalDetalhesAluno" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 shadow">
-            <div class="modal-header border-bottom-0 pb-0">
-                <h5 class="modal-title fw-bold" id="modalAlunoTitle">Novo Aluno</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            <div class="modal-header bg-light border-0">
+                <h6 class="modal-title fw-bold text-uppercase text-muted small">Ficha do Aluno</h6>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body p-4 pt-3">
-                <form id="formAluno">
-                    <input type="hidden" id="alunoId">
-                    <div class="mb-3">
-                        <label class="form-label small fw-bold text-muted">Nome Completo</label>
-                        <input type="text" class="form-control" id="alunoNome" required>
+            <div class="modal-body p-4 text-center">
+                <div class="avatar-circle-lg bg-primary text-white mx-auto mb-3 fw-bold fs-2 d-flex align-items-center justify-content-center shadow-sm" style="width: 80px; height: 80px; border-radius: 50%;">
+                    <i class="fas fa-user"></i>
+                </div>
+                <h5 class="fw-bold mb-1" id="detalheNome">-</h5>
+                <span class="badge bg-secondary rounded-pill mb-4" id="detalheRA">-</span>
+                
+                <div class="row text-start g-3 bg-light p-3 rounded-3">
+                    <div class="col-6">
+                        <label class="small text-muted fw-bold d-block">TURMA</label>
+                        <span class="text-dark" id="detalheTurma">-</span>
                     </div>
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label small fw-bold text-muted">Matrícula</label>
-                            <input type="text" class="form-control" id="alunoMatricula" required>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label small fw-bold text-muted">Status</label>
-                            <select id="alunoStatus" class="form-select">
-                                <option value="Ativo">Ativo</option>
-                                <option value="Pendente">Pendente</option>
-                                <option value="Trancado">Trancado</option>
-                            </select>
-                        </div>
+                    <div class="col-6">
+                        <label class="small text-muted fw-bold d-block">CURSO</label>
+                        <span class="text-dark" id="detalheCurso">-</span>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label small fw-bold text-muted">Turma (Nome)</label>
-                        <input type="text" class="form-control" id="alunoTurma" placeholder="Ex: Programação Web">
+                    <div class="col-12 border-top my-2"></div>
+                    <div class="col-6">
+                        <label class="small text-muted fw-bold d-block">EMAIL</label>
+                        <span class="text-dark small" id="detalheEmail">-</span>
                     </div>
-                </form>
+                    <div class="col-6">
+                        <label class="small text-muted fw-bold d-block">SITUAÇÃO</label>
+                        <span class="fw-bold" id="detalheStatus">-</span>
+                    </div>
+                    <div class="col-6">
+                        <label class="small text-muted fw-bold d-block">NASCIMENTO</label>
+                        <span class="text-dark" id="detalheNascimento">-</span>
+                    </div>
+                    <div class="col-6">
+                        <label class="small text-muted fw-bold d-block">RG</label>
+                        <span class="text-dark" id="detalheRG">-</span>
+                    </div>
+                </div>
             </div>
-            <div class="modal-footer border-top-0 pt-0">
-                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-senai-red px-4" id="salvarAluno">Salvar</button>
+            <div class="modal-footer border-0 bg-light justify-content-center">
+                <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">Fechar</button>
             </div>
         </div>
     </div>
 </div>
 
-<div class="overlay"></div>
+<style>
+    .avatar-circle { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.9rem; }
+    .bg-light-primary { background-color: #f0f7ff; color: #0d6efd; }
+</style>
 {% endblock %}
 
 {% block extra_js %}
-<script>
-    // Scripts de Toggle e Modal (mesma lógica, mantida para garantir funcionamento)
-    document.addEventListener('DOMContentLoaded', function() {
-        // Toggle Sidebar
-        const sidebar = document.getElementById('sidebar');
-        const sidebarCollapse = document.getElementById('sidebarToggle');
-        const overlay = document.querySelector('.overlay');
-        if(sidebarCollapse) {
-            sidebarCollapse.addEventListener('click', () => {
-                sidebar.classList.toggle('active');
-                overlay.classList.toggle('active');
-            });
-            overlay.addEventListener('click', () => {
-                sidebar.classList.remove('active');
-                overlay.classList.remove('active');
-            });
-        }
-
-        // Modal Logic
-        const modalEl = document.getElementById('modalAluno');
-        if (modalEl) {
-            const modal = new bootstrap.Modal(modalEl);
-            document.getElementById('btnNovoAluno').addEventListener('click', () => {
-                document.getElementById('formAluno').reset();
-                document.getElementById('alunoId').value = '';
-                document.getElementById('modalAlunoTitle').textContent = 'Novo Aluno';
-                modal.show();
-            });
-            document.querySelectorAll('.btn-editar').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    document.getElementById('alunoId').value = this.dataset.id;
-                    document.getElementById('alunoNome').value = this.dataset.nome;
-                    document.getElementById('alunoMatricula').value = this.dataset.matricula;
-                    document.getElementById('alunoTurma').value = this.dataset.turma || '';
-                    document.getElementById('alunoStatus').value = this.dataset.status || 'Ativo';
-                    document.getElementById('modalAlunoTitle').textContent = 'Editar Aluno';
-                    modal.show();
-                });
-            });
-            // (Lógica de Save/Delete mantida no JS externo ou aqui se preferir inline)
-            document.getElementById('salvarAluno').addEventListener('click', function() {
-                // ... Lógica de fetch ...
-            });
-        }
-    });
-</script>
 <script src="{% static 'js/secretaria.js' %}"></script>
+<script>
+    function preencherModalDetalhes(btn) {
+        document.getElementById('detalheNome').textContent = btn.getAttribute('data-nome');
+        document.getElementById('detalheRA').textContent = btn.getAttribute('data-ra');
+        document.getElementById('detalheEmail').textContent = btn.getAttribute('data-email');
+        document.getElementById('detalheTurma').textContent = btn.getAttribute('data-turma');
+        document.getElementById('detalheCurso').textContent = btn.getAttribute('data-curso');
+        document.getElementById('detalheNascimento').textContent = btn.getAttribute('data-nascimento');
+        document.getElementById('detalheRG').textContent = btn.getAttribute('data-rg');
+        
+        const status = btn.getAttribute('data-status');
+        const statusEl = document.getElementById('detalheStatus');
+        statusEl.textContent = status;
+        statusEl.className = 'fw-bold ' + (status === 'Ativo' ? 'text-success' : 'text-danger');
+    }
+
+    function confirmarExclusao(id, nome) {
+        if(confirm('Tem certeza que deseja excluir o aluno ' + nome + '?')) {
+            fetch(`/dashboards/api/gestao/aluno/delete/${id}/`, {
+                method: 'DELETE',
+                headers: {'X-CSRFToken': '{{ csrf_token }}'}
+            }).then(resp => {
+                if(resp.ok) window.location.reload();
+                else alert('Erro ao excluir');
+            });
+        }
+    }
+</script>
 {% endblock %}
