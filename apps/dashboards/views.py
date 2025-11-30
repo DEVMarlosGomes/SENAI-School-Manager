@@ -317,42 +317,195 @@ def aluno_dashboard_view(request):
 @rolerequired("coordenacao")
 def coordenacao_desempenho_view(request):
     context = {}
-    # Lógica de desempenho (simplificada para o exemplo)
-    alunos_list = []
-    # (Pode-se copiar a lógica detalhada anterior se desejar, ou manter simples para carregar a página)
+    
+    # 1. Recuperar Turmas e calcular médias por turma (para Cards e Gráfico Frequência)
+    # Usamos prefetch para otimizar o acesso aos dados dos alunos e históricos
+    turmas_qs = Turma.objects.select_related('id_curso').prefetch_related('alunos__historico').all()
+    
+    lista_turmas = []
+    labels_turmas = []
+    data_freq_turmas = []
+
+    for t in turmas_qs:
+        alunos_da_turma = t.alunos.all()
+        qtd_alunos = alunos_da_turma.count()
+        
+        soma_medias_turma = 0
+        soma_freqs_turma = 0
+        alunos_com_notas = 0
+        
+        for aluno in alunos_da_turma:
+            # Pega históricos válidos (com nota lançada)
+            hists = [h for h in aluno.historico.all() if h.media_final is not None]
+            
+            if hists:
+                # Média simples do aluno em todas as matérias cursadas
+                media_aluno = sum(h.media_final for h in hists) / len(hists)
+                # Frequência média do aluno
+                freqs = [h.frequencia_percentual for h in hists if h.frequencia_percentual is not None]
+                freq_aluno = sum(freqs) / len(freqs) if freqs else 0
+                
+                soma_medias_turma += media_aluno
+                soma_freqs_turma += freq_aluno
+                alunos_com_notas += 1
+
+        # Média geral da turma
+        media_turma = round(soma_medias_turma / alunos_com_notas, 1) if alunos_com_notas > 0 else 0
+        freq_turma = round(soma_freqs_turma / alunos_com_notas, 1) if alunos_com_notas > 0 else 0
+        
+        # Popula lista para os Cards do topo
+        lista_turmas.append({
+            'codigo': t.nome,
+            'nome': t.id_curso.nome_curso if t.id_curso else 'Geral',
+            'alunos': qtd_alunos,
+            'media_geral': media_turma
+        })
+        
+        # Dados para gráfico de frequência (Barras Laterais)
+        labels_turmas.append(t.nome)
+        data_freq_turmas.append(freq_turma)
+
+    # 2. Recuperar Alunos para Tabela Detalhada e Gráfico de Distribuição
+    alunos_qs = Aluno.objects.select_related('turma_atual', 'user').prefetch_related('historico').all()
+    
+    lista_alunos = []
+    # Contadores para o gráfico de distribuição de notas
+    counts_notas = {'Aprovado': 0, 'Recuperação': 0, 'Reprovado': 0}
+
+    for aluno in alunos_qs:
+        hists = [h for h in aluno.historico.all() if h.media_final is not None]
+        
+        media_final = 0
+        freq_final = 0
+        situacao = 'Cursando' # Padrão se não houver notas
+        
+        if hists:
+            media_final = round(sum(h.media_final for h in hists) / len(hists), 1)
+            
+            freqs_validas = [h.frequencia_percentual for h in hists if h.frequencia_percentual is not None]
+            freq_final = round(sum(freqs_validas) / len(freqs_validas), 1) if freqs_validas else 0
+            
+            # Regra de Negócio para definir Situação
+            if media_final >= 7.0 and freq_final >= 75.0:
+                situacao = 'Aprovado'
+            elif media_final < 5.0 or freq_final < 75.0:
+                situacao = 'Reprovado'
+            else:
+                situacao = 'Recuperação'
+            
+            # Incrementa contador apenas se tiver situação definida
+            if situacao in counts_notas:
+                counts_notas[situacao] += 1
+        
+        lista_alunos.append({
+            'nome': aluno.user.get_full_name(),
+            'matricula': aluno.RA_aluno,
+            'turma': aluno.turma_atual.nome if aluno.turma_atual else 'Sem Turma',
+            'media': media_final,
+            'frequencia': freq_final,
+            'situacao': situacao
+        })
+
+    # 3. Montar objeto final JSON
     desempenho_data = {
-        'alunos': [],
-        'turmas': [],
-        'grafico_notas': {'Aprovado': 0, 'Recuperação': 0, 'Reprovado': 0},
-        'grafico_frequencia': {'labels': [], 'data': []}
+        'alunos': lista_alunos,
+        'turmas': lista_turmas,
+        'grafico_notas': counts_notas,
+        'grafico_frequencia': {
+            'labels': labels_turmas,
+            'data': data_freq_turmas
+        }
     }
-    context['desempenho_data_json'] = json.dumps(desempenho_data)
+
+    # Serializa usando DjangoJSONEncoder para evitar erros de Decimal/Float
+    context['desempenho_data_json'] = json.dumps(desempenho_data, cls=DjangoJSONEncoder)
+    
     return render(request, "dashboards/coordenacao_desempenho.html", context)
 
 @rolerequired("coordenacao")
 def coordenacao_gestao_view(request):
-    # Busca dados para o CRUD da coordenação
+    # 1. ALUNOS
+    # Mantém a lista básica, o JS cuida da paginação e filtros visuais
+    alunos_qs = Aluno.objects.select_related('user', 'turma_atual').all()
     alunos_list = [{
         'id': a.pk,
         'nome': a.user.get_full_name(),
         'matricula': a.RA_aluno,
         'turma': a.turma_atual.nome if a.turma_atual else 'Sem turma',
         'status': a.status_matricula
-    } for a in Aluno.objects.select_related('user', 'turma_atual').all()]
+    } for a in alunos_qs]
 
-    turmas_list = [{
-        'id': t.pk, 'codigo': t.nome, 
-        'nome': t.id_curso.nome_curso if t.id_curso else '',
-        'vagas': t.capacidade_maxima
-    } for t in Turma.objects.all()]
+    # 2. TURMAS
+    # Usamos annotate para contar alunos e prefetch para pegar o nome do professor
+    # sem gerar N+1 consultas (problema de performance)
+    turmas_qs = Turma.objects.select_related('id_curso').prefetch_related(
+        'turmadisciplinaprofessor_set__professor__user'
+    ).annotate(
+        qtd_alunos=Count('alunos')
+    )
 
-    profs_list = [{
-        'id': p.pk, 'nome': p.user.get_full_name(), 'email': p.user.email
-    } for p in Professor.objects.select_related('user').all()]
+    turmas_list = []
+    for t in turmas_qs:
+        # Pega lista de nomes dos professores alocados nesta turma
+        profs = set()
+        for alocacao in t.turmadisciplinaprofessor_set.all():
+            if alocacao.professor:
+                profs.add(alocacao.professor.user.get_full_name())
+        
+        # Junta os nomes ou coloca "A definir"
+        prof_str = ", ".join(profs) if profs else "A definir"
+        # Trunca se ficar muito longo para não quebrar o layout do card
+        if len(prof_str) > 40: prof_str = prof_str[:37] + "..."
 
-    discs_list = [{
-        'id': d.pk, 'codigo': d.cod_disciplina, 'nome': d.nome
-    } for d in Disciplina.objects.all()]
+        turmas_list.append({
+            'id': t.pk, 
+            'codigo': t.nome, 
+            'nome': t.id_curso.nome_curso if t.id_curso else 'Curso Indefinido',
+            'vagas': t.capacidade_maxima,
+            # Campos que faltavam para o JS calcular a barra de progresso:
+            'matriculados': t.qtd_alunos, 
+            'professor': prof_str
+        })
+
+    # 3. PROFESSORES
+    # Prefetch para montar lista de disciplinas e contar turmas
+    profs_qs = Professor.objects.select_related('user').prefetch_related(
+        'turmadisciplinaprofessor_set__disciplina', 
+        'turmadisciplinaprofessor_set__turma'
+    ).all()
+
+    profs_list = []
+    for p in profs_qs:
+        alocacoes = p.turmadisciplinaprofessor_set.all()
+        # Disciplinas e Turmas únicas que ele leciona
+        disc_names = {a.disciplina.nome for a in alocacoes if a.disciplina}
+        turmas_ids = {a.turma.id for a in alocacoes if a.turma}
+
+        profs_list.append({
+            'id': p.pk, 
+            'nome': p.user.get_full_name(), 
+            'email': p.user.email,
+            # Campos que faltavam para a tabela:
+            'disciplinas': ", ".join(disc_names) if disc_names else "Nenhuma",
+            'turmas': len(turmas_ids)
+        })
+
+    # 4. DISCIPLINAS
+    # Annotate para contar quantas turmas usam a disciplina
+    discs_qs = Disciplina.objects.annotate(
+        qtd_turmas=Count('turmadisciplinaprofessor__turma', distinct=True)
+    )
+
+    discs_list = []
+    for d in discs_qs:
+        discs_list.append({
+            'id': d.pk, 
+            'codigo': d.cod_disciplina, 
+            'nome': d.nome,
+            # O JS espera camelCase 'cargaHoraria' e 'turmas'
+            'cargaHoraria': d.carga_horaria or 0, 
+            'turmas': d.qtd_turmas
+        })
 
     context = {
         'alunos_json': json.dumps(alunos_list, cls=DjangoJSONEncoder),
