@@ -80,6 +80,12 @@
             <li class="{% if request.resolver_match.url_name == 'avisos_eventos' %}active{% endif %}">
                 <a href="{% url 'avisos_eventos' %}" class="d-flex align-items-center"><i class="fas fa-bell me-3"></i> Avisos</a>
             </li>
+            <li class="nav-item">
+                <a class="nav-link {% if request.resolver_match.url_name == 'aluno_financeiro' %}active{% endif %}" href="{% url 'aluno_financeiro' %}">
+                    <i class="fas fa-wallet me-2"></i>
+                    <span>Financeiro</span>
+                </a>
+</li>
         {% endif %}
 
         <hr class="mx-3 border-secondary opacity-50">

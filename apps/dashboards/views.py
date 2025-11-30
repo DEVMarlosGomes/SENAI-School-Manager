@@ -5,9 +5,10 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_http_methods
 from django.http import JsonResponse
 from django.contrib import messages
-from django.db.models import Avg, Count, Q
+from django.db.models import Avg, Count, Q, Sum
 from django.core.serializers.json import DjangoJSONEncoder
 from django.contrib.auth.models import User
+from apps.payments.models import Pagamento
 
 # Imports dos seus modelos
 from apps.academico.models import (
@@ -543,7 +544,29 @@ def gestao_documentos_view(request):
 
 @rolerequired("secretaria")
 def controle_financeiro_view(request):
-    return render(request, "dashboards/controle_financeiro.html")
+    # 1. Buscar todos os pagamentos (ordenados do mais recente)
+    pagamentos = Pagamento.objects.select_related('aluno').all().order_by('-data_criacao')
+
+    # 2. Calcular KPIs (Totais dos Cards)
+    total_recebido = pagamentos.filter(status='pago').aggregate(total=Sum('valor'))['total'] or 0
+    total_pendente = pagamentos.filter(status='pendente').aggregate(total=Sum('valor'))['total'] or 0
+    
+    # Exemplo simples de inadimplência: % de pagamentos pendentes/atrasados sobre o total
+    total_geral = pagamentos.count()
+    pendentes_count = pagamentos.filter(status='pendente').count() # Pode refinar para 'atrasado' se tiver data vencimento
+    
+    inadimplencia_rate = 0
+    if total_geral > 0:
+        inadimplencia_rate = (pendentes_count / total_geral) * 100
+
+    context = {
+        'pagamentos': pagamentos,
+        'kpi_recebido': total_recebido,
+        'kpi_pendente': total_pendente,
+        'kpi_inadimplencia': round(inadimplencia_rate, 1),
+        'alunos_para_select': Aluno.objects.select_related('user').all(),
+    }
+    return render(request, "dashboards/controle_financeiro.html", context)
 
 @rolerequired("secretaria")
 def comunicacao_secretaria_view(request):
@@ -568,6 +591,23 @@ def calendario_view(request):
 def avisos_eventos_view(request):
     return render(request, "dashboards/avisos_eventos.html")
 
+@rolerequired("aluno")
+def aluno_financeiro_view(request):
+    """
+    Dashboard financeiro exclusivo do aluno logado.
+    """
+    # Busca apenas os pagamentos DESTE usuário
+    pagamentos = Pagamento.objects.filter(aluno=request.user).order_by('-data_criacao')
+    
+    # KPIs Rápidos
+    pendentes = pagamentos.filter(status='pendente')
+    total_pendente = sum(p.valor for p in pendentes)
+    
+    context = {
+        'pagamentos': pagamentos,
+        'total_pendente': total_pendente,
+    }
+    return render(request, "dashboards/aluno_financeiro.html", context)
 
 # --- GERAL ---
 

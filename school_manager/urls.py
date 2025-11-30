@@ -17,7 +17,7 @@ urlpatterns = [
     path('academico/', include('apps.academico.urls')),
     path('dashboards/', include('apps.dashboards.urls')),
     path('relatorios/', include('apps.relatorios.urls')),
-    
+    path('pagamentos/', include('apps.payments.urls')),
     path('', home_view, name='home'),
 ]
 
