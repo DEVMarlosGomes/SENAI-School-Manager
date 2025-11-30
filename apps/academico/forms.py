@@ -1,10 +1,7 @@
 from django import forms
-from .models import Aluno  # 'Matricula' foi removido porque não existe no novo models.py
+from django.forms import modelformset_factory
+from .models import Aluno, Historico, RegistroOcorrencia
 from django.contrib.auth.models import User
-
-# NOTA: Estas são versões básicas dos seus formulários para
-# corrigir o Import Error. A lógica interna (para criar User, etc.)
-# precisará ser ajustada depois das migrações.
 
 class AlunoForm(forms.ModelForm):
     # Campos do User que queremos no formulário de *criação*
@@ -67,3 +64,35 @@ class AlunoEditForm(forms.ModelForm):
         self.fields['turma_atual'].required = False
         self.fields['cod_endereco'].required = False
         self.fields['responsavel_legal'].required = False
+
+# Novo Form para o Diário de Classe
+class DiarioClasseForm(forms.ModelForm):
+    class Meta:
+        model = Historico
+        # Vamos permitir editar Nota Final e Total de Faltas
+        fields = ['nota_final', 'total_faltas']
+        widgets = {
+            'nota_final': forms.NumberInput(attrs={'class': 'form-control', 'min': 0, 'max': 10, 'step': 0.01}),
+            'total_faltas': forms.NumberInput(attrs={'class': 'form-control', 'min': 0}),
+        }
+
+# Factory que cria o conjunto de formulários
+DiarioClasseFormSet = modelformset_factory(
+    Historico,
+    form=DiarioClasseForm,
+    extra=0,  # Não queremos linhas vazias extras, apenas os alunos existentes
+    can_delete=False
+)
+
+class OcorrenciaForm(forms.ModelForm):
+    class Meta:
+        model = RegistroOcorrencia
+        fields = ['tipo_ocorrencia', 'descricao']
+        labels = {
+            'tipo_ocorrencia': 'Tipo',
+            'descricao': 'Observações Detalhadas'
+        }
+        widgets = {
+            'tipo_ocorrencia': forms.Select(attrs={'class': 'form-select'}),
+            'descricao': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Descreva o que aconteceu...'}),
+        }

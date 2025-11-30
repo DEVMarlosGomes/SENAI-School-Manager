@@ -1,5 +1,5 @@
 # apps/academico/urls.py
-
+from . import views
 from django.urls import path
 from .views import (
     cadastro_aluno_view, 
@@ -24,4 +24,8 @@ urlpatterns = [
     
     # API - Consulta de CEP
     path('api/consultar-cep/', consultar_cep, name='consultar_cep'),  # ← Agora vai funcionar
+    # Rotas do Professor
+    path('professor/turmas/', views.minhas_turmas_view, name='minhas_turmas'),
+    path('professor/diario/<int:alocacao_id>/', views.diario_classe_view, name='diario_classe'),
+    path('professor/ocorrencia/<int:turma_id>/<int:aluno_id>/', views.registrar_ocorrencia_view, name='registrar_ocorrencia'),
 ]

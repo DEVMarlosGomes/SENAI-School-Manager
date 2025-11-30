@@ -1,0 +1,246 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Diário de Classe - {{ alocacao.disciplina.nome }}{% endblock %}
+
+{% block content %}
+<div class="layout-wrapper d-flex">
+    {% include 'includes/sidebar.html' %}
+    
+    <div id="main-content" class="flex-grow-1 transition-all bg-light" style="height: 100vh; overflow-y: auto;">
+        
+        <header class="bg-white shadow-sm py-3 px-4 border-bottom sticky-top" style="z-index: 999;">
+            <div class="row align-items-center gy-2">
+                <div class="col-md-4 d-flex align-items-center gap-3">
+                    <a href="{% url 'minhas_turmas' %}" class="btn btn-light border rounded-circle" title="Voltar">
+                        <i class="fas fa-arrow-left text-secondary"></i>
+                    </a>
+                    <div class="text-truncate">
+                        <h5 class="mb-0 fw-bold text-dark text-truncate">{{ alocacao.disciplina.nome }}</h5>
+                        <small class="text-muted d-none d-sm-block">{{ alocacao.turma.nome }}</small>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="position-relative">
+                        <span class="position-absolute top-50 start-0 translate-middle-y ms-3 text-muted">
+                            <i class="fas fa-search"></i>
+                        </span>
+                        <input type="text" id="studentSearch" class="form-control rounded-pill ps-5 bg-light border-0" 
+                               placeholder="Buscar aluno na turma..." autocomplete="off">
+                    </div>
+                </div>
+
+                <div class="col-md-4 text-end">
+                    <button type="submit" form="formDiario" class="btn btn-success fw-bold px-4 shadow-sm">
+                        <i class="fas fa-save me-2"></i>Salvar
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <div class="container-fluid p-4">
+            <div class="card border-0 shadow-sm overflow-hidden">
+                <div class="card-body p-0">
+                    
+                    <form method="post" id="formDiario">
+                        {% csrf_token %}
+                        {{ formset.management_form }}
+                        
+                        <div class="table-responsive" style="max-height: calc(100vh - 200px);">
+                            <table class="table table-hover mb-0 align-middle" id="gradeTable">
+                                <thead class="bg-light text-secondary sticky-top" style="z-index: 10;">
+                                    <tr>
+                                        <th class="ps-4 py-3 border-bottom" style="width: 35%;">ESTUDANTE</th>
+                                        <th class="py-3 border-bottom text-center" style="width: 20%;">NOTA (0-10)</th>
+                                        <th class="py-3 border-bottom text-center" style="width: 20%;">FALTAS</th>
+                                        <th class="py-3 border-bottom text-center" style="width: 25%;">SITUAÇÃO</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for form in formset %}
+                                    <tr class="student-row">
+                                        {% for hidden in form.hidden_fields %}{{ hidden }}{% endfor %}
+
+                                        <td class="ps-4 py-3">
+                                            <div class="d-flex align-items-center justify-content-between pe-3">
+                                                <div class="d-flex align-items-center">
+                                                    <div class="avatar-placeholder rounded-circle bg-primary-subtle text-primary d-flex align-items-center justify-content-center me-3 fw-bold" style="width: 40px; height: 40px;">
+                                                        {{ form.instance.id_aluno.user.first_name|first }}
+                                                    </div>
+                                                    <div>
+                                                        <div class="fw-bold text-dark student-name">
+                                                            {{ form.instance.id_aluno.user.get_full_name|default:form.instance.id_aluno.user.username }}
+                                                        </div>
+                                                        <small class="text-muted">RA: {{ form.instance.id_aluno.RA_aluno }}</small>
+                                                    </div>
+                                                </div>
+                                                
+                                                <button type="button" class="btn btn-sm btn-light text-warning hover-scale" 
+                                                        data-bs-toggle="modal" 
+                                                        data-bs-target="#modalOcorrencia-{{ form.instance.id_aluno.pk }}"
+                                                        title="Registrar Ocorrência">
+                                                    <i class="fas fa-exclamation-triangle"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                        
+                                        <td class="text-center">
+                                            <div class="d-flex justify-content-center">
+                                                {{ form.nota_final }}
+                                            </div>
+                                            {% if form.nota_final.errors %}
+                                                <div class="text-danger small mt-1">{{ form.nota_final.errors.0 }}</div>
+                                            {% endif %}
+                                        </td>
+                                        
+                                        <td class="text-center">
+                                            <div class="d-flex justify-content-center">
+                                                {{ form.total_faltas }}
+                                            </div>
+                                            {% if form.total_faltas.errors %}
+                                                <div class="text-danger small mt-1">{{ form.total_faltas.errors.0 }}</div>
+                                            {% endif %}
+                                        </td>
+                                        
+                                        <td class="text-center">
+                                            {% if form.instance.status_aprovacao == 'Aprovado' %}
+                                                <span class="badge bg-success-subtle text-success border border-success px-3 rounded-pill">Aprovado</span>
+                                            {% elif 'Reprovado' in form.instance.status_aprovacao %}
+                                                <span class="badge bg-danger-subtle text-danger border border-danger px-3 rounded-pill">Reprovado</span>
+                                            {% elif form.instance.status_aprovacao == 'Recuperação' %}
+                                                <span class="badge bg-warning-subtle text-warning border border-warning px-3 rounded-pill">Recuperação</span>
+                                            {% else %}
+                                                <span class="badge bg-light text-secondary border px-3 rounded-pill">Cursando</span>
+                                            {% endif %}
+                                            
+                                            {% if form.instance.frequencia_percentual is not None %}
+                                                <div class="mt-1 small fw-bold text-muted" style="font-size: 0.75rem;">
+                                                    {{ form.instance.frequencia_percentual }}% Freq.
+                                                </div>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                    
+                                    <tr id="noResultsRow" style="display: none;">
+                                        <td colspan="4" class="text-center py-5">
+                                            <div class="text-muted opacity-50">
+                                                <i class="fas fa-search fa-2x mb-2"></i>
+                                                <p class="mb-0">Nenhum aluno encontrado com esse nome.</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+
+                                </tbody>
+                            </table>
+                        </div>
+                    </form>
+                </div>
+                
+                <div class="card-footer bg-light p-3 text-end border-top">
+                    <small class="text-muted me-3">Última alteração salva automaticamente.</small>
+                    <button type="submit" form="formDiario" class="btn btn-success fw-bold px-5 shadow-sm">
+                        Salvar Diário
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% for form in formset %}
+    <div class="modal fade" id="modalOcorrencia-{{ form.instance.id_aluno.pk }}" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header bg-warning text-dark">
+                    <h6 class="modal-title fw-bold">
+                        <i class="fas fa-comment-alt me-2"></i>Nova Ocorrência
+                    </h6>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="d-flex align-items-center mb-4 p-3 bg-light rounded">
+                        <div class="avatar-placeholder rounded-circle bg-white text-warning border d-flex align-items-center justify-content-center me-3 fw-bold" style="width: 40px; height: 40px;">
+                            {{ form.instance.id_aluno.user.first_name|first }}
+                        </div>
+                        <div>
+                            <h6 class="mb-0 fw-bold">{{ form.instance.id_aluno.user.get_full_name }}</h6>
+                            <small class="text-muted">Turma: {{ alocacao.turma.nome }}</small>
+                        </div>
+                    </div>
+
+                    <form action="{% url 'registrar_ocorrencia' alocacao.turma.id form.instance.id_aluno.pk %}" method="post">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label class="form-label fw-bold small text-secondary">TIPO</label>
+                            <select name="tipo_ocorrencia" class="form-select bg-light border-0" required>
+                                <option value="" disabled selected>Selecione...</option>
+                                <option value="Observação">📝 Observação Pedagógica</option>
+                                <option value="Advertência Verbal">⚠️ Advertência Verbal</option>
+                                <option value="Elogio">🌟 Elogio / Destaque</option>
+                                <option value="Encaminhamento">🔴 Encaminhamento</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold small text-secondary">DESCRIÇÃO</label>
+                            <textarea name="descricao" class="form-control bg-light border-0" rows="4" placeholder="Descreva o ocorrido..." required></textarea>
+                        </div>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-warning fw-bold">Registrar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endfor %}
+
+<style>
+    input[type=number]::-webkit-inner-spin-button, 
+    input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+    input[type=number] { -moz-appearance: textfield; text-align: center; max-width: 80px; border: 1px solid #dee2e6; border-radius: 6px; padding: 4px; font-weight: bold; color: #495057; }
+    input[type=number]:focus { border-color: #0d6efd; outline: 0; box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, .15); }
+    .hover-scale:hover { transform: scale(1.1); transition: transform 0.2s; }
+    .table-responsive::-webkit-scrollbar { width: 8px; height: 8px; }
+    .table-responsive::-webkit-scrollbar-track { background: #f1f1f1; }
+    .table-responsive::-webkit-scrollbar-thumb { background: #ccc; border-radius: 4px; }
+    .table-responsive::-webkit-scrollbar-thumb:hover { background: #aaa; }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Toggle Sidebar Mobile
+        document.getElementById('sidebarToggle')?.addEventListener('click', function() {
+            document.getElementById('sidebar').classList.toggle('active');
+        });
+
+        // Lógica da Barra de Pesquisa
+        const searchInput = document.getElementById('studentSearch');
+        const tableRows = document.querySelectorAll('.student-row');
+        const noResultsRow = document.getElementById('noResultsRow');
+
+        searchInput.addEventListener('keyup', function(e) {
+            const term = e.target.value.toLowerCase();
+            let hasVisibleRow = false;
+
+            tableRows.forEach(row => {
+                const nameElement = row.querySelector('.student-name');
+                const name = nameElement ? nameElement.textContent.toLowerCase() : '';
+                
+                if (name.includes(term)) {
+                    row.style.display = ''; // Mostra
+                    hasVisibleRow = true;
+                } else {
+                    row.style.display = 'none'; // Esconde
+                }
+            });
+
+            // Mostra ou esconde mensagem de "Nenhum resultado"
+            if (noResultsRow) {
+                noResultsRow.style.display = hasVisibleRow ? 'none' : '';
+            }
+        });
+    });
+</script>
+{% endblock %}
