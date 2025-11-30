@@ -7,12 +7,13 @@ from django.views.decorators.http import require_http_methods
 from django.http import JsonResponse, HttpResponseBadRequest, HttpResponseNotAllowed
 from django.forms.models import model_to_dict
 from django.contrib.auth.models import User
+from django.forms import modelform_factory
 import json
 import requests  # ← ADICIONADO: Para a API ViaCEP
 
 
-from .forms import AlunoForm, AlunoEditForm
-from .models import Aluno, Historico, Secretaria, Turma # Importações corrigidas
+from .forms import AlunoForm, AlunoEditForm, DiarioClasseForm, DiarioClasseFormSet, OcorrenciaForm
+from .models import Aluno, Historico, Secretaria, Turma, TurmaDisciplinaProfessor, Professor, RegistroOcorrencia
 
 
 # #############################################################################
@@ -368,3 +369,119 @@ def consultar_cep(request):
             'erro': True,
             'mensagem': f'Erro inesperado: {str(e)}'
         }, status=500)
+
+@login_required
+def minhas_turmas_view(request):
+    """
+    Lista as disciplinas que o professor leciona para ele escolher qual editar.
+    """
+    # Verifica se é professor
+    try:
+        professor = Professor.objects.get(user=request.user)
+    except Professor.DoesNotExist:
+        messages.error(request, "Acesso restrito a professores.")
+        return redirect('home')
+
+    # Busca as alocações (Turma + Disciplina) deste professor
+    alocacoes = TurmaDisciplinaProfessor.objects.filter(
+        professor=professor
+    ).select_related('turma', 'disciplina')
+
+    return render(request, 'academico/professor/minhas_turmas.html', {
+        'alocacoes': alocacoes
+    })
+
+@login_required
+def diario_classe_view(request, alocacao_id):
+    """
+    Tela estilo planilha para lançar notas e faltas de todos os alunos da turma.
+    """
+    # 1. Segurança: Garante que a alocação pertence ao professor logado
+    alocacao = get_object_or_404(TurmaDisciplinaProfessor, pk=alocacao_id)
+    if alocacao.professor.user != request.user:
+        messages.error(request, "Você não tem permissão para editar esta turma.")
+        return redirect('home')
+
+    # 2. Garante que existam registros de Histórico para todos os alunos da turma
+    # (No mundo real, o histórico é criado na matrícula, mas isso garante que não quebre)
+    alunos_turma = Aluno.objects.filter(turma_atual=alocacao.turma)
+    for aluno in alunos_turma:
+        Historico.objects.get_or_create(
+            id_aluno=aluno,
+            turma_disciplina_professor=alocacao,
+            defaults={'periodo_realizacao': '2025.1'} # Exemplo
+        )
+
+    # 3. Filtra os históricos desta matéria específica
+    queryset = Historico.objects.filter(
+        turma_disciplina_professor=alocacao
+    ).order_by('id_aluno__user__first_name')
+
+    if request.method == 'POST':
+        formset = DiarioClasseFormSet(request.POST, queryset=queryset)
+        if formset.is_valid():
+            instances = formset.save(commit=False)
+            carga_horaria_disciplina = alocacao.disciplina.carga_horaria or 60 # Default de segurança
+
+            for historico in instances:
+                # === Lógica Realista de Cálculo Automático ===
+                
+                # 1. Calcular Frequência % baseada nas faltas
+                faltas = historico.total_faltas or 0
+                freq = ((carga_horaria_disciplina - faltas) / carga_horaria_disciplina) * 100
+                historico.frequencia_percentual = round(freq, 1)
+
+                # 2. Definir Status (Aprovado/Reprovado)
+                nota = historico.nota_final or 0
+                if freq < 75:
+                    historico.status_aprovacao = 'Reprovado por Faltas'
+                elif nota >= 6.0:
+                    historico.status_aprovacao = 'Aprovado'
+                else:
+                    historico.status_aprovacao = 'Recuperação'
+                
+                historico.save()
+            
+            messages.success(request, "Diário de classe atualizado com sucesso!")
+            return redirect('diario_classe', alocacao_id=alocacao_id)
+    else:
+        formset = DiarioClasseFormSet(queryset=queryset)
+
+    context = {
+        'formset': formset,
+        'alocacao': alocacao,
+        'alunos_nomes': [h.id_aluno.user.get_full_name() for h in queryset] # Helper para template
+    }
+    return render(request, 'academico/professor/diario_classe.html', context)
+
+@login_required
+def registrar_ocorrencia_view(request, turma_id, aluno_id):
+    # Segurança básica
+    turma = get_object_or_404(Turma, pk=turma_id)
+    aluno = get_object_or_404(Aluno, pk=aluno_id)
+    
+    # Verifica se é professor
+    try:
+        professor = Professor.objects.get(user=request.user)
+    except Professor.DoesNotExist:
+        messages.error(request, "Apenas professores podem registrar ocorrências.")
+        return redirect('home')
+
+    if request.method == 'POST':
+        form = OcorrenciaForm(request.POST)
+        if form.is_valid():
+            ocorrencia = form.save(commit=False)
+            ocorrencia.aluno = aluno
+            ocorrencia.turma = turma
+            ocorrencia.professor = professor
+            ocorrencia.save()
+            
+            messages.success(request, f"Ocorrência registrada para {aluno.user.first_name}.")
+            
+            # Tenta voltar para o diário daquela turma, se possível
+            # Precisamos achar a alocação para redirecionar corretamente, 
+            # ou redirecionamos para 'minhas_turmas' se for complexo buscar a alocação inversa agora.
+            return redirect('minhas_turmas') 
+            
+    # Se não for POST, redireciona (não vamos ter página separada, será via modal)
+    return redirect('minhas_turmas')

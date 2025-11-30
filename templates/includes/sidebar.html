@@ -49,8 +49,17 @@
 
         {% if user.profile.is_professor %}
             <p class="text-uppercase px-3 small text-white-50 mb-2 mt-3 fw-bold" style="font-size: 0.75rem; letter-spacing: 1px;">Docente</p>
+            
             <li class="{% if request.resolver_match.url_name == 'professor_dashboard' %}active{% endif %}">
-                <a href="{% url 'professor_dashboard' %}" class="d-flex align-items-center"><i class="fas fa-chalkboard-teacher me-3"></i> Painel de Aulas</a>
+                <a href="{% url 'professor_dashboard' %}" class="d-flex align-items-center">
+                    <i class="fas fa-chalkboard-teacher me-3"></i> Painel de Aulas
+                </a>
+            </li>
+
+            <li class="{% if request.resolver_match.url_name == 'minhas_turmas' or request.resolver_match.url_name == 'diario_classe' %}active{% endif %}">
+                <a href="{% url 'minhas_turmas' %}" class="d-flex align-items-center">
+                    <i class="fas fa-book-open me-3"></i> Diários de Classe
+                </a>
             </li>
         {% endif %}
 
