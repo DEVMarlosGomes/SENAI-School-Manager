@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Secretaria - Documentos{% endblock %}
+{% block title %}Secretaria - Histórico de Documentos{% endblock %}
 
 {% block content %}
 <div class="layout-wrapper d-flex">
@@ -13,18 +13,14 @@
                 <div class="d-flex align-items-center gap-3">
                     <button class="btn btn-light d-md-none shadow-sm" id="sidebarToggle"><i class="fas fa-bars"></i></button>
                     <div>
-                        <div class="header-breadcrumb"><i class="fas fa-university me-1"></i> Secretaria</div>
-                        <h1 class="header-title mb-0">Documentos</h1>
+                        <div class="header-breadcrumb"><i class="fas fa-file-alt me-1"></i> Secretaria</div>
+                        <h1 class="header-title mb-0">Histórico de Documentos</h1>
                     </div>
                 </div>
                 <div class="d-flex align-items-center gap-3">
-                    <div class="d-none d-lg-block text-end me-2">
-                        <small class="text-muted d-block" style="font-size: 0.7rem;">HOJE</small>
-                        <span class="fw-bold text-dark small">{% now "d \d\e F \d\e Y" %}</span>
-                    </div>
                     <div class="header-profile-box d-flex align-items-center gap-3 cursor-pointer">
-                        <div class="text-end d-none d-sm-block" style="line-height: 1.1;">
-                            <p class="mb-0 fw-bold text-dark small">{{ user.first_name|default:'Usuário' }}</p>
+                        <div class="text-end d-none d-sm-block">
+                            <p class="mb-0 fw-bold text-dark small">{{ user.first_name }}</p>
                             <p class="mb-0 text-muted" style="font-size: 0.7rem;">Secretaria</p>
                         </div>
                         <div class="rounded-circle bg-white d-flex align-items-center justify-content-center shadow-sm" style="width: 38px; height: 38px; border: 2px solid var(--primary-color);">
@@ -36,60 +32,81 @@
         </header>
 
         <div class="container-fluid p-4">
-            <div class="d-flex justify-content-end mb-4">
-                <button class="btn btn-warning text-dark shadow-sm" id="btnEmitirDoc">
-                    <i class="fas fa-print me-2"></i>Emitir Documento
-                </button>
-            </div>
-
-            <div class="row g-3 mb-4">
-                <div class="col-md-4">
-                    <div class="card p-3 border-0 shadow-sm h-100 bg-secondary-subtle">
-                        <h6 class="text-muted small text-uppercase mb-1">Histórico</h6>
-                        <h3 class="fw-bold mb-0 text-dark">1.240 <span class="fs-6 text-muted fw-normal">arquivados</span></h3>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="card p-3 border-0 shadow-sm h-100 bg-warning-subtle">
-                        <h6 class="text-muted small text-uppercase mb-1">Solicitações</h6>
-                        <h3 class="fw-bold mb-0 text-warning-emphasis">24 <span class="fs-6 text-muted fw-normal">pendentes</span></h3>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="card p-3 border-0 shadow-sm h-100 bg-primary-subtle">
-                        <h6 class="text-muted small text-uppercase mb-1">Hoje</h6>
-                        <h3 class="fw-bold mb-0 text-primary">12 <span class="fs-6 text-muted fw-normal">emitidos</span></h3>
+            
+            <!-- Barra de Ferramentas (Apenas Busca) -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body p-3">
+                    <div class="row align-items-center">
+                        <div class="col-md-12">
+                            <form method="get" class="d-flex gap-2">
+                                <input type="text" name="q" class="form-control" placeholder="Buscar histórico por Aluno ou RA..." value="{{ search_query|default:'' }}">
+                                <button type="submit" class="btn btn-primary"><i class="fas fa-search"></i></button>
+                                {% if search_query %}
+                                    <a href="{% url 'gestao_documentos' %}" class="btn btn-outline-secondary">Limpar</a>
+                                {% endif %}
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>
 
+            <!-- Tabela de Histórico -->
             <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white py-3">
+                    <h6 class="fw-bold mb-0 text-dark">Documentos Emitidos</h6>
+                </div>
                 <div class="table-responsive">
-                    <table class="table table-hover mb-0 align-middle" id="tableDocs">
+                    <table class="table table-hover align-middle mb-0">
                         <thead class="bg-light">
                             <tr>
-                                <th class="ps-4 py-3">Documento</th>
-                                <th class="py-3">Aluno</th>
-                                <th class="py-3">Data Emissão</th>
-                                <th class="py-3">Status</th>
-                                <th class="text-end pe-4 py-3">Ações</th>
+                                <th class="ps-4">Documento</th>
+                                <th>Aluno</th>
+                                <th>Solicitado Por</th>
+                                <th>Data Emissão</th>
+                                <th>Validação</th>
+                                <th class="text-end pe-4">Ações</th>
                             </tr>
                         </thead>
                         <tbody>
+                            {% for doc in documentos %}
                             <tr>
                                 <td class="ps-4">
                                     <div class="d-flex align-items-center">
-                                        <i class="fas fa-file-contract fa-lg text-primary me-3 opacity-50"></i>
-                                        <span class="fw-bold text-dark">Contrato de Matrícula</span>
+                                        <div class="bg-light p-2 rounded me-3 text-danger">
+                                            <i class="fas fa-file-pdf fa-lg"></i>
+                                        </div>
+                                        <div>
+                                            <span class="fw-bold d-block text-dark">{{ doc.get_tipo_display }}</span>
+                                            <small class="text-muted">{{ doc.nome_arquivo_original }}</small>
+                                        </div>
                                     </div>
                                 </td>
-                                <td>Ana Silva</td>
-                                <td>10 Out, 2025</td>
-                                <td><span class="badge bg-primary-subtle text-primary rounded-pill px-3">Gerado</span></td>
+                                <td>
+                                    {{ doc.aluno.user.get_full_name }}<br>
+                                    <small class="text-muted">{{ doc.aluno.RA_aluno }}</small>
+                                </td>
+                                <td>
+                                    {% if doc.solicitante == doc.aluno.user %}
+                                        <span class="badge bg-info-subtle text-info-emphasis">Próprio Aluno</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary-subtle text-secondary">{{ doc.solicitante.get_full_name|default:"Sistema" }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ doc.data_emissao|date:"d/m/Y H:i" }}</td>
+                                <td><code class="text-muted user-select-all">{{ doc.codigo_validacao }}</code></td>
                                 <td class="text-end pe-4">
-                                    <button class="btn btn-sm btn-light text-dark" title="Baixar PDF"><i class="fas fa-download"></i></button>
+                                    <a href="{% url 'download_documento' doc.id %}" class="btn btn-sm btn-outline-primary" title="Baixar 2ª Via">
+                                        <i class="fas fa-download"></i>
+                                    </a>
                                 </td>
                             </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="6" class="text-center py-5 text-muted">
+                                    Nenhum documento emitido encontrado. Os alunos podem emitir seus documentos através do portal do aluno.
+                                </td>
+                            </tr>
+                            {% endfor %}
                         </tbody>
                     </table>
                 </div>
@@ -97,7 +114,6 @@
         </div>
     </div>
 </div>
-<div class="overlay"></div>
 {% endblock %}
 
 {% block extra_js %}

@@ -1,15 +1,11 @@
 from reportlab.lib.pagesizes import letter, A4
-from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, Image, PageBreak
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import inch
 from reportlab.lib import colors
-from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_RIGHT, TA_JUSTIFY
+from reportlab.lib.enums import TA_CENTER, TA_JUSTIFY, TA_LEFT
 from datetime import datetime
-from django.core.files.base import ContentFile
-from django.conf import settings
 import io
-import os
-
 
 class GeradorPDFSENAI:
     """Classe para gerar PDFs profissionais para o SENAI"""
@@ -19,7 +15,6 @@ class GeradorPDFSENAI:
         self._criar_estilos_customizados()
         
     def _criar_estilos_customizados(self):
-        """Cria estilos customizados para os documentos"""
         self.styles.add(ParagraphStyle(
             name='Titulo',
             parent=self.styles['Heading1'],
@@ -40,11 +35,13 @@ class GeradorPDFSENAI:
         ))
         
         self.styles.add(ParagraphStyle(
-            name='Normal',
-            fontSize=11,
-            textColor=colors.HexColor('#333333'),
+            name='NormalJustificado',
+            parent=self.styles['Normal'],
+            fontSize=12,
+            textColor=colors.black,
             spaceAfter=12,
-            alignment=TA_JUSTIFY
+            alignment=TA_JUSTIFY,
+            leading=18
         ))
         
         self.styles.add(ParagraphStyle(
@@ -55,10 +52,9 @@ class GeradorPDFSENAI:
             spaceAfter=6
         ))
     
-    def gerar_relatorio_aluno(self, aluno):
-        """Gera relatório de desempenho do aluno"""
+    def gerar_relatorio_aluno(self, aluno, codigo_validacao=None):
+        """Gera boletim do aluno"""
         buffer = io.BytesIO()
-        
         pdf = SimpleDocTemplate(
             buffer,
             pagesize=A4,
@@ -69,25 +65,20 @@ class GeradorPDFSENAI:
         )
         
         elementos = []
-        
-        elementos.append(Paragraph(
-            "RELATÓRIO DE ALUNO",
-            self.styles['Titulo']
-        ))
-        
+        elementos.append(Paragraph("BOLETIM ESCOLAR", self.styles['Titulo']))
         elementos.append(Spacer(1, 0.2*inch))
         
+        # Dados do Cabeçalho
         dados_aluno = [
             ['Nome Completo:', aluno.user.get_full_name() or aluno.user.username],
             ['RA/Matrícula:', aluno.RA_aluno if hasattr(aluno, 'RA_aluno') else 'N/A'],
-            ['Email:', aluno.user.email],
-            ['Status:', aluno.status_matricula if hasattr(aluno, 'status_matricula') else 'N/A'],
-            ['Data do Relatório:', datetime.now().strftime('%d/%m/%Y às %H:%M')],
+            ['Turma:', str(aluno.turma_atual) if aluno.turma_atual else 'N/A'],
+            ['Data de Emissão:', datetime.now().strftime('%d/%m/%Y')],
         ]
         
         tabela_aluno = Table(dados_aluno, colWidths=[2.5*inch, 3.5*inch])
         tabela_aluno.setStyle(TableStyle([
-            ('BACKGROUND', (0, 0), (0, -1), colors.HexColor('#e0e0e0')),
+            ('BACKGROUND', (0, 0), (0, -1), colors.HexColor('#f5f5f5')),
             ('TEXTCOLOR', (0, 0), (-1, -1), colors.black),
             ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
             ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
@@ -98,127 +89,46 @@ class GeradorPDFSENAI:
         
         elementos.append(tabela_aluno)
         elementos.append(Spacer(1, 0.3*inch))
+        elementos.append(Paragraph("Desempenho Acadêmico", self.styles['Subtitulo']))
         
-        elementos.append(Paragraph(
-            "Informações Acadêmicas",
-            self.styles['Subtitulo']
-        ))
+        # Tabela de Notas (Simplificada para exemplo)
+        if hasattr(aluno, 'historico') and aluno.historico.exists():
+            dados_notas = [['Disciplina', 'Média', 'Frequência', 'Situação']]
+            for hist in aluno.historico.all():
+                dados_notas.append([
+                    hist.turma_disciplina_professor.disciplina.nome,
+                    f"{hist.media_final:.1f}" if hist.media_final else "-",
+                    f"{hist.frequencia_percentual:.0f}%" if hist.frequencia_percentual else "-",
+                    hist.status_aprovacao or "Cursando"
+                ])
+            
+            tabela_notas = Table(dados_notas, colWidths=[3*inch, 1*inch, 1*inch, 1.5*inch])
+            tabela_notas.setStyle(TableStyle([
+                ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#c41e3a')),
+                ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+                ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+                ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                ('GRID', (0, 0), (-1, -1), 1, colors.black),
+            ]))
+            elementos.append(tabela_notas)
+        else:
+            elementos.append(Paragraph("Nenhum registro de notas encontrado.", self.styles['NormalJustificado']))
+
+        elementos.append(Spacer(1, 1*inch))
         
-        elementos.append(Spacer(1, 0.1*inch))
-        
-        dados_academicos = [
-            ['Turma:', getattr(aluno, 'turma_atual', 'N/A')],
-            ['Status Matrícula:', getattr(aluno, 'status_matricula', 'N/A')],
-            ['Data de Criação:', aluno.user.date_joined.strftime('%d/%m/%Y')],
-        ]
-        
-        tabela_academica = Table(dados_academicos, colWidths=[2.5*inch, 3.5*inch])
-        tabela_academica.setStyle(TableStyle([
-            ('BACKGROUND', (0, 0), (0, -1), colors.HexColor('#e0e0e0')),
-            ('TEXTCOLOR', (0, 0), (-1, -1), colors.black),
-            ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
-            ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
-            ('FONTSIZE', (0, 0), (-1, -1), 10),
-            ('BOTTOMPADDING', (0, 0), (-1, -1), 12),
-            ('GRID', (0, 0), (-1, -1), 1, colors.grey),
-        ]))
-        
-        elementos.append(tabela_academica)
-        elementos.append(Spacer(1, 0.5*inch))
-        
-        elementos.append(Paragraph(
-            f"Relatório gerado em {datetime.now().strftime('%d/%m/%Y às %H:%M')} pelo Sistema SENAI",
-            self.styles['Rodape']
-        ))
-        
+        if codigo_validacao:
+            elementos.append(Paragraph(f"Validação: <b>{codigo_validacao}</b>", self.styles['Rodape']))
+
         pdf.build(elementos)
-        
         buffer.seek(0)
         return buffer
-    
-    def gerar_relatorio_turma(self, turma, alunos):
-        """Gera relatório de uma turma com lista de alunos"""
+
+    def gerar_declaracao_matricula(self, aluno, codigo_validacao=None):
+        """Gera declaração formal"""
         buffer = io.BytesIO()
-        
         pdf = SimpleDocTemplate(
             buffer,
             pagesize=A4,
-            topMargin=0.5*inch,
-            bottomMargin=0.5*inch,
-            leftMargin=0.75*inch,
-            rightMargin=0.75*inch
-        )
-        
-        elementos = []
-        
-        elementos.append(Paragraph(
-            "RELATÓRIO DE TURMA",
-            self.styles['Titulo']
-        ))
-        
-        elementos.append(Spacer(1, 0.2*inch))
-        
-        elementos.append(Paragraph(
-            f"Turma: {turma}",
-            self.styles['Subtitulo']
-        ))
-        
-        elementos.append(Spacer(1, 0.1*inch))
-        
-        dados_turma = [['#', 'Nome', 'RA/Matrícula', 'Email', 'Status']]
-        
-        for idx, aluno in enumerate(alunos, 1):
-            ra = aluno.RA_aluno if hasattr(aluno, 'RA_aluno') else 'N/A'
-            status = aluno.status_matricula if hasattr(aluno, 'status_matricula') else 'N/A'
-            dados_turma.append([
-                str(idx),
-                aluno.user.get_full_name() or aluno.user.username,
-                ra,
-                aluno.user.email,
-                status
-            ])
-        
-        tabela_turma = Table(dados_turma, colWidths=[0.5*inch, 1.5*inch, 1.2*inch, 1.8*inch, 1*inch])
-        tabela_turma.setStyle(TableStyle([
-            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#c41e3a')),
-            ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
-            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-            ('FONTSIZE', (0, 0), (-1, 0), 11),
-            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-            ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
-            ('GRID', (0, 0), (-1, -1), 1, colors.black),
-            ('FONTSIZE', (0, 1), (-1, -1), 9),
-            ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.HexColor('#f0f0f0')])
-        ]))
-        
-        elementos.append(tabela_turma)
-        elementos.append(Spacer(1, 0.3*inch))
-        
-        elementos.append(Paragraph(
-            f"Total de Alunos: {len(alunos)}",
-            self.styles['Subtitulo']
-        ))
-        
-        elementos.append(Spacer(1, 0.5*inch))
-        
-        elementos.append(Paragraph(
-            f"Relatório gerado em {datetime.now().strftime('%d/%m/%Y às %H:%M')} pelo Sistema SENAI",
-            self.styles['Rodape']
-        ))
-        
-        pdf.build(elementos)
-        
-        buffer.seek(0)
-        return buffer
-    
-    def gerar_certificado_aluno(self, aluno, curso, data_conclusao):
-        """Gera certificado de conclusão para o aluno"""
-        buffer = io.BytesIO()
-        
-        pdf = SimpleDocTemplate(
-            buffer,
-            pagesize=letter,
             topMargin=1*inch,
             bottomMargin=1*inch,
             leftMargin=1*inch,
@@ -226,69 +136,63 @@ class GeradorPDFSENAI:
         )
         
         elementos = []
-        
+        elementos.append(Paragraph("SENAI - Serviço Nacional de Aprendizagem Industrial", self.styles['Subtitulo']))
+        elementos.append(Spacer(1, 0.5*inch))
+        elementos.append(Paragraph("DECLARAÇÃO DE MATRÍCULA", self.styles['Titulo']))
         elementos.append(Spacer(1, 0.5*inch))
         
-        elementos.append(Paragraph(
-            "CERTIFICADO DE CONCLUSÃO",
-            self.styles['Titulo']
-        ))
+        nome = aluno.user.get_full_name().upper()
+        ra = aluno.RA_aluno
+        rg = aluno.RG_aluno or "Não informado"
+        turma = aluno.turma_atual.nome if aluno.turma_atual else "Não definida"
+        ano = datetime.now().year
         
-        elementos.append(Spacer(1, 0.3*inch))
-        
-        nome_aluno = aluno.user.get_full_name() or aluno.user.username
-        
-        texto_certificado = f"""
-        <p align="center">
-            <b>Certificamos que</b>
-        </p>
-        <p align="center" style="font-size: 16px; margin-top: 30px;">
-            <b>{nome_aluno}</b>
-        </p>
-        <p align="center" style="margin-top: 30px;">
-            completou com sucesso o curso de
-        </p>
-        <p align="center" style="font-size: 16px; margin-top: 20px;">
-            <b>{curso}</b>
-        </p>
-        <p align="center" style="margin-top: 30px;">
-            em {data_conclusao.strftime('%d de %B de %Y')}
-        </p>
-        <p align="center" style="margin-top: 50px;">
-            ___________________________<br/>
-            Assinatura Autorizada<br/>
-            SENAI
-        </p>
+        texto = f"""
+        Declaramos para os devidos fins que <b>{nome}</b>, portador(a) do RG nº {rg} e matriculado(a) sob o RA <b>{ra}</b>,
+        é aluno(a) regularmente matriculado(a) nesta instituição de ensino no ano letivo de {ano}, frequentando a turma <b>{turma}</b>.
         """
+        elementos.append(Paragraph(texto, self.styles['NormalJustificado']))
         
-        elementos.append(Paragraph(texto_certificado, self.styles['Normal']))
+        elementos.append(Spacer(1, 1.5*inch))
+        elementos.append(Paragraph("_______________________________________________", self.styles['Rodape']))
+        elementos.append(Paragraph("Secretaria Acadêmica", self.styles['Rodape']))
         
-        elementos.append(Spacer(1, 0.5*inch))
-        
-        elementos.append(Paragraph(
-            f"Documento gerado em {datetime.now().strftime('%d/%m/%Y')}",
-            self.styles['Rodape']
-        ))
-        
+        if codigo_validacao:
+            elementos.append(Spacer(1, 0.5*inch))
+            elementos.append(Paragraph(f"Código de Autenticidade: {codigo_validacao}", self.styles['Rodape']))
+
         pdf.build(elementos)
-        
         buffer.seek(0)
         return buffer
 
-
-def gerar_pdf_relatorio_aluno(aluno):
-    """Função auxiliar para gerar PDF de relatório de aluno"""
-    gerador = GeradorPDFSENAI()
-    return gerador.gerar_relatorio_aluno(aluno)
-
-
-def gerar_pdf_relatorio_turma(turma, alunos):
-    """Função auxiliar para gerar PDF de relatório de turma"""
-    gerador = GeradorPDFSENAI()
-    return gerador.gerar_relatorio_turma(turma, alunos)
-
-
-def gerar_pdf_certificado(aluno, curso, data_conclusao):
-    """Função auxiliar para gerar certificado em PDF"""
-    gerador = GeradorPDFSENAI()
-    return gerador.gerar_pdf_certificado_aluno(aluno, curso, data_conclusao)
+def gerar_pdf_relatorio_turma(nome_turma, alunos):
+    """Gera lista de chamada para professores"""
+    buffer = io.BytesIO()
+    pdf = SimpleDocTemplate(buffer, pagesize=A4)
+    styles = getSampleStyleSheet()
+    
+    elementos = []
+    elementos.append(Paragraph(f"Lista de Chamada - Turma {nome_turma}", styles['Heading1']))
+    elementos.append(Spacer(1, 20))
+    
+    dados = [['#', 'RA', 'Nome do Aluno', 'Assinatura']]
+    for idx, aluno in enumerate(alunos, 1):
+        dados.append([
+            str(idx),
+            aluno.RA_aluno,
+            aluno.user.get_full_name(),
+            "__________________________"
+        ])
+    
+    tabela = Table(dados, colWidths=[40, 80, 200, 200])
+    tabela.setStyle(TableStyle([
+        ('GRID', (0, 0), (-1, -1), 1, colors.black),
+        ('BACKGROUND', (0, 0), (-1, 0), colors.lightgrey),
+        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+        ('PADDING', (0, 0), (-1, -1), 6),
+    ]))
+    
+    elementos.append(tabela)
+    pdf.build(elementos)
+    buffer.seek(0)
+    return buffer
