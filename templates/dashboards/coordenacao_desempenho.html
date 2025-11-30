@@ -1,85 +1,57 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Coordenação - Desempenho{% endblock %}
+{% block title %}Coordenação - Análise de Desempenho{% endblock %}
 
 {% block content %}
-<div class="layout-wrapper d-flex">
+<div class="layout-wrapper d-flex bg-light">
     {% include 'includes/sidebar.html' %}
     
     <div id="main-content" class="flex-grow-1 transition-all">
         
-        <header class="header-modern sticky-top shadow-sm py-3 px-4">
+        <header class="bg-white sticky-top border-bottom py-3 px-4 shadow-sm">
             <div class="d-flex justify-content-between align-items-center">
-                <div class="d-flex align-items-center gap-3">
-                    <button class="btn btn-light d-md-none shadow-sm" id="sidebarToggle">
-                        <i class="fas fa-bars"></i>
-                    </button>
-                    <div>
-                        <div class="header-breadcrumb">
-                            <i class="fas fa-layer-group me-1"></i> Coordenação Acadêmica
-                        </div>
-                        <h1 class="header-title mb-0">Desempenho Acadêmico</h1>
-                    </div>
+                <div>
+                    <h4 class="fw-bold text-dark mb-0">Análise de Desempenho</h4>
+                    <small class="text-muted">Acompanhamento pedagógico e métricas</small>
                 </div>
-                
-                <div class="d-flex align-items-center gap-3">
-                    <div class="d-none d-lg-block text-end me-2">
-                        <small class="text-muted d-block" style="font-size: 0.7rem;">HOJE</small>
-                        <span class="fw-bold text-dark small">{% now "d \d\e F \d\e Y" %}</span>
-                    </div>
-                    
-                    <div class="header-profile-box d-flex align-items-center gap-3 cursor-pointer">
-                        <div class="text-end d-none d-sm-block" style="line-height: 1.1;">
-                            <p class="mb-0 fw-bold text-dark small">{{ user.first_name|default:'Usuário' }}</p>
-                            <p class="mb-0 text-muted" style="font-size: 0.7rem;">Coordenador</p>
-                        </div>
-                        <div class="rounded-circle bg-white d-flex align-items-center justify-content-center shadow-sm" style="width: 38px; height: 38px; border: 2px solid var(--primary-color);">
-                            <i class="fas fa-user text-senai-red"></i>
-                        </div>
-                    </div>
-                </div>
+                <button class="btn btn-outline-secondary btn-sm rounded-pill px-3">
+                    <i class="fas fa-print me-1"></i> Imprimir
+                </button>
             </div>
         </header>
 
-        <div class="container-fluid p-3 p-md-4">
+        <div class="container-fluid p-4">
             
-            <div class="card shadow-sm border-0 mb-4">
-                <div class="card-header bg-white border-bottom py-3">
-                    <h6 class="mb-0 fw-bold text-dark">
-                        <i class="fas fa-chalkboard text-senai-red me-2"></i>Visão Geral das Turmas
-                    </h6>
+            <div id="metrics-container" class="row g-3 mb-4">
                 </div>
-                <div class="card-body bg-light-subtle">
-                    <div class="row" id="turmasContainer">
-                        </div>
-                </div>
-            </div>
 
-            <div class="row g-3 mb-4">
-                <div class="col-lg-6">
-                    <div class="card shadow-sm border-0 h-100">
-                        <div class="card-header bg-white border-bottom py-3">
-                            <h6 class="mb-0 fw-bold text-dark">
-                                <i class="fas fa-chart-bar text-senai-red me-2"></i>Distribuição de Notas (Global)
-                            </h6>
+            <div class="row g-4">
+                <div class="col-lg-4">
+                    <div class="card border-0 shadow-sm rounded-3 h-100">
+                        <div class="card-header bg-white border-0 pt-4 px-4">
+                            <h6 class="fw-bold mb-0">Distribuição de Notas</h6>
+                            <small class="text-muted">Panorama geral dos alunos</small>
                         </div>
-                        <div class="card-body p-4">
-                            <div style="height: 300px; position: relative; width: 100%;">
+                        <div class="card-body d-flex align-items-center justify-content-center position-relative">
+                            <div style="height: 250px; width: 100%;">
                                 <canvas id="chartNotas"></canvas>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="col-lg-6">
-                    <div class="card shadow-sm border-0 h-100">
-                        <div class="card-header bg-white border-bottom py-3">
-                            <h6 class="mb-0 fw-bold text-dark">
-                                <i class="fas fa-chart-line text-senai-red me-2"></i>Frequência Média por Turma
-                            </h6>
+
+                <div class="col-lg-8">
+                     <div class="card border-0 shadow-sm rounded-3 h-100">
+                        <div class="card-header bg-white border-0 pt-4 px-4 d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="fw-bold mb-0">Média de Frequência</h6>
+                                <small class="text-muted">Assiduidade por turma</small>
+                            </div>
+                            <span class="badge bg-light text-dark border">Meta: 75%</span>
                         </div>
-                        <div class="card-body p-4">
-                            <div style="height: 300px; position: relative; width: 100%;">
+                        <div class="card-body">
+                             <div style="height: 300px; width: 100%;">
                                 <canvas id="chartFrequencia"></canvas>
                             </div>
                         </div>
@@ -87,97 +59,234 @@
                 </div>
             </div>
 
-            <div class="card shadow-sm border-0 mb-4">
-                <div class="card-header bg-white border-bottom py-3">
-                    <h6 class="mb-0 fw-bold text-dark">
-                        <i class="fas fa-filter text-senai-red me-2"></i>Filtros e Busca
-                    </h6>
-                </div>
-                <div class="card-body">
-                    <div class="row g-3">
-                        <div class="col-12 col-md-4">
-                            <label class="form-label small fw-bold">Turma</label>
-                            <select id="filterTurma" class="form-select form-select-sm">
-                                <option value="">Todas as Turmas</option>
-                            </select>
-                        </div>
-                        <div class="col-12 col-md-4">
-                            <label class="form-label small fw-bold">Aluno</label>
-                            <input type="text" id="filterAluno" class="form-control form-control-sm" placeholder="Nome ou matrícula">
-                        </div>
-                        <div class="col-6 col-md-2">
-                            <label class="form-label small fw-bold">Situação</label>
-                            <select id="filterSituacao" class="form-select form-select-sm">
-                                <option value="">Todos</option>
-                                <option value="Aprovado">Aprovado</option>
-                                <option value="Recuperação">Recuperação</option>
-                                <option value="Reprovado">Reprovado</option>
-                            </select>
-                        </div>
-                        <div class="col-6 col-md-2 d-flex align-items-end">
-                            <button class="btn btn-sm btn-senai-red w-100" id="btnFiltrar">
-                                <i class="fas fa-search me-1"></i> <span class="d-none d-lg-inline">Filtrar</span>
-                            </button>
-                        </div>
+            <div class="card border-0 shadow-sm rounded-3 mt-4">
+                <div class="card-header bg-white py-3 px-4 border-bottom d-flex justify-content-between align-items-center">
+                    <h6 class="fw-bold mb-0 text-dark">Detalhamento por Aluno</h6>
+                    <div class="input-group input-group-sm w-auto">
+                        <span class="input-group-text bg-light border-end-0"><i class="fas fa-search text-muted"></i></span>
+                        <input type="text" id="filterTableInput" class="form-control border-start-0 bg-light" placeholder="Buscar aluno...">
                     </div>
                 </div>
-            </div>
-
-            <div class="card shadow-sm border-0 mb-4">
-                <div class="card-header bg-white border-bottom py-3">
-                    <h6 class="mb-0 fw-bold text-dark">
-                        <i class="fas fa-list text-senai-red me-2"></i>Detalhamento de Alunos
-                    </h6>
-                </div>
-                <div class="card-body p-0">
-                    <div class="table-responsive">
-                        <table class="table table-hover table-sm mb-0 align-middle">
-                            <thead class="table-light">
-                                <tr>
-                                    <th class="ps-3">Nome</th>
-                                    <th class="d-none d-sm-table-cell">Matrícula</th>
-                                    <th class="d-none d-md-table-cell">Turma</th>
-                                    <th class="text-center">Média Geral</th>
-                                    <th class="text-center d-none d-sm-table-cell">Frequência</th>
-                                    <th class="text-center">Situação</th>
-                                </tr>
-                            </thead>
-                            <tbody id="alunosTableBody">
-                                </tbody>
-                        </table>
-                    </div>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0" id="tableDesempenho">
+                        <thead class="bg-light text-muted small text-uppercase">
+                            <tr>
+                                <th class="ps-4 border-0">Aluno</th>
+                                <th class="border-0">Turma</th>
+                                <th class="text-center border-0">Média Geral</th>
+                                <th class="text-center border-0">Frequência</th>
+                                <th class="text-center border-0">Situação</th>
+                                <th class="text-end pe-4 border-0">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody class="border-top-0">
+                            </tbody>
+                    </table>
                 </div>
             </div>
 
         </div>
     </div>
 </div>
-
-<div class="overlay"></div>
-
 {% endblock %}
 
 {% block extra_js %}
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-    <script>
-        window.DESEMPENHO_DATA = {{ desempenho_data_json|safe }};
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script>
+    const PERFORMANCE_DATA = {{ desempenho_data_json|safe }};
+
+    document.addEventListener('DOMContentLoaded', () => {
+        initMetrics(PERFORMANCE_DATA.turmas);
+        initTable(PERFORMANCE_DATA.alunos);
+        initCharts();
         
-        // Toggle Sidebar Mobile
-        document.addEventListener('DOMContentLoaded', function() {
-            const sidebar = document.getElementById('sidebar');
-            const sidebarCollapse = document.getElementById('sidebarToggle');
-            const overlay = document.querySelector('.overlay');
-            if(sidebarCollapse) {
-                sidebarCollapse.addEventListener('click', () => {
-                    sidebar.classList.toggle('active');
-                    overlay.classList.toggle('active');
-                });
-                overlay.addEventListener('click', () => {
-                    sidebar.classList.remove('active');
-                    overlay.classList.remove('active');
-                });
-            }
+        // Filtro simples da tabela
+        document.getElementById('filterTableInput').addEventListener('keyup', function() {
+            const val = this.value.toLowerCase();
+            const rows = document.querySelectorAll('#tableDesempenho tbody tr');
+            rows.forEach(r => {
+                const text = r.innerText.toLowerCase();
+                r.style.display = text.includes(val) ? '' : 'none';
+            });
         });
-    </script>
-    <script src="{% static 'js/coordenacao-desempenho.js' %}"></script>
+    });
+
+    function initCharts() {
+        // Gráfico de Pizza (Notas)
+        if(document.getElementById('chartNotas')) {
+            const ctxNotas = document.getElementById('chartNotas');
+            new Chart(ctxNotas, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(PERFORMANCE_DATA.grafico_notas),
+                    datasets: [{
+                        data: Object.values(PERFORMANCE_DATA.grafico_notas),
+                        backgroundColor: ['#198754', '#ffc107', '#dc3545'],
+                        borderWidth: 0,
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom', labels: { usePointStyle: true, padding: 20 } }
+                    }
+                }
+            });
+        }
+
+        // Gráfico de Barras (Frequência) - AGORA IMPLEMENTADO
+        if(document.getElementById('chartFrequencia')) {
+            const ctxFreq = document.getElementById('chartFrequencia');
+            const dataFreq = PERFORMANCE_DATA.grafico_frequencia;
+            
+            // Tratamento caso venha vazio para não quebrar
+            const labels = dataFreq.labels && dataFreq.labels.length ? dataFreq.labels : ['Sem dados'];
+            const values = dataFreq.data && dataFreq.data.length ? dataFreq.data : [0];
+
+            new Chart(ctxFreq, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: '% Frequência Média',
+                        data: values,
+                        backgroundColor: '#0d6efd',
+                        borderRadius: 4,
+                        barPercentage: 0.6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            grid: { borderDash: [2, 2] }
+                        },
+                        x: {
+                            grid: { display: false }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.raw + '%';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    }
+
+    function initMetrics(turmas) {
+        const container = document.getElementById('metrics-container');
+        // Ordena por menor média para destacar turmas com problemas primeiro, ou exibe as top 4
+        const turmasDisplay = turmas.slice(0, 4); 
+        
+        let html = '';
+        if(turmasDisplay.length === 0) {
+            container.innerHTML = '<div class="col-12 text-muted">Nenhuma turma registrada para métricas.</div>';
+            return;
+        }
+
+        turmasDisplay.forEach(t => {
+            const mediaClass = t.media_geral < 6.0 ? 'text-danger' : (t.media_geral < 7.5 ? 'text-warning' : 'text-success');
+            
+            html += `
+            <div class="col-12 col-md-6 col-xl-3">
+                <div class="card border-0 shadow-sm h-100 position-relative overflow-hidden">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <span class="badge bg-light text-dark border fw-normal">${t.codigo}</span>
+                            <small class="text-muted"><i class="fas fa-user-graduate me-1"></i>${t.alunos}</small>
+                        </div>
+                        <h6 class="card-title text-truncate mb-3" title="${t.nome}">${t.nome}</h6>
+                        
+                        <div class="d-flex align-items-end justify-content-between">
+                            <div>
+                                <small class="text-muted d-block" style="font-size: 0.7rem;">MÉDIA GERAL</small>
+                                <span class="h3 fw-bold mb-0 ${mediaClass}">${t.media_geral}</span>
+                            </div>
+                            <div class="d-flex align-items-end gap-1" style="height: 30px;">
+                                <div class="bg-primary opacity-25" style="width: 4px; height: 40%; border-radius: 1px;"></div>
+                                <div class="bg-primary opacity-50" style="width: 4px; height: 60%; border-radius: 1px;"></div>
+                                <div class="bg-primary" style="width: 4px; height: 80%; border-radius: 1px;"></div>
+                                <div class="bg-primary opacity-75" style="width: 4px; height: 50%; border-radius: 1px;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>`;
+        });
+        container.innerHTML = html;
+    }
+
+    function initTable(alunos) {
+        const tbody = document.querySelector('#tableDesempenho tbody');
+        let html = '';
+        if(!alunos || alunos.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="6" class="text-center py-4 text-muted">Nenhum aluno com histórico encontrado.</td></tr>';
+            return;
+        }
+
+        alunos.forEach(a => {
+            let badgeClass = 'bg-success text-success';
+            let icon = 'fa-check-circle';
+            
+            if(a.situacao === 'Reprovado') {
+                badgeClass = 'bg-danger text-danger';
+                icon = 'fa-times-circle';
+            } else if(a.situacao === 'Recuperação') {
+                badgeClass = 'bg-warning text-warning';
+                icon = 'fa-exclamation-circle';
+            } else if(a.situacao === 'Cursando') {
+                badgeClass = 'bg-info text-info';
+                icon = 'fa-pen';
+            }
+            
+            html += `
+            <tr>
+                <td class="ps-4">
+                    <div class="d-flex align-items-center">
+                        <div class="avatar-circle-sm bg-light text-dark fw-bold rounded-circle d-flex align-items-center justify-content-center me-3 border" style="width:35px;height:35px; font-size: 0.8rem;">
+                            ${a.nome.charAt(0)}
+                        </div>
+                        <div>
+                            <div class="fw-bold text-dark text-truncate" style="max-width: 180px;">${a.nome}</div>
+                            <small class="text-muted" style="font-size: 0.75rem;">${a.matricula}</small>
+                        </div>
+                    </div>
+                </td>
+                <td class="small text-muted">${a.turma}</td>
+                <td class="text-center fw-bold text-dark">${a.media !== 0 ? a.media : '-'}</td>
+                <td class="text-center">
+                    <div class="d-flex flex-column align-items-center">
+                        <span class="small fw-bold">${a.frequencia}%</span>
+                        <div class="progress w-100" style="height: 3px; width: 60px !important;">
+                            <div class="progress-bar ${a.frequencia < 75 ? 'bg-danger' : 'bg-primary'}" style="width: ${a.frequencia}%"></div>
+                        </div>
+                    </div>
+                </td>
+                <td class="text-center">
+                    <span class="badge ${badgeClass} bg-opacity-10 border border-opacity-10 rounded-pill px-3 d-inline-flex align-items-center gap-1">
+                        <i class="fas ${icon} small"></i> ${a.situacao}
+                    </span>
+                </td>
+                <td class="text-end pe-4">
+                    <button class="btn btn-sm btn-light border hover-shadow" title="Ver Detalhes">
+                        <i class="fas fa-ellipsis-v text-muted"></i>
+                    </button>
+                </td>
+            </tr>`;
+        });
+        tbody.innerHTML = html;
+    }
+</script>
 {% endblock %}
