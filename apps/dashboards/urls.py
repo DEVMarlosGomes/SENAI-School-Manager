@@ -23,7 +23,8 @@ from .views import (
     api_coordenacao_aprovacao,
     api_coordenacao_atividades,
     save_aluno_view,
-    delete_aluno_view
+    delete_aluno_view,
+    aluno_financeiro_view
 )
 
 urlpatterns = [
@@ -51,6 +52,9 @@ urlpatterns = [
     path('aluno/boletim/', boletim_view, name='boletim'),
     path('aluno/calendario/', calendario_view, name='calendario'),
     path('aluno/avisos-eventos/', avisos_eventos_view, name='avisos_eventos'),
+    
+    # NOVA ROTA FINANCEIRO (Corrigida: removido o 'views.' da frente)
+    path('aluno/financeiro/', aluno_financeiro_view, name='aluno_financeiro'),
 
     # Funções administrativas
     path('gestao/alunos/', gestao_alunos_view, name='gestao_alunos'),

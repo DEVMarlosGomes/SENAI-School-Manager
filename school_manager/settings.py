@@ -23,15 +23,14 @@ DEBUG = True
 ALLOWED_HOSTS = ['romulofamiglietti.pythonanywhere.com', '127.0.0.1', 'localhost']
 
 # ==============================
-# Asaas Configurações (variáveis através de .env / ambiente)
-# Exemplo no .env:
-# ASAAS_API_KEY=seu_token_aqui
-# ASAAS_WEBHOOK_TOKEN=um_token_aleatorio_para_validar_webhooks
-# ASAAS_BASE_URL=https://api-sandbox.asaas.com/v3
+# Configurações do Stripe
 # ==============================
-ASAAS_API_KEY = os.getenv('ASAAS_API_KEY')
-ASAAS_BASE_URL = os.getenv('ASAAS_BASE_URL', 'https://api-sandbox.asaas.com/v3')
-ASAAS_WEBHOOK_TOKEN = os.getenv('ASAAS_WEBHOOK_TOKEN')
+# As chaves você pega no Dashboard do Stripe (Developers > API keys)
+
+# CORREÇÃO: Atribuindo as strings diretamente (Hardcoded) para garantir que funcionem
+STRIPE_PUBLISHABLE_KEY = 'pk_test_51SZC0Z13heh5oTSzLZKZbWaX9UlDU0tDkngjbnFg4QIGvEnYHMYC7Fncq9sFXdOGXYdtxZaae8vBGpRwW2qJcxF300LPOkDja4'
+STRIPE_SECRET_KEY = 'sk_test_51SZC0Z13heh5oTSzVtxQbxTrtzRyOqpiXnyb23TOjUYzUNnBaqdvQID5ltjrFHBFYZlSnnZIJuPg0zKzrIa0GltA00bfbODh1p'
+STRIPE_WEBHOOK_SECRET = 'whsec_teste_local_12345' # Para validar segurança
 
 # ==============================
 # Aplicações
@@ -56,7 +55,7 @@ INSTALLED_APPS = [
     'apps.academico.apps.AcademicoConfig',
     'apps.dashboards.apps.DashboardsConfig',
     'apps.relatorios',
-    # App de pagamentos (integração Asaas)
+    # App de pagamentos (integração Stripe)
     'apps.payments',
 ]
 

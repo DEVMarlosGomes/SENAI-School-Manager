@@ -43,7 +43,7 @@
                             <div class="bg-success-subtle p-3 rounded me-3 text-success"><i class="fas fa-arrow-up fa-lg"></i></div>
                             <div>
                                 <h6 class="text-muted small text-uppercase mb-1">Recebido</h6>
-                                <h3 class="fw-bold text-success mb-0">R$ 45.320,00</h3>
+                                <h3 class="fw-bold text-success mb-0">R$ {{ kpi_recebido|default:"0,00"|floatformat:2 }}</h3>
                             </div>
                         </div>
                     </div>
@@ -54,7 +54,7 @@
                             <div class="bg-warning-subtle p-3 rounded me-3 text-warning"><i class="fas fa-clock fa-lg"></i></div>
                             <div>
                                 <h6 class="text-muted small text-uppercase mb-1">Pendente</h6>
-                                <h3 class="fw-bold text-warning mb-0">R$ 6.750,00</h3>
+                                <h3 class="fw-bold text-warning mb-0">R$ {{ kpi_pendente|default:"0,00"|floatformat:2 }}</h3>
                             </div>
                         </div>
                     </div>
@@ -65,7 +65,7 @@
                             <div class="bg-danger-subtle p-3 rounded me-3 text-danger"><i class="fas fa-chart-line fa-lg"></i></div>
                             <div>
                                 <h6 class="text-muted small text-uppercase mb-1">Inadimplência</h6>
-                                <h3 class="fw-bold text-danger mb-0">6.8%</h3>
+                                <h3 class="fw-bold text-danger mb-0">{{ kpi_inadimplencia|default:"0" }}%</h3>
                             </div>
                         </div>
                     </div>
@@ -76,7 +76,9 @@
                 <h5 class="fw-bold text-dark mb-0">Lançamentos</h5>
                 <div class="d-flex gap-2">
                     <button class="btn btn-outline-secondary btn-sm" id="btnExportarRelatorio"><i class="fas fa-download me-2"></i>Exportar</button>
-                    <button class="btn btn-success btn-sm text-white" id="btnRegistrarPagamento"><i class="fas fa-plus me-2"></i>Novo Pagamento</button>
+                    <button class="btn btn-success btn-sm text-white" data-bs-toggle="modal" data-bs-target="#modalNovoPagamento">
+                        <i class="fas fa-plus me-2"></i>Novo Pagamento
+                    </button>
                 </div>
             </div>
 
@@ -86,35 +88,68 @@
                         <table class="table table-hover mb-0 align-middle" id="tableFinanceiro">
                             <thead class="bg-light">
                                 <tr>
-                                    <th class="ps-4 py-3 text-uppercase small text-muted fw-bold">Aluno</th>
+                                    <th class="ps-4 py-3 text-uppercase small text-muted fw-bold">Aluno / Descrição</th>
                                     <th class="py-3 text-uppercase small text-muted fw-bold">Curso</th>
-                                    <th class="py-3 text-uppercase small text-muted fw-bold">Vencimento</th>
+                                    <th class="py-3 text-uppercase small text-muted fw-bold">Data</th>
                                     <th class="py-3 text-uppercase small text-muted fw-bold">Valor</th>
                                     <th class="py-3 text-uppercase small text-muted fw-bold">Status</th>
                                     <th class="text-end pe-4 py-3 text-uppercase small text-muted fw-bold">Ações</th>
                                 </tr>
                             </thead>
                             <tbody>
+                                {% for pagamento in pagamentos %}
                                 <tr>
-                                    <td class="ps-4 fw-bold text-dark">Ana Silva <br><span class="small text-muted fw-normal">Mat: 2023001</span></td>
-                                    <td>Programação Web</td>
-                                    <td>10 Out, 2025</td>
-                                    <td class="fw-bold text-dark">R$ 320,00</td>
-                                    <td><span class="badge bg-success-subtle text-success rounded-pill px-3">Pago</span></td>
+                                    <td class="ps-4 fw-bold text-dark">
+                                        {{ pagamento.aluno.get_full_name|default:pagamento.aluno.username }}
+                                        <br>
+                                        <span class="small text-muted fw-normal">{{ pagamento.descricao }}</span>
+                                    </td>
+                                    <td>
+                                        {{ pagamento.aluno.aluno.turma_atual.id_curso.nome_curso|default:"-" }}
+                                    </td>
+                                    <td>
+                                        {{ pagamento.data_criacao|date:"d M, Y" }}
+                                    </td>
+                                    <td class="fw-bold text-dark">
+                                        R$ {{ pagamento.valor|floatformat:2 }}
+                                    </td>
+                                    <td>
+                                        {% if pagamento.status == 'pago' %}
+                                            <span class="badge bg-success-subtle text-success rounded-pill px-3">Pago</span>
+                                        {% elif pagamento.status == 'pendente' %}
+                                            <span class="badge bg-warning-subtle text-warning rounded-pill px-3">Pendente</span>
+                                        {% elif pagamento.status == 'cancelado' %}
+                                            <span class="badge bg-secondary-subtle text-secondary rounded-pill px-3">Cancelado</span>
+                                        {% else %}
+                                            <span class="badge bg-danger-subtle text-danger rounded-pill px-3">{{ pagamento.status }}</span>
+                                        {% endif %}
+                                    </td>
                                     <td class="text-end pe-4">
-                                        <button class="btn btn-sm btn-light text-secondary"><i class="fas fa-ellipsis-v"></i></button>
+                                        <div class="dropdown">
+                                            <button class="btn btn-sm btn-light text-secondary" data-bs-toggle="dropdown">
+                                                <i class="fas fa-ellipsis-v"></i>
+                                            </button>
+                                            <ul class="dropdown-menu dropdown-menu-end border-0 shadow">
+                                                {% if pagamento.status == 'pendente' %}
+                                                <li>
+                                                    <a class="dropdown-item" href="{% url 'iniciar_pagamento' pagamento.id %}">
+                                                        <i class="fas fa-credit-card me-2 text-primary"></i> Gerar Link Pagamento
+                                                    </a>
+                                                </li>
+                                                {% endif %}
+                                                <li><a class="dropdown-item" href="#"><i class="fas fa-eye me-2"></i> Detalhes</a></li>
+                                            </ul>
+                                        </div>
                                     </td>
                                 </tr>
+                                {% empty %}
                                 <tr>
-                                    <td class="ps-4 fw-bold text-dark">Carlos Pereira <br><span class="small text-muted fw-normal">Mat: 2022995</span></td>
-                                    <td>Automação Industrial</td>
-                                    <td>01 Set, 2025</td>
-                                    <td class="fw-bold text-dark">R$ 450,00</td>
-                                    <td><span class="badge bg-danger-subtle text-danger rounded-pill px-3">Atrasado</span></td>
-                                    <td class="text-end pe-4">
-                                        <button class="btn btn-sm btn-light text-secondary"><i class="fas fa-ellipsis-v"></i></button>
+                                    <td colspan="6" class="text-center py-5 text-muted">
+                                        <i class="fas fa-receipt fa-2x mb-3 text-secondary opacity-50"></i>
+                                        <p>Nenhum pagamento registrado no sistema.</p>
                                     </td>
                                 </tr>
+                                {% endfor %}
                             </tbody>
                         </table>
                     </div>
@@ -123,9 +158,108 @@
         </div>
     </div>
 </div>
+
+<div class="modal fade" id="modalNovoPagamento" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title fw-bold"><i class="fas fa-plus-circle me-2"></i>Novo Pagamento</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <form id="formNovoPagamento">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="selectAluno" class="form-label fw-bold small text-muted text-uppercase">Aluno</label>
+                        <select class="form-select" id="selectAluno" required>
+                            <option value="" selected disabled>Selecione um aluno...</option>
+                            {% for aluno_obj in alunos_para_select %}
+                                <option value="{{ aluno_obj.user.id }}">{{ aluno_obj.user.get_full_name }} ({{ aluno_obj.RA_aluno }})</option>
+                            {% endfor %}
+                        </select>
+                        <div class="form-text">Busque pelo nome ou matrícula do aluno.</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="inputDescricao" class="form-label fw-bold small text-muted text-uppercase">Descrição</label>
+                        <input type="text" class="form-control" id="inputDescricao" placeholder="Ex: Mensalidade Outubro/2025" required>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="inputValor" class="form-label fw-bold small text-muted text-uppercase">Valor (R$)</label>
+                            <div class="input-group">
+                                <span class="input-group-text">R$</span>
+                                <input type="number" step="0.01" class="form-control" id="inputValor" placeholder="0,00" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="inputVencimento" class="form-label fw-bold small text-muted text-uppercase">Vencimento</label>
+                            <input type="date" class="form-control" id="inputVencimento">
+                        </div>
+                    </div>
+                    
+                    <div class="text-end">
+                        <button type="button" class="btn btn-light text-secondary me-2" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-success px-4">Salvar Lançamento</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="overlay"></div>
 {% endblock %}
 
 {% block extra_js %}
 <script src="{% static 'js/secretaria.js' %}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('formNovoPagamento');
+        
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const btnSubmit = form.querySelector('button[type="submit"]');
+            const originalText = btnSubmit.innerHTML;
+            btnSubmit.disabled = true;
+            btnSubmit.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Salvando...';
+
+            const payload = {
+                aluno_id: document.getElementById('selectAluno').value,
+                descricao: document.getElementById('inputDescricao').value,
+                valor: document.getElementById('inputValor').value,
+                vencimento: document.getElementById('inputVencimento').value
+            };
+
+            // Certifique-se de que a URL 'criar_pagamento' existe no seu urls.py e tem o name='criar_pagamento'
+            fetch("{% url 'criar_pagamento' %}", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": "{{ csrf_token }}"
+                },
+                body: JSON.stringify(payload)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Recarrega para mostrar o novo pagamento na tabela
+                    window.location.reload();
+                } else {
+                    alert("Erro: " + (data.error || "Ocorreu um erro desconhecido"));
+                    btnSubmit.disabled = false;
+                    btnSubmit.innerHTML = originalText;
+                }
+            })
+            .catch(error => {
+                console.error('Erro:', error);
+                alert("Erro ao processar requisição.");
+                btnSubmit.disabled = false;
+                btnSubmit.innerHTML = originalText;
+            });
+        });
+    });
+</script>
 {% endblock %}

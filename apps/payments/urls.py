@@ -1,8 +1,17 @@
-# payments/urls.py
 from django.urls import path
-from .views import create_payment_view, asaas_webhook
+from . import views
 
 urlpatterns = [
-    path('create/', create_payment_view, name='create_payment'),
-    path('webhook/asaas/', asaas_webhook, name='asaas_webhook'),
+    # Rota para o Aluno pagar (Checkout do Stripe)
+    path('iniciar/<int:pagamento_id>/', views.iniciar_pagamento, name='iniciar_pagamento'),
+    
+    # Rota para a Secretaria criar a cobrança (Usada no Modal)
+    path('criar/', views.criar_pagamento, name='criar_pagamento'),
+    
+    # Rotas de Retorno do Stripe
+    path('sucesso/', views.pagamento_sucesso, name='pagamento_sucesso'),
+    path('cancelado/', views.pagamento_cancelado, name='pagamento_cancelado'),
+    
+    # Webhook
+    path('webhook/', views.stripe_webhook, name='stripe_webhook'),
 ]

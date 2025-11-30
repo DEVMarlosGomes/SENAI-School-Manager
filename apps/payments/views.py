@@ -1,86 +1,126 @@
-# payments/views.py
-from rest_framework.decorators import api_view
-from rest_framework.response import Response
-from rest_framework import status
-from django.shortcuts import get_object_or_404
-from .services.asaas_client import create_payment
-from .models import FinancialPayment
-
-@api_view(['POST'])
-def create_payment_view(request):
-    """
-    Espera body JSON com:
-    { "local_id": "123", "customer": "<asaasCustomerId>", "dueDate":"YYYY-MM-DD", "value": 100.0, "description":"..." }
-    """
-    data = request.data
-    payload = {
-        "customer": data.get("customer"),
-        "billingType": data.get("billingType", "BOLETO"),
-        "dueDate": data.get("dueDate"),
-        "value": data.get("value"),
-        "description": data.get("description", "")
-    }
-    # validação simples
-    if not payload.get("customer") or not payload.get("dueDate") or not payload.get("value"):
-        return Response({"detail": "customer, dueDate and value are required"}, status=status.HTTP_400_BAD_REQUEST)
-
-    try:
-        resp = create_payment(payload)
-    except Exception as e:
-        # já logado no client, apenas retornar erro apropriado
-        return Response({"detail": "Error creating payment with Asaas", "error": str(e)}, status=status.HTTP_502_BAD_GATEWAY)
-
-    # salvar no DB
-    asaas_id = resp.get("id")
-    payment_status = resp.get("status")
-    fp = FinancialPayment.objects.create(
-        local_id=data.get("local_id"),
-        asaas_id=asaas_id,
-        amount=data.get("value"),
-        status=payment_status,
-        due_date=data.get("dueDate"),
-        raw_payload=resp
-    )
-    return Response({"asaas_id": asaas_id, "status": payment_status})
-
-# payments/views.py (append)
+# apps/payments/views.py
+import json
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
 from django.views.decorators.csrf import csrf_exempt
-import os
-from django.http import HttpResponse
-from django.utils import timezone
+from django.views.decorators.http import require_POST
+from django.http import HttpResponse, JsonResponse
+from django.conf import settings
+from apps.dashboards.views import issecretaria
+from .models import Pagamento
+from .services.stripe_service import StripeService
+import stripe
+
+@login_required
+def iniciar_pagamento(request, pagamento_id):
+    """
+    Busca o pagamento no banco e redireciona o usuário para o Stripe.
+    """
+    pagamento = get_object_or_404(Pagamento, id=pagamento_id, aluno=request.user)
+    
+    # Define o domínio atual (em produção, isso deve ser ajustado)
+    domain_url = f"{request.scheme}://{request.get_host()}"
+    
+    session_id, session_url = StripeService.criar_sessao_checkout(
+        pagamento_id=pagamento.id,
+        valor_decimal=pagamento.valor,
+        descricao=pagamento.descricao,
+        email_usuario=request.user.email,
+        domain_url=domain_url
+    )
+
+    if session_url:
+        # Salva o ID da sessão para referência futura
+        pagamento.stripe_checkout_id = session_id
+        pagamento.save()
+        return redirect(session_url)
+    else:
+        return render(request, 'pagamentos/erro.html', {'message': 'Erro ao conectar com Stripe'})
+
+@login_required
+def pagamento_sucesso(request):
+    return render(request, 'pagamentos/sucesso.html')
+
+@login_required
+def pagamento_cancelado(request):
+    return render(request, 'pagamentos/cancelado.html')
 
 @csrf_exempt
-def asaas_webhook(request):
-    # validar token enviado pelo Asaas no header 'asaas-access-token'
-    webhook_token = os.getenv("ASAAS_WEBHOOK_TOKEN")
-    header_token = request.headers.get("asaas-access-token") or request.META.get("HTTP_ASAAS_ACCESS_TOKEN")
-    if not webhook_token or header_token != webhook_token:
-        return HttpResponse(status=401)
+def stripe_webhook(request):
+    """
+    Recebe avisos do Stripe quando um pagamento é confirmado.
+    Atualiza o status no banco de dados automaticamente.
+    """
+    payload = request.body
+    sig_header = request.META.get('HTTP_STRIPE_SIGNATURE')
+    event = None
 
-    import json
-    payload = json.loads(request.body.decode('utf-8'))
+    try:
+        event = stripe.Webhook.construct_event(
+            payload, sig_header, settings.STRIPE_WEBHOOK_SECRET
+        )
+    except ValueError as e:
+        return HttpResponse(status=400) # Payload inválido
+    except stripe.error.SignatureVerificationError as e:
+        return HttpResponse(status=400) # Assinatura inválida
 
-    # Exemplo: payload tem 'event' e 'payment'
-    event = payload.get("event")
-    payment = payload.get("payment") or {}
-    asaas_id = payment.get("id")
-
-    if asaas_id:
-        try:
-            fp = FinancialPayment.objects.get(asaas_id=asaas_id)
-            fp.status = payment.get("status", fp.status)
-            paid_date = payment.get("dateCreated") or payment.get("paymentDate")
-            # se houver paid date, parse -> set paid_date
-            fp.raw_payload = payment
-            fp.save()
-        except FinancialPayment.DoesNotExist:
-            # opcional: criar registro se não existir
-            FinancialPayment.objects.create(
-                local_id=None,
-                asaas_id=asaas_id,
-                amount=payment.get("value") or 0,
-                status=payment.get("status"),
-                raw_payload=payment
-            )
+    # Verifica se o evento é de sessão completada
+    if event['type'] == 'checkout.session.completed':
+        session = event['data']['object']
+        
+        # Recupera o ID do pagamento que enviamos nos metadados
+        pagamento_id = session.get('metadata', {}).get('pagamento_id')
+        
+        if pagamento_id:
+            try:
+                pagamento = Pagamento.objects.get(id=pagamento_id)
+                pagamento.status = 'pago'
+                pagamento.stripe_payment_intent = session.get('payment_intent')
+                pagamento.save()
+                print(f"Pagamento {pagamento_id} confirmado!")
+            except Pagamento.DoesNotExist:
+                pass
 
     return HttpResponse(status=200)
+
+@login_required
+@require_POST
+def criar_pagamento(request):
+    """
+    Endpoint para a Secretaria criar uma nova cobrança manualmente.
+    Recebe JSON: { 'aluno_id': 1, 'descricao': '...', 'valor': '100.00', 'vencimento': '...' }
+    """
+    # 1. Segurança: Só secretaria pode criar
+    if not issecretaria(request.user):
+        return JsonResponse({'success': False, 'error': 'Acesso negado.'}, status=403)
+
+    try:
+        data = json.loads(request.body)
+        
+        # 2. Validação básica
+        aluno_id = data.get('aluno_id')
+        valor = data.get('valor')
+        descricao = data.get('descricao')
+        
+        if not all([aluno_id, valor, descricao]):
+            return JsonResponse({'success': False, 'error': 'Todos os campos são obrigatórios.'})
+
+        aluno = User.objects.get(pk=aluno_id)
+        
+        # 3. Cria o pagamento no banco (Status Pendente)
+        novo_pagamento = Pagamento.objects.create(
+            aluno=aluno,
+            descricao=descricao,
+            valor=valor,
+            status='pendente'
+            # Se tiver campo 'data_vencimento' no model, adicione aqui:
+            # data_vencimento=data.get('vencimento')
+        )
+        
+        return JsonResponse({'success': True, 'message': 'Cobrança gerada com sucesso!'})
+
+    except User.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'Aluno não encontrado.'})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})

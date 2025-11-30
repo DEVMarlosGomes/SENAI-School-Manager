@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block title %}Erro no Pagamento{% endblock %}
+
+{% block content %}
+<div class="container d-flex align-items-center justify-content-center" style="min-height: 80vh;">
+    <div class="text-center">
+        <div class="mb-4">
+            <i class="fas fa-exclamation-triangle text-danger" style="font-size: 5rem;"></i>
+        </div>
+        <h2 class="fw-bold text-danger mb-3">Ops! Algo deu errado.</h2>
+        <p class="text-muted mb-4 lead">
+            {{ message|default:"Não foi possível processar o seu pagamento no momento." }}
+        </p>
+        <a href="{% url 'aluno_financeiro' %}" class="btn btn-outline-secondary px-4">
+            <i class="fas fa-arrow-left me-2"></i>Voltar
+        </a>
+    </div>
+</div>
+{% endblock %}

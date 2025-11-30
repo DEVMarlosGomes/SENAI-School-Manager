@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Meu Financeiro{% endblock %}
+
+{% block content %}
+<div class="layout-wrapper d-flex">
+    {% include 'includes/sidebar.html' %}
+    
+    <div id="main-content" class="flex-grow-1">
+        <div class="container-fluid p-4">
+            <h2 class="fw-bold mb-4">Meu Financeiro</h2>
+            
+            <div class="row mb-4">
+                <div class="col-md-4">
+                    <div class="card bg-warning-subtle border-0 shadow-sm">
+                        <div class="card-body">
+                            <h6 class="text-warning-emphasis fw-bold text-uppercase">Total a Pagar</h6>
+                            <h2 class="fw-bold text-dark mb-0">R$ {{ total_pendente|floatformat:2 }}</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white py-3">
+                    <h5 class="mb-0 fw-bold">Minhas Faturas</h5>
+                </div>
+                <div class="table-responsive">
+                    <table class="table align-middle mb-0">
+                        <thead class="bg-light">
+                            <tr>
+                                <th class="ps-4">Descrição</th>
+                                <th>Valor</th>
+                                <th>Status</th>
+                                <th class="text-end pe-4">Ação</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for pg in pagamentos %}
+                            <tr>
+                                <td class="ps-4 fw-bold">{{ pg.descricao }} <br> <small class="text-muted">{{ pg.data_criacao|date:"d/m/Y" }}</small></td>
+                                <td>R$ {{ pg.valor|floatformat:2 }}</td>
+                                <td>
+                                    {% if pg.status == 'pago' %}
+                                        <span class="badge bg-success">Pago</span>
+                                    {% elif pg.status == 'pendente' %}
+                                        <span class="badge bg-warning text-dark">Aberto</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">{{ pg.status }}</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-end pe-4">
+                                    {% if pg.status == 'pendente' %}
+                                        <a href="{% url 'iniciar_pagamento' pg.id %}" class="btn btn-primary btn-sm rounded-pill px-4">
+                                            <i class="fas fa-lock me-2"></i>Pagar Agora
+                                        </a>
+                                    {% else %}
+                                        <button class="btn btn-light btn-sm rounded-pill px-4" disabled>
+                                            <i class="fas fa-check me-2"></i>Concluído
+                                        </button>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="4" class="text-center py-4 text-muted">Você não possui faturas.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
