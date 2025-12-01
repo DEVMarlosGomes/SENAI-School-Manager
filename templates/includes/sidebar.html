@@ -60,7 +60,7 @@
             </li>
 
             <li class="{% if request.resolver_match.url_name == 'minhas_turmas' or request.resolver_match.url_name == 'diario_classe' %}active{% endif %}">
-                <a href="#" class="d-flex align-items-center">
+                <a href="{% url 'minhas_turmas' %}" class="d-flex align-items-center">
                     <i class="fas fa-book-open me-3"></i> Diários de Classe
                 </a>
             </li>
@@ -73,9 +73,6 @@
             </li>
             <li class="{% if request.resolver_match.url_name == 'boletim' %}active{% endif %}">
                 <a href="{% url 'boletim' %}" class="d-flex align-items-center"><i class="fas fa-book-open me-3"></i> Boletim</a>
-            </li>
-            <li class="{% if request.resolver_match.url_name == 'materiais_estudo' %}active{% endif %}">
-                <a href="{% url 'materiais_estudo' %}" class="d-flex align-items-center"><i class="fas fa-folder-open me-3"></i> Materiais</a>
             </li>
             <li class="{% if request.resolver_match.url_name == 'calendario' %}active{% endif %}">
                 <a href="{% url 'calendario' %}" class="d-flex align-items-center"><i class="fas fa-calendar-alt me-3"></i> Calendário</a>

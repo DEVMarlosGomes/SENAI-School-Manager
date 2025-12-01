@@ -14,7 +14,6 @@ from .views import (
     gestao_documentos_view,
     comunicacao_secretaria_view,
     perfil_view,
-    materiais_estudo_view,
     boletim_view,
     calendario_view,
     avisos_eventos_view,
@@ -48,12 +47,9 @@ urlpatterns = [
     path('api/gestao/aluno/delete/<int:pk>/', delete_aluno_view, name='delete_aluno'),
 
     # Funcionalidades do aluno
-    path('aluno/materiais/', materiais_estudo_view, name='materiais_estudo'),
     path('aluno/boletim/', boletim_view, name='boletim'),
     path('aluno/calendario/', calendario_view, name='calendario'),
     path('aluno/avisos-eventos/', avisos_eventos_view, name='avisos_eventos'),
-    
-    # NOVA ROTA FINANCEIRO (Corrigida: removido o 'views.' da frente)
     path('aluno/financeiro/', aluno_financeiro_view, name='aluno_financeiro'),
 
     # Funções administrativas

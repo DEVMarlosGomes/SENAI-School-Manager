@@ -9,7 +9,6 @@
     
     <div id="main-content" class="flex-grow-1 transition-all">
         
-        <!-- Header -->
         <header class="header-modern sticky-top shadow-sm py-3 px-4">
             <div class="d-flex justify-content-between align-items-center">
                 <div class="d-flex align-items-center gap-3">
@@ -25,7 +24,6 @@
                         <span class="fw-bold text-dark small">{% now "d \d\e F \d\e Y" %}</span>
                     </div>
                     
-                    <!-- BOTÃO DROPDOWN DOCUMENTOS -->
                     <div class="dropdown">
                         <button class="btn btn-outline-danger btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                             <i class="fas fa-file-pdf me-1"></i> Documentos
@@ -60,14 +58,13 @@
 
         <div class="container-fluid p-4">
             
-            <!-- KPIs -->
             <div class="row g-3 mb-4">
                 <div class="col-md-3">
                     <div class="card p-3 border-0 shadow-sm h-100 bg-white border-start border-4 border-success">
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
                                 <h6 class="text-muted small text-uppercase mb-1">Média Geral</h6>
-                                <h3 class="fw-bold text-dark mb-0">8.5</h3>
+                                <h3 class="fw-bold text-dark mb-0">{{ media_geral|default:"-" }}</h3>
                             </div>
                             <div class="bg-light-success p-3 rounded-circle text-success"><i class="fas fa-star fa-lg"></i></div>
                         </div>
@@ -77,8 +74,8 @@
                     <div class="card p-3 border-0 shadow-sm h-100 bg-white border-start border-4 border-danger">
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
-                                <h6 class="text-muted small text-uppercase mb-1">Faltas</h6>
-                                <h3 class="fw-bold text-dark mb-0">12h <span class="fs-6 text-muted fw-normal">/ 200h</span></h3>
+                                <h6 class="text-muted small text-uppercase mb-1">Total Faltas</h6>
+                                <h3 class="fw-bold text-dark mb-0">{{ total_faltas }}h</h3>
                             </div>
                             <div class="bg-light-danger p-3 rounded-circle text-danger"><i class="fas fa-user-clock fa-lg"></i></div>
                         </div>
@@ -88,21 +85,20 @@
                     <div class="card p-3 border-0 shadow-sm h-100 bg-white border-start border-4 border-primary">
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
-                                <h6 class="text-muted small text-uppercase mb-1">Próxima Prova</h6>
-                                <h3 class="fw-bold text-dark mb-0" style="font-size: 1.2rem;">Matemática</h3>
-                                <small class="text-primary fw-bold">15/11</small>
+                                <h6 class="text-muted small text-uppercase mb-1">Situação</h6>
+                                <h3 class="fw-bold text-dark mb-0" style="font-size: 1.2rem;">{{ aluno.status_matricula|default:"Ativo" }}</h3>
                             </div>
-                            <div class="bg-light-primary p-3 rounded-circle text-primary"><i class="fas fa-calendar-check fa-lg"></i></div>
+                            <div class="bg-light-primary p-3 rounded-circle text-primary"><i class="fas fa-check-circle fa-lg"></i></div>
                         </div>
                     </div>
                 </div>
                 <div class="col-md-3">
                     <a href="{% url 'aluno_financeiro' %}" class="text-decoration-none">
-                        <div class="card p-3 border-0 shadow-sm h-100 bg-white border-start border-4 border-warning hover-shadow transition-all">
+                        <div class="card p-3 border-0 shadow-sm h-100 bg-white border-start border-4 border-{{ cor_financeiro }} hover-shadow transition-all">
                             <div class="d-flex justify-content-between align-items-center">
                                 <div>
                                     <h6 class="text-muted small text-uppercase mb-1">Financeiro</h6>
-                                    <h3 class="fw-bold text-success mb-0" style="font-size: 1.2rem;">Acessar</h3>
+                                    <h3 class="fw-bold text-{{ cor_financeiro }} mb-0" style="font-size: 1.2rem;">{{ status_financeiro }}</h3>
                                 </div>
                                 <div class="bg-light-warning p-3 rounded-circle text-warning"><i class="fas fa-wallet fa-lg"></i></div>
                             </div>
@@ -111,79 +107,70 @@
                 </div>
             </div>
 
-            <!-- Notas e Avisos -->
             <div class="row g-4 mb-4">
-                <div class="col-lg-6">
+                <div class="col-lg-7">
                     <div class="card border-0 shadow-sm h-100">
                         <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
-                            <h6 class="fw-bold text-dark mb-0"><i class="fas fa-list-ol me-2 text-senai-red"></i>Minhas Notas</h6>
-                            <a href="{% url 'boletim' %}" class="btn btn-sm btn-link text-decoration-none">Ver Boletim</a>
+                            <h6 class="fw-bold text-dark mb-0"><i class="fas fa-chart-bar me-2 text-primary"></i>Desempenho por Disciplina</h6>
                         </div>
-                        <div class="list-group list-group-flush">
-                            <div class="list-group-item d-flex justify-content-between align-items-center py-3">
-                                <div>
-                                    <div class="fw-bold text-dark">Automação Industrial II</div>
-                                    <small class="text-muted">Prof. Maria Silva</small>
-                                </div>
-                                <span class="badge bg-success-subtle text-success rounded-pill fs-6 px-3">9.2</span>
-                            </div>
-                            <div class="list-group-item d-flex justify-content-between align-items-center py-3">
-                                <div>
-                                    <div class="fw-bold text-dark">Programação Web</div>
-                                    <small class="text-muted">Prof. Carlos Oliveira</small>
-                                </div>
-                                <span class="badge bg-warning-subtle text-warning-emphasis rounded-pill fs-6 px-3">7.0</span>
-                            </div>
-                            <div class="list-group-item d-flex justify-content-between align-items-center py-3">
-                                <div>
-                                    <div class="fw-bold text-dark">Eletricidade Básica</div>
-                                    <small class="text-muted">Prof. José Almeida</small>
-                                </div>
-                                <span class="badge bg-danger-subtle text-danger rounded-pill fs-6 px-3">5.9</span>
-                            </div>
+                        <div class="card-body">
+                            <canvas id="chartAlunoDesempenho" style="height: 250px; width: 100%;"></canvas>
                         </div>
                     </div>
                 </div>
 
-                <div class="col-lg-6">
+                <div class="col-lg-5">
                     <div class="card border-0 shadow-sm h-100">
+                        <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+                            <h6 class="fw-bold text-dark mb-0"><i class="fas fa-list-ol me-2 text-senai-red"></i>Últimas Notas</h6>
+                            <a href="{% url 'boletim' %}" class="btn btn-sm btn-link text-decoration-none">Ver Boletim</a>
+                        </div>
+                        <div class="list-group list-group-flush overflow-auto" style="max-height: 300px;">
+                            {% for nota in minhas_notas %}
+                            <div class="list-group-item d-flex justify-content-between align-items-center py-3">
+                                <div>
+                                    <div class="fw-bold text-dark">{{ nota.disciplina }}</div>
+                                    <small class="text-muted">{{ nota.professor }}</small>
+                                </div>
+                                <span class="badge bg-{{ nota.cor }}-subtle text-{{ nota.cor }} rounded-pill fs-6 px-3">{{ nota.nota|floatformat:1 }}</span>
+                            </div>
+                            {% empty %}
+                            <div class="text-center py-4 text-muted">
+                                Nenhuma nota lançada no sistema ainda.
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row g-4">
+                <div class="col-lg-12">
+                     <div class="card border-0 shadow-sm mb-4">
                         <div class="card-header bg-white py-3 border-bottom">
                             <h6 class="fw-bold text-dark mb-0"><i class="fas fa-bell me-2 text-warning"></i>Mural de Avisos</h6>
                         </div>
                         <div class="card-body">
-                            <div class="alert alert-primary shadow-sm border-0 d-flex align-items-start" role="alert">
+                            <div class="alert alert-primary shadow-sm border-0 d-flex align-items-start mb-0" role="alert">
                                 <i class="fas fa-info-circle fa-lg me-3 mt-1"></i>
                                 <div>
-                                    <h6 class="alert-heading fw-bold mb-1">Alteração de Sala</h6>
-                                    <p class="mb-0 small">A aula de Programação Web de amanhã (11/10) será no laboratório 3.</p>
+                                    <h6 class="alert-heading fw-bold mb-1">Bem-vindo ao Novo Portal!</h6>
+                                    <p class="mb-0 small">Mantenha seus dados atualizados. Consulte seus relatórios regularmente para acompanhar seu progresso.</p>
                                 </div>
                             </div>
-                            
-                            <h6 class="text-muted small text-uppercase fw-bold mt-4 mb-3">Próximas Entregas</h6>
-                            <ul class="list-group list-group-flush border rounded-3">
-                                <li class="list-group-item d-flex justify-content-between align-items-center bg-light">
-                                    <span class="small"><i class="fas fa-file-upload me-2 text-secondary"></i>Projeto Final (Automação)</span>
-                                    <span class="badge bg-dark rounded-pill">15 Nov</span>
-                                </li>
-                                <li class="list-group-item d-flex justify-content-between align-items-center bg-white">
-                                    <span class="small"><i class="fas fa-users me-2 text-secondary"></i>Trabalho em Grupo</span>
-                                    <span class="badge bg-secondary rounded-pill">20 Nov</span>
-                                </li>
-                            </ul>
                         </div>
                     </div>
                 </div>
             </div>
             
-            <!-- Cards de Acesso Rápido -->
             <div class="row g-4">
                 <div class="col-md-4">
-                    <a href="{% url 'materiais_estudo' %}" class="card border-0 shadow-sm text-decoration-none hover-shadow transition-all bg-primary text-white h-100">
+                    <a href="{% url 'perfil' %}" class="card border-0 shadow-sm text-decoration-none hover-shadow transition-all bg-primary text-white h-100">
                         <div class="card-body d-flex align-items-center p-4">
-                            <i class="fas fa-book-reader fa-3x me-4 opacity-50"></i>
+                            <i class="fas fa-id-card fa-3x me-4 opacity-50"></i>
                             <div>
-                                <h5 class="fw-bold mb-1">Material Didático</h5>
-                                <p class="mb-0 small opacity-75">Acesse apostilas e slides.</p>
+                                <h5 class="fw-bold mb-1">Meu Perfil</h5>
+                                <p class="mb-0 small opacity-75">Visualize seus dados cadastrais.</p>
                             </div>
                         </div>
                     </a>
@@ -216,21 +203,16 @@
     </div>
 </div>
 
-<style>
-    .bg-light-primary { background-color: rgba(13, 110, 253, 0.1); }
-    .bg-light-success { background-color: rgba(25, 135, 84, 0.1); }
-    .bg-light-warning { background-color: rgba(255, 193, 7, 0.1); }
-    .bg-light-danger { background-color: rgba(220, 53, 69, 0.1); }
-    .hover-shadow:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important; }
-    .transition-all { transition: all 0.3s ease; }
-</style>
+{{ dashboard_data_json|json_script:"dashboard-data" }}
 
 <div class="overlay"></div>
 {% endblock %}
 
 {% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Sidebar Toggle
     const sidebar = document.getElementById('sidebar');
     const sidebarCollapse = document.getElementById('sidebarToggle');
     const overlay = document.querySelector('.overlay');
@@ -243,6 +225,54 @@ document.addEventListener('DOMContentLoaded', function() {
             sidebar.classList.remove('active');
             overlay.classList.remove('active');
         });
+    }
+
+    // Inicialização do Gráfico
+    const dataScript = document.getElementById('dashboard-data');
+    if (dataScript && document.getElementById('chartAlunoDesempenho')) {
+        const data = JSON.parse(dataScript.textContent);
+        
+        // Verifica se há dados antes de renderizar
+        if (data.labels && data.labels.length > 0) {
+            new Chart(document.getElementById('chartAlunoDesempenho'), {
+                type: 'bar',
+                data: {
+                    labels: data.labels,
+                    datasets: [{
+                        label: 'Minha Nota',
+                        data: data.data,
+                        backgroundColor: 'rgba(13, 110, 253, 0.7)',
+                        borderColor: 'rgba(13, 110, 253, 1)',
+                        borderWidth: 1,
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 10,
+                            grid: { borderDash: [2, 4] }
+                        },
+                        x: {
+                            grid: { display: false }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false }
+                    }
+                }
+            });
+        } else {
+            // Mensagem caso não tenha dados
+            const ctx = document.getElementById('chartAlunoDesempenho').getContext('2d');
+            ctx.font = '14px Arial';
+            ctx.fillStyle = 'gray';
+            ctx.textAlign = 'center';
+            ctx.fillText('Nenhum dado disponível para gráfico', 150, 75);
+        }
     }
 });
 </script>
