@@ -8,7 +8,6 @@
     {% include 'includes/sidebar.html' %}
     
     <div id="main-content" class="flex-grow-1 transition-all">
-        <!-- Header -->
         <header class="header-modern sticky-top shadow-sm py-3 px-4">
             <div class="d-flex justify-content-between align-items-center">
                 <div class="d-flex align-items-center gap-3">
@@ -19,6 +18,10 @@
                     </div>
                 </div>
                 <div class="d-flex align-items-center gap-3">
+                    <a href="{% url 'relatorio_professor_geral_pdf' %}" class="btn btn-dark btn-sm shadow-sm" target="_blank">
+                        <i class="fas fa-file-alt me-2"></i>Relatório Geral
+                    </a>
+
                     <div class="header-profile-box d-flex align-items-center gap-3 cursor-pointer">
                         <div class="text-end d-none d-sm-block">
                             <p class="mb-0 fw-bold text-dark small">{{ professor.user.get_full_name|default:'Professor' }}</p>
@@ -34,22 +37,6 @@
 
         <div class="container-fluid p-4">
             
-            {% if turma_destaque %}
-            <div class="card mb-4 border-0 shadow-sm bg-primary text-white">
-                <div class="card-body p-4 d-flex justify-content-between align-items-center">
-                    <div>
-                        <h5 class="fw-bold mb-1">Turma Ativa: {{ turma_destaque.nome }}</h5>
-                        <p class="mb-0 opacity-75">Gerencie diários e frequências desta turma.</p>
-                    </div>
-                    <!-- BOTÃO NOVO -->
-                    <a href="{% url 'baixar_relatorio_turma' turma_destaque.id %}" class="btn btn-light text-primary fw-bold shadow-sm" target="_blank">
-                        <i class="fas fa-print me-2"></i>Lista de Chamada (PDF)
-                    </a>
-                </div>
-            </div>
-            {% endif %}
-
-            <!-- Cards KPIs -->
             <div class="row g-3 mb-4">
                 <div class="col-md-4">
                     <div class="card p-3 border-0 shadow-sm h-100 bg-white">
@@ -86,12 +73,42 @@
                 </div>
             </div>
 
-            <!-- Gráfico e Alunos em Risco -->
+            <h5 class="fw-bold mb-3 text-secondary small text-uppercase"><i class="fas fa-list me-2"></i>Minhas Aulas</h5>
+            <div class="row g-3 mb-4">
+                {% for alocacao in alocacoes %}
+                <div class="col-lg-6">
+                    <div class="card border-0 shadow-sm h-100">
+                        <div class="card-body p-4 d-flex justify-content-between align-items-center">
+                            <div>
+                                <h5 class="fw-bold mb-1 text-dark">{{ alocacao.turma.nome }}</h5>
+                                <span class="badge bg-light text-primary border">{{ alocacao.disciplina.nome }}</span>
+                                <p class="mb-0 mt-2 text-muted small"><i class="far fa-clock me-1"></i>{{ alocacao.turma.periodo }}</p>
+                            </div>
+                            <div class="d-flex flex-column gap-2">
+                                <a href="{% url 'diario_classe' alocacao.id %}" class="btn btn-outline-primary btn-sm fw-bold">
+                                    <i class="fas fa-book-open me-2"></i>Diário
+                                </a>
+                                <a href="{% url 'baixar_relatorio_turma' alocacao.turma.id %}" class="btn btn-light btn-sm text-danger fw-bold border" target="_blank">
+                                    <i class="fas fa-file-pdf me-2"></i>Chamada
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="col-12">
+                    <div class="alert alert-info border-0 shadow-sm">
+                        <i class="fas fa-info-circle me-2"></i> Você ainda não foi alocado em nenhuma turma/disciplina.
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
             <div class="row g-4">
                 <div class="col-lg-8">
                     <div class="card border-0 shadow-sm h-100">
                         <div class="card-header bg-white py-3">
-                            <h6 class="fw-bold mb-0 text-dark">Desempenho por Turma</h6>
+                            <h6 class="fw-bold mb-0 text-dark">Desempenho Médio por Turma</h6>
                         </div>
                         <div class="card-body">
                             <canvas id="chartDesempenhoTurmas" height="100"></canvas>
@@ -101,20 +118,23 @@
                 <div class="col-lg-4">
                     <div class="card border-0 shadow-sm h-100">
                         <div class="card-header bg-white py-3 border-bottom-0">
-                            <h6 class="fw-bold mb-0 text-dark text-danger"><i class="fas fa-exclamation-triangle me-2"></i>Alunos em Atenção</h6>
+                            <h6 class="fw-bold mb-0 text-danger"><i class="fas fa-exclamation-triangle me-2"></i>Alunos em Atenção</h6>
                         </div>
                         <div class="list-group list-group-flush">
                             {% for aluno in alunos_risco %}
                             <div class="list-group-item px-4 py-3">
                                 <div class="d-flex justify-content-between align-items-center mb-1">
                                     <span class="fw-bold text-dark">{{ aluno.nome }}</span>
-                                    <span class="badge bg-light text-dark border">{{ aluno.disciplina }}</span>
                                 </div>
-                                <small class="{{ aluno.classe_css }} fw-bold"><i class="fas fa-info-circle me-1"></i>{{ aluno.motivo }}</small>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <small class="text-muted">{{ aluno.disciplina }}</small>
+                                    <span class="badge bg-danger-subtle text-danger">{{ aluno.motivo }}</span>
+                                </div>
                             </div>
                             {% empty %}
-                            <div class="text-center py-4 text-muted">
-                                Nenhum aluno em situação crítica.
+                            <div class="text-center py-5 text-muted">
+                                <i class="fas fa-check-circle fa-2x mb-2 text-success opacity-50"></i>
+                                <p class="mb-0">Nenhum aluno em situação crítica.</p>
                             </div>
                             {% endfor %}
                         </div>
@@ -138,8 +158,20 @@
         const dataScript = document.getElementById('dashboard-data');
         if (dataScript) {
             const data = JSON.parse(dataScript.textContent);
-            if (typeof initProfessorChart === 'function') {
-                initProfessorChart(data);
+            // Função fictícia de gráfico - certifique-se que o JS dashboard.js espera esse formato
+            if (window.Chart && document.getElementById('chartDesempenhoTurmas')) {
+                new Chart(document.getElementById('chartDesempenhoTurmas'), {
+                    type: 'bar',
+                    data: {
+                        labels: data.labels,
+                        datasets: [{
+                            label: 'Média da Turma',
+                            data: data.data,
+                            backgroundColor: 'rgba(54, 162, 235, 0.6)'
+                        }]
+                    },
+                    options: { responsive: true }
+                });
             }
         }
     });

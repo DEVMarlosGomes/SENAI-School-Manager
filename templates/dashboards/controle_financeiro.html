@@ -75,10 +75,12 @@
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <h5 class="fw-bold text-dark mb-0">Lançamentos</h5>
                 <div class="d-flex gap-2">
-                    <button class="btn btn-outline-secondary btn-sm" id="btnExportarRelatorio"><i class="fas fa-download me-2"></i>Exportar</button>
                     <button class="btn btn-success btn-sm text-white" data-bs-toggle="modal" data-bs-target="#modalNovoPagamento">
                         <i class="fas fa-plus me-2"></i>Novo Pagamento
                     </button>
+                    <a href="{% url 'relatorio_secretaria_geral_pdf' %}" class="btn btn-dark btn-sm text-white" target="_blank">
+                        <i class="fas fa-file-pdf me-2"></i>Relatório Geral
+                    </a>
                 </div>
             </div>
 
@@ -233,7 +235,6 @@
                 vencimento: document.getElementById('inputVencimento').value
             };
 
-            // Certifique-se de que a URL 'criar_pagamento' existe no seu urls.py e tem o name='criar_pagamento'
             fetch("{% url 'criar_pagamento' %}", {
                 method: "POST",
                 headers: {
@@ -245,7 +246,6 @@
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    // Recarrega para mostrar o novo pagamento na tabela
                     window.location.reload();
                 } else {
                     alert("Erro: " + (data.error || "Ocorreu um erro desconhecido"));
