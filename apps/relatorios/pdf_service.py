@@ -509,6 +509,232 @@ class GeradorPDFSENAI:
         buffer.seek(0)
         return buffer
 
+    def gerar_relatorio_professor(self, professor_user):
+        """Gera um relatório de atividades do professor com desempenho das turmas."""
+        from apps.academico.models import TurmaDisciplinaProfessor, Historico, Professor
+        
+        buffer = io.BytesIO()
+        pdf = SimpleDocTemplate(
+            buffer,
+            pagesize=A4,
+            topMargin=0.6*inch,
+            bottomMargin=0.6*inch,
+            leftMargin=0.6*inch,
+            rightMargin=0.6*inch
+        )
+
+        elementos = []
+        elementos.append(Paragraph("RELATÓRIO DE ATIVIDADES DOCENTES", self.styles['Titulo']))
+        elementos.append(Spacer(1, 0.1*inch))
+
+        # Dados básicos do professor
+        try:
+            professor = Professor.objects.get(user=professor_user)
+            nome_prof = professor_user.get_full_name()
+            reg_funcional = professor.registro_funcional
+            formacao = professor.formacao
+        except:
+            nome_prof = professor_user.get_full_name()
+            reg_funcional = 'N/A'
+            formacao = 'N/A'
+
+        dados_prof = [
+            ['Professor:', nome_prof],
+            ['Registro Funcional:', reg_funcional],
+            ['Formação:', formacao],
+            ['Data Emissão:', datetime.now().strftime('%d/%m/%Y %H:%M')],
+        ]
+        tabela_prof = Table(dados_prof, colWidths=[3*inch, 3*inch])
+        tabela_prof.setStyle(TableStyle([
+            ('BACKGROUND', (0,0), (0,-1), colors.HexColor('#f5f5f5')),
+            ('FONTNAME',(0,0),(0,-1),'Helvetica-Bold'),
+            ('FONTSIZE',(0,0),(-1,-1),10),
+            ('GRID',(0,0),(-1,-1),0.25,colors.grey)
+        ]))
+        elementos.append(tabela_prof)
+        elementos.append(Spacer(1, 0.2*inch))
+
+        # Turmas e disciplinas alocadas
+        elementos.append(Paragraph('Alocações Atuais', self.styles['Subtitulo']))
+        alocacoes = TurmaDisciplinaProfessor.objects.filter(professor__user=professor_user)
+        
+        if alocacoes.exists():
+            dados_aloc = [['Turma', 'Disciplina', 'Status']]
+            for aloc in alocacoes:
+                dados_aloc.append([
+                    aloc.turma.nome,
+                    aloc.disciplina.nome,
+                    aloc.status_alocacao or 'Alocado'
+                ])
+            
+            tabela_aloc = Table(dados_aloc, colWidths=[2.5*inch, 2.5*inch, 1.5*inch])
+            tabela_aloc.setStyle(TableStyle([
+                ('GRID',(0,0),(-1,-1),0.25,colors.grey),
+                ('BACKGROUND',(0,0),(-1,0),colors.HexColor('#c41e3a')),
+                ('TEXTCOLOR',(0,0),(-1,0),colors.whitesmoke),
+                ('FONTNAME',(0,0),(-1,0),'Helvetica-Bold'),
+                ('FONTSIZE',(0,0),(-1,-1),9),
+            ]))
+            elementos.append(tabela_aloc)
+        else:
+            elementos.append(Paragraph('Nenhuma alocação registrada.', self.styles['NormalJustificado']))
+
+        elementos.append(Spacer(1, 0.2*inch))
+
+        # Desempenho das turmas
+        elementos.append(Paragraph('Desempenho das Turmas', self.styles['Subtitulo']))
+        historicos = Historico.objects.filter(turma_disciplina_professor__professor__user=professor_user)
+        
+        if historicos.exists():
+            turmas_unicas = historicos.values('turma_disciplina_professor__turma__nome').distinct()
+            dados_desemp = [['Turma', 'Total Alunos', 'Média Geral', 'Frequência Média', 'Aprovados']]
+            
+            for turma_info in turmas_unicas:
+                turma_nome = turma_info['turma_disciplina_professor__turma__nome']
+                hist_turma = historicos.filter(turma_disciplina_professor__turma__nome=turma_nome)
+                total = hist_turma.values_list('id_aluno', flat=True).distinct().count()
+                media = hist_turma.aggregate(m=Avg('media_final'))['m'] or 0
+                freq = hist_turma.aggregate(f=Avg('frequencia_percentual'))['f'] or 0
+                aprovados = hist_turma.filter(status_aprovacao__iexact='Aprovado').values_list('id_aluno', flat=True).distinct().count()
+                
+                dados_desemp.append([
+                    turma_nome,
+                    str(total),
+                    f"{media:.1f}",
+                    f"{freq:.1f}%",
+                    str(aprovados)
+                ])
+            
+            tabela_desemp = Table(dados_desemp, colWidths=[1.8*inch, 1.2*inch, 1.2*inch, 1.5*inch, 1.3*inch])
+            tabela_desemp.setStyle(TableStyle([
+                ('GRID',(0,0),(-1,-1),0.25,colors.grey),
+                ('BACKGROUND',(0,0),(-1,0),colors.HexColor('#c41e3a')),
+                ('TEXTCOLOR',(0,0),(-1,0),colors.whitesmoke),
+                ('FONTNAME',(0,0),(-1,0),'Helvetica-Bold'),
+                ('FONTSIZE',(0,0),(-1,-1),9),
+            ]))
+            elementos.append(tabela_desemp)
+        else:
+            elementos.append(Paragraph('Nenhum histórico de alunos registrado.', self.styles['NormalJustificado']))
+
+        elementos.append(Spacer(1, 0.3*inch))
+        elementos.append(Paragraph('Relatório gerado automaticamente pelo sistema SENAI.', self.styles['NormalJustificado']))
+
+        def _rodape_prof(canvas, doc):
+            canvas.saveState()
+            footer_text = f"Relatório do Professor - Gerado em {datetime.now().strftime('%d/%m/%Y %H:%M')}"
+            canvas.setFont('Helvetica', 8)
+            canvas.setFillColor(colors.HexColor('#666666'))
+            canvas.drawCentredString(A4[0]/2.0, 0.35*inch, footer_text)
+            canvas.restoreState()
+
+        pdf.build(elementos, onFirstPage=_rodape_prof, onLaterPages=_rodape_prof)
+        buffer.seek(0)
+        return buffer
+
+    def gerar_relatorio_secretaria(self, secretaria_user):
+        """Gera um relatório de gestão da secretaria com KPIs financeiros e acadêmicos."""
+        from apps.academico.models import Aluno, Turma, Curso, Historico
+        from apps.payments.models import Pagamento
+        
+        buffer = io.BytesIO()
+        pdf = SimpleDocTemplate(
+            buffer,
+            pagesize=A4,
+            topMargin=0.6*inch,
+            bottomMargin=0.6*inch,
+            leftMargin=0.6*inch,
+            rightMargin=0.6*inch
+        )
+
+        elementos = []
+        elementos.append(Paragraph("RELATÓRIO DE GESTÃO - SECRETARIA ACADÊMICA", self.styles['Titulo']))
+        elementos.append(Spacer(1, 0.1*inch))
+
+        elementos.append(Paragraph(f"Emitido por: {secretaria_user.get_full_name()}", self.styles['NormalJustificado']))
+        elementos.append(Paragraph(f"Data: {datetime.now().strftime('%d/%m/%Y %H:%M')}", self.styles['NormalJustificado']))
+        elementos.append(Spacer(1, 0.2*inch))
+
+        # KPIs Acadêmicos
+        elementos.append(Paragraph('KPIs Acadêmicos', self.styles['Subtitulo']))
+        total_alunos = Aluno.objects.count()
+        total_ativos = Aluno.objects.filter(status_matricula__iexact='Ativo').count()
+        total_inativos = total_alunos - total_ativos
+        total_turmas = Turma.objects.count()
+        total_cursos = Curso.objects.count()
+
+        kpis_acad = [
+            ['Total de Alunos:', str(total_alunos)],
+            ['Alunos Ativos:', str(total_ativos)],
+            ['Alunos Inativos:', str(total_inativos)],
+            ['Total de Turmas:', str(total_turmas)],
+            ['Total de Cursos:', str(total_cursos)],
+        ]
+        tabela_kpis = Table(kpis_acad, colWidths=[3*inch, 3*inch])
+        tabela_kpis.setStyle(TableStyle([
+            ('BACKGROUND', (0,0), (0,-1), colors.HexColor('#f5f5f5')),
+            ('FONTNAME',(0,0),(0,-1),'Helvetica-Bold'),
+            ('FONTSIZE',(0,0),(-1,-1),11),
+            ('GRID',(0,0),(-1,-1),0.25,colors.grey)
+        ]))
+        elementos.append(tabela_kpis)
+        elementos.append(Spacer(1, 0.2*inch))
+
+        # KPIs Financeiros
+        elementos.append(Paragraph('KPIs Financeiros', self.styles['Subtitulo']))
+        pagamentos_total = Pagamento.objects.aggregate(t=Sum('valor'))['t'] or Decimal('0.00')
+        pagamentos_pago = Pagamento.objects.filter(status='pago').aggregate(t=Sum('valor'))['t'] or Decimal('0.00')
+        pagamentos_pendente = pagamentos_total - pagamentos_pago
+
+        kpis_fin = [
+            ['Total Faturado:', f"R$ {pagamentos_total:.2f}"],
+            ['Recebido:', f"R$ {pagamentos_pago:.2f}"],
+            ['Pendente:', f"R$ {pagamentos_pendente:.2f}"],
+            ['Taxa Recebimento:', f"{(pagamentos_pago/pagamentos_total*100) if pagamentos_total > 0 else 0:.1f}%"],
+        ]
+        tabela_fin = Table(kpis_fin, colWidths=[3*inch, 3*inch])
+        tabela_fin.setStyle(TableStyle([
+            ('GRID',(0,0),(-1,-1),0.25,colors.grey),
+            ('BACKGROUND',(0,0),(0,-1),colors.HexColor('#f9f9f9')),
+            ('FONTNAME',(0,0),(0,-1),'Helvetica-Bold'),
+        ]))
+        elementos.append(tabela_fin)
+        elementos.append(Spacer(1, 0.2*inch))
+
+        # Status de Cursos
+        elementos.append(Paragraph('Status dos Cursos', self.styles['Subtitulo']))
+        cursos = Curso.objects.all()
+        dados_cursos = [['Curso', 'Alunos', 'Turmas', 'Status']]
+        for c in cursos:
+            alunos_curso = Aluno.objects.filter(turma_atual__id_curso=c).count()
+            turmas_curso = Turma.objects.filter(id_curso=c).count()
+            status = 'Ativo' if c.credenciamento_ativo else 'Inativo'
+            dados_cursos.append([c.nome_curso, str(alunos_curso), str(turmas_curso), status])
+
+        tabela_cursos = Table(dados_cursos, colWidths=[3*inch, 1*inch, 1*inch, 1*inch])
+        tabela_cursos.setStyle(TableStyle([
+            ('GRID',(0,0),(-1,-1),0.25,colors.grey),
+            ('BACKGROUND',(0,0),(-1,0),colors.HexColor('#c41e3a')),
+            ('TEXTCOLOR',(0,0),(-1,0),colors.whitesmoke),
+            ('FONTNAME',(0,0),(-1,0),'Helvetica-Bold'),
+            ('FONTSIZE',(0,0),(-1,-1),9),
+        ]))
+        elementos.append(tabela_cursos)
+
+        elementos.append(Spacer(1, 0.3*inch))
+
+        def _rodape_sec(canvas, doc):
+            canvas.saveState()
+            footer_text = f"Relatório Secretaria - Gerado em {datetime.now().strftime('%d/%m/%Y %H:%M')}"
+            canvas.setFont('Helvetica', 8)
+            canvas.setFillColor(colors.HexColor('#666666'))
+            canvas.drawCentredString(A4[0]/2.0, 0.35*inch, footer_text)
+            canvas.restoreState()
+
+        pdf.build(elementos, onFirstPage=_rodape_sec, onLaterPages=_rodape_sec)
+        buffer.seek(0)
+        return buffer
+
 def gerar_pdf_relatorio_turma(nome_turma, alunos):
     """Gera lista de chamada para professores"""
     buffer = io.BytesIO()

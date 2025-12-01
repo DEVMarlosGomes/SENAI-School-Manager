@@ -1,0 +1,232 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Meu Perfil - SENAI{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Meu Perfil</h1>
+        <button class="btn btn-outline-danger btn-sm" id="btn-editar-perfil">
+            <i class="fas fa-edit me-2"></i>Editar Perfil
+        </button>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-senai-red">Informações Pessoais</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label text-muted small">Nome Completo</label>
+                                <p class="form-control-plaintext fw-bold">{{ user.get_full_name|default:user.username }}</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label text-muted small">Usuário</label>
+                                <p class="form-control-plaintext fw-bold">{{ user.username }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label text-muted small">E-mail</label>
+                                <p class="form-control-plaintext">{{ user.email|default:"Não informado" }}</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label text-muted small">Tipo de Usuário</label>
+                                <p class="form-control-plaintext">
+                                    {% if user.profile.tipo == 'aluno' %}
+                                        <span class="badge bg-success">Aluno</span>
+                                    {% elif user.profile.tipo == 'professor' %}
+                                        <span class="badge bg-primary">Professor</span>
+                                    {% elif user.profile.tipo == 'coordenacao' %}
+                                        <span class="badge bg-warning text-dark">Coordenação</span>
+                                    {% elif user.profile.tipo == 'secretaria' %}
+                                        <span class="badge bg-secondary">Secretaria</span>
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    {% if user.profile %}
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label text-muted small">Telefone</label>
+                                <p class="form-control-plaintext">{{ user.profile.telefone|default:"Não informado" }}</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label text-muted small">CPF</label>
+                                <p class="form-control-plaintext">{{ user.profile.cpf|default:"Não informado" }}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    {% if user.profile.logradouro %}
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label text-muted small">Endereço</label>
+                                <p class="form-control-plaintext">{{ user.profile.logradouro }}, {{ user.profile.numero|default:"S/N" }}</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label text-muted small">Bairro / Cidade</label>
+                                <p class="form-control-plaintext">{{ user.profile.bairro|default:"" }} - {{ user.profile.cidade|default:"" }}/{{ user.profile.estado|default:"" }}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="mb-3">
+                                <label class="form-label text-muted small">CEP</label>
+                                <p class="form-control-plaintext">{{ user.profile.cep|default:"Não informado" }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {% if user.aluno %}
+                    <div class="alert alert-light border">
+                        <h6 class="fw-bold text-senai-red mb-3">Dados Acadêmicos</h6>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label text-muted small">RA / Matrícula</label>
+                                    <p class="form-control-plaintext">{{ user.aluno.RA_aluno }}</p>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label text-muted small">RG</label>
+                                    <p class="form-control-plaintext">{{ user.aluno.RG_aluno|default:"Não informado" }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label text-muted small">Data de Nascimento</label>
+                                    <p class="form-control-plaintext">{{ user.aluno.data_nascimento|date:"d/m/Y" }}</p>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label text-muted small">Gênero</label>
+                                    <p class="form-control-plaintext">{{ user.aluno.genero|default:"Não informado" }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label text-muted small">Turma Atual</label>
+                                    <p class="form-control-plaintext">{{ user.aluno.turma_atual.nome|default:"Sem turma atribuída" }}</p>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label text-muted small">Status de Matrícula</label>
+                                    <p class="form-control-plaintext">
+                                        <span class="badge {% if user.aluno.status_matricula == 'Ativo' %}bg-success{% else %}bg-danger{% endif %}">
+                                            {{ user.aluno.status_matricula }}
+                                        </span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="mb-3">
+                                    <label class="form-label text-muted small">Data de Matrícula</label>
+                                    <p class="form-control-plaintext">{{ user.aluno.data_matricula|date:"d/m/Y" }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {% if user.professor %}
+                    <div class="alert alert-light border">
+                        <h6 class="fw-bold text-senai-red mb-3">Dados Profissionais</h6>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label text-muted small">Registro Funcional</label>
+                                    <p class="form-control-plaintext">{{ user.professor.registro_funcional }}</p>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label text-muted small">Formação</label>
+                                    <p class="form-control-plaintext">{{ user.professor.formacao|default:"Não informado" }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label text-muted small">Tipo de Vínculo</label>
+                                    <p class="form-control-plaintext">{{ user.professor.tipo_vinculo|default:"Não informado" }}</p>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label text-muted small">Status</label>
+                                    <p class="form-control-plaintext">
+                                        <span class="badge {% if user.professor.status_professor == 'Ativo' %}bg-success{% else %}bg-danger{% endif %}">
+                                            {{ user.professor.status_professor }}
+                                        </span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-senai-red">Ações Rápidas</h6>
+                </div>
+                <div class="card-body">
+                    <a href="#" class="btn btn-outline-danger btn-block mb-2 w-100">
+                        <i class="fas fa-key me-2"></i>Alterar Senha
+                    </a>
+                    <a href="#" class="btn btn-outline-secondary btn-block w-100">
+                        <i class="fas fa-download me-2"></i>Dados Pessoais
+                    </a>
+                </div>
+            </div>
+
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-senai-red">Último Acesso</h6>
+                </div>
+                <div class="card-body">
+                    <p class="mb-1"><small class="text-muted">Último login:</small></p>
+                    <p class="fw-bold">{{ user.last_login|date:"d/m/Y H:i"|default:"Primeira vez" }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

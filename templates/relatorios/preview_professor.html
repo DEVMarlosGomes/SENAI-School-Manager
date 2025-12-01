@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Prévia - Relatório Professor{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3 class="fw-bold">Prévia: Relatório do Professor</h3>
+        <div>
+            <a href="{% url 'relatorio_professor_geral_pdf' %}" class="btn btn-danger" target="_blank">Baixar PDF</a>
+            <a href="javascript:window.close();" class="btn btn-secondary ms-2">Fechar</a>
+        </div>
+    </div>
+
+    <div class="card mb-3">
+        <div class="card-body">
+            <p><strong>Formação:</strong> {{ formacao }}</p>
+            <p><strong>Registro funcional:</strong> {{ reg_funcional }}</p>
+        </div>
+    </div>
+
+    <h5>Desempenho por Turma</h5>
+    <div class="table-responsive mb-4">
+        <table class="table table-striped">
+            <thead>
+                <tr><th>Turma</th><th>Total</th><th>Média</th><th>Frequência</th><th>Aprovados</th></tr>
+            </thead>
+            <tbody>
+                {% for t in turmas_desemp %}
+                <tr>
+                    <td>{{ t.nome }}</td>
+                    <td>{{ t.total }}</td>
+                    <td>{{ t.media|floatformat:1 }}</td>
+                    <td>{{ t.freq|floatformat:1 }}</td>
+                    <td>{{ t.aprovados }}</td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="5">Sem dados</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

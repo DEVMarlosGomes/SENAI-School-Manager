@@ -169,7 +169,7 @@ def professor_dashboard_view(request):
         'total_turmas': total_turmas,
         'total_alunos': total_alunos,
         'pendencias': pendencias,
-        'dashboard_data_json': json.dumps(dashboard_data, cls=DjangoJSONEncoder),
+        'dashboard_data_obj': dashboard_data,
         'turma_destaque': alocacoes.first().turma if alocacoes.exists() else None,
         'alocacoes': alocacoes,
         'alunos_risco': alunos_risco_list[:10]
@@ -424,7 +424,139 @@ def boletim_view(request): return render(request, "dashboards/boletim.html")
 @rolerequired("aluno")
 def calendario_view(request): return render(request, "dashboards/calendario.html")
 @rolerequired("aluno")
-def avisos_eventos_view(request): return render(request, "dashboards/avisos_eventos.html")
+def avisos_eventos_view(request):
+	from .models import Aviso, EventoAcademico
+	from datetime import datetime
+	agora = datetime.now()
+	avisos = Aviso.objects.filter(ativo=True).exclude(data_fim_visibilidade__lt=agora).order_by('-data_publicacao')[:10]
+	eventos = EventoAcademico.objects.filter(ativo=True, data_evento__gte=agora).order_by('data_evento')[:5]
+	return render(request, "dashboards/avisos_eventos.html", {'avisos': avisos, 'eventos': eventos})
+
+@login_required
+def api_avisos_eventos(request):
+	"""Retorna avisos e eventos para a home em JSON."""
+	from .models import Aviso, EventoAcademico
+	from datetime import datetime
+	import json
+	agora = datetime.now()
+	avisos = Aviso.objects.filter(ativo=True).exclude(data_fim_visibilidade__lt=agora).order_by('-data_publicacao')[:5]
+	eventos = EventoAcademico.objects.filter(ativo=True, data_evento__gte=agora).order_by('data_evento')[:3]
+	
+	avisos_data = [{
+		'id': a.id,
+		'titulo': a.titulo,
+		'conteudo': a.conteudo,
+		'tipo': a.tipo,
+		'tipo_usuario': a.tipo_usuario_criador,
+		'data': a.data_publicacao.strftime('%d/%m/%Y %H:%M'),
+		'criador': a.criado_por.get_full_name() if a.criado_por else 'Sistema'
+	} for a in avisos]
+	
+	eventos_data = [{
+		'id': e.id,
+		'titulo': e.titulo,
+		'descricao': e.descricao,
+		'data': e.data_evento.strftime('%d/%m/%Y'),
+		'local': e.local
+	} for e in eventos]
+	
+	return JsonResponse({'avisos': avisos_data, 'eventos': eventos_data})
+
+
+@require_http_methods(["POST"])
+@rolerequired('professor', 'coordenacao', 'secretaria')
+def criar_aviso(request):
+    """Cria um aviso via API. Espera JSON com: titulo, conteudo, tipo (Urgente/Importante/Geral/Informativo)."""
+    from .models import Aviso
+    import json
+    try:
+        payload = json.loads(request.body.decode('utf-8'))
+    except Exception:
+        return JsonResponse({'success': False, 'error': 'JSON inválido'}, status=400)
+
+    titulo = payload.get('titulo')
+    conteudo = payload.get('conteudo')
+    tipo = payload.get('tipo') or 'Geral'
+
+    if not titulo or not conteudo:
+        return JsonResponse({'success': False, 'error': 'Título e conteúdo são obrigatórios.'}, status=400)
+
+    # determinar tipo de usuário criador
+    if isprofessor(request.user): tipo_usuario = 'professor'
+    elif iscoordenacao(request.user): tipo_usuario = 'coordenacao'
+    elif issecretaria(request.user): tipo_usuario = 'secretaria'
+    else: tipo_usuario = 'secretaria'
+
+    aviso = Aviso.objects.create(
+        titulo=titulo,
+        conteudo=conteudo,
+        tipo=tipo,
+        criado_por=request.user,
+        tipo_usuario_criador=tipo_usuario
+    )
+
+    return JsonResponse({'success': True, 'aviso': {
+        'id': aviso.id,
+        'titulo': aviso.titulo,
+        'conteudo': aviso.conteudo,
+        'tipo': aviso.tipo,
+        'tipo_usuario': aviso.tipo_usuario_criador,
+        'data': aviso.data_publicacao.strftime('%d/%m/%Y %H:%M')
+    }})
+
+
+@require_http_methods(["POST"])
+@rolerequired('professor', 'coordenacao', 'secretaria')
+def criar_evento(request):
+    """Cria um evento via API. Espera JSON com: titulo, descricao, data_evento (ISO yyyy-mm-dd or yyyy-mm-ddThh:mm), local."""
+    from .models import EventoAcademico
+    import json
+    from datetime import datetime
+    try:
+        payload = json.loads(request.body.decode('utf-8'))
+    except Exception:
+        return JsonResponse({'success': False, 'error': 'JSON inválido'}, status=400)
+
+    titulo = payload.get('titulo')
+    descricao = payload.get('descricao', '')
+    data_evento_raw = payload.get('data_evento')
+    local = payload.get('local', '')
+
+    if not titulo or not data_evento_raw:
+        return JsonResponse({'success': False, 'error': 'Título e data do evento são obrigatórios.'}, status=400)
+
+    # parse data_evento
+    try:
+        # try ISO first
+        data_evento = datetime.fromisoformat(data_evento_raw)
+    except Exception:
+        try:
+            data_evento = datetime.strptime(data_evento_raw, '%Y-%m-%d')
+        except Exception:
+            return JsonResponse({'success': False, 'error': 'Formato de data inválido.'}, status=400)
+
+    if isprofessor(request.user): tipo_usuario = 'professor'
+    elif iscoordenacao(request.user): tipo_usuario = 'coordenacao'
+    elif issecretaria(request.user): tipo_usuario = 'secretaria'
+    else: tipo_usuario = 'secretaria'
+
+    evento = EventoAcademico.objects.create(
+        titulo=titulo,
+        descricao=descricao,
+        data_evento=data_evento,
+        criado_por=request.user,
+        tipo_usuario_criador=tipo_usuario,
+        local=local
+    )
+
+    return JsonResponse({'success': True, 'evento': {
+        'id': evento.id,
+        'titulo': evento.titulo,
+        'descricao': evento.descricao,
+        'data': evento.data_evento.strftime('%d/%m/%Y'),
+        'local': evento.local
+    }})
+
 @login_required
 def perfil_view(request): return render(request, "dashboards/perfil.html")
 
@@ -606,6 +738,58 @@ def coordenacao_gestao_view(request):
 def coordenacao_comunicacao_view(request): return render(request, "dashboards/coordenacao_comunicacao.html")
 @login_required
 def coordenacao_relatorios_view(request): return render(request, "dashboards/coordenacao_relatorios.html")
+
+# Avisos e Eventos - Criação
+@login_required
+def criar_aviso(request):
+	"""Permite que professor, coordenador ou secretária crie um aviso."""
+	from .models import Aviso
+	user_type = getattr(request.user.profile, 'tipo', None) if hasattr(request.user, 'profile') else None
+	if user_type not in ['professor', 'coordenacao', 'secretaria']:
+		return JsonResponse({'error': 'Sem permissão'}, status=403)
+	
+	if request.method == 'POST':
+		titulo = request.POST.get('titulo', '')
+		conteudo = request.POST.get('conteudo', '')
+		tipo = request.POST.get('tipo', 'Geral')
+		aviso = Aviso.objects.create(
+			titulo=titulo,
+			conteudo=conteudo,
+			tipo=tipo,
+			criado_por=request.user,
+			tipo_usuario_criador=user_type
+		)
+		return JsonResponse({'id': aviso.id, 'success': True})
+	return JsonResponse({'error': 'Method not allowed'}, status=405)
+
+@login_required
+def criar_evento(request):
+	"""Permite que professor, coordenador ou secretária crie um evento."""
+	from .models import EventoAcademico
+	user_type = getattr(request.user.profile, 'tipo', None) if hasattr(request.user, 'profile') else None
+	if user_type not in ['professor', 'coordenacao', 'secretaria']:
+		return JsonResponse({'error': 'Sem permissão'}, status=403)
+	
+	if request.method == 'POST':
+		titulo = request.POST.get('titulo', '')
+		descricao = request.POST.get('descricao', '')
+		data_evento = request.POST.get('data_evento', '')
+		local = request.POST.get('local', '')
+		try:
+			from datetime import datetime
+			data = datetime.fromisoformat(data_evento.replace('Z', '+00:00'))
+			evento = EventoAcademico.objects.create(
+				titulo=titulo,
+				descricao=descricao,
+				data_evento=data,
+				local=local,
+				criado_por=request.user,
+				tipo_usuario_criador=user_type
+			)
+			return JsonResponse({'id': evento.id, 'success': True})
+		except Exception as e:
+			return JsonResponse({'error': str(e)}, status=400)
+	return JsonResponse({'error': 'Method not allowed'}, status=405)
 
 # APIs JSON de Coordenação
 @login_required

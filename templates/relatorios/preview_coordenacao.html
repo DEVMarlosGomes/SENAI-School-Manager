@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Prévia - Relatório Coordenação{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3 class="fw-bold">Prévia: Relatório da Coordenação</h3>
+        <div>
+            <a href="{% url 'relatorio_coordenacao_pdf' user_id %}" class="btn btn-danger" target="_blank">Baixar PDF</a>
+            <a href="javascript:window.close();" class="btn btn-secondary ms-2">Fechar</a>
+        </div>
+    </div>
+
+    <div class="row g-3 mb-3">
+        <div class="col-md-3"><div class="card p-3"><strong>Alunos</strong><div>{{ total_alunos }}</div></div></div>
+        <div class="col-md-3"><div class="card p-3"><strong>Ativos</strong><div>{{ total_alunos_ativos }}</div></div></div>
+        <div class="col-md-3"><div class="card p-3"><strong>Turmas</strong><div>{{ total_turmas }}</div></div></div>
+        <div class="col-md-3"><div class="card p-3"><strong>Professores</strong><div>{{ total_professores }}</div></div></div>
+    </div>
+
+    <h5>Cursos</h5>
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead><tr><th>Curso</th><th>Total</th><th>Aprovados</th><th>Recuperação</th><th>Reprovados</th></tr></thead>
+            <tbody>
+                {% for c in cursos %}
+                <tr>
+                    <td>{{ c.nome }}</td>
+                    <td>{{ c.total }}</td>
+                    <td>{{ c.aprovados }}</td>
+                    <td>{{ c.recuperacao }}</td>
+                    <td>{{ c.reprovados }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
