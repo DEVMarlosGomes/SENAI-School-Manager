@@ -79,7 +79,8 @@ def gestao_alunos_view(request):
     filter_turma = request.GET.get('turma')
     filter_status = request.GET.get('status')
 
-    if search_query:
+    # FIX: Validate search_query is not the string 'None'
+    if search_query and search_query != 'None':
         alunos_qs = alunos_qs.filter(
             Q(user__first_name__icontains=search_query) |
             Q(user__last_name__icontains=search_query) |
@@ -87,10 +88,13 @@ def gestao_alunos_view(request):
             Q(user__email__icontains=search_query)
         )
     
-    if filter_turma and filter_turma != 'todas':
-        alunos_qs = alunos_qs.filter(turma_atual__id=filter_turma)
+    # FIX: Validate filter_turma is a number and not 'None'
+    if filter_turma and filter_turma != 'todas' and filter_turma != 'None':
+        if filter_turma.isdigit():
+            alunos_qs = alunos_qs.filter(turma_atual__id=filter_turma)
         
-    if filter_status and filter_status != 'todos':
+    # FIX: Validate filter_status is not 'None'
+    if filter_status and filter_status != 'todos' and filter_status != 'None':
         alunos_qs = alunos_qs.filter(status_matricula=filter_status)
 
     total_alunos = alunos_qs.count()
@@ -105,9 +109,10 @@ def gestao_alunos_view(request):
 
     context = {
         'page_obj': page_obj,
-        'search_query': search_query,
-        'filter_turma': filter_turma, 
-        'filter_status': filter_status,
+        # Ensure we don't pass 'None' string back to the template
+        'search_query': search_query if search_query != 'None' else '',
+        'filter_turma': filter_turma if filter_turma != 'None' else '', 
+        'filter_status': filter_status if filter_status != 'None' else '',
         'total_alunos': total_alunos,
         'turmas': turmas_disponiveis,
         'status_choices': status_choices,
