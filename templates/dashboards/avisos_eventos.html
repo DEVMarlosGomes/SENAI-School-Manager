@@ -26,24 +26,27 @@
                     <div class="mb-4 pb-3 border-bottom">
                         <div class="d-flex justify-content-between align-items-start mb-2">
                             <div>
+                                <div class="d-flex align-items-center mb-2">
+                                    {% if aviso.tipo_usuario_criador == 'professor' %}
+                                        <span class="badge bg-primary me-2">Prof.</span>
+                                    {% elif aviso.tipo_usuario_criador == 'coordenacao' %}
+                                        <span class="badge bg-warning text-dark me-2">Coord.</span>
+                                    {% elif aviso.tipo_usuario_criador == 'secretaria' %}
+                                        <span class="badge bg-secondary me-2">Secr.</span>
+                                    {% endif %}
+                                    <span class="badge {% if aviso.tipo == 'Urgente' %}bg-danger{% elif aviso.tipo == 'Importante' %}bg-warning text-dark{% else %}bg-info{% endif %}">
+                                        {{ aviso.tipo }}
+                                    </span>
+                                </div>
                                 <h5 class="mb-1">{{ aviso.titulo }}</h5>
-                                <span class="badge {% if aviso.tipo == 'Urgente' %}bg-danger{% elif aviso.tipo == 'Importante' %}bg-warning text-dark{% else %}bg-info{% endif %} mb-2">
-                                    {{ aviso.tipo }}
-                                </span>
                             </div>
                             <small class="text-muted">{{ aviso.data_publicacao|date:"d/m/Y" }}</small>
                         </div>
                         <p class="mb-2">{{ aviso.conteudo }}</p>
-                        {% if aviso.anexos %}
-                        <div class="d-flex gap-2">
-                            {% for anexo in aviso.anexos %}
-                            <a href="{{ anexo.url }}" class="btn btn-sm btn-light border">
-                                <i class="fas fa-paperclip me-1"></i> {{ anexo.nome }}
-                            </a>
-                            {% endfor %}
-                        </div>
-                        {% endif %}
+                        <small class="text-muted">Por: {{ aviso.criado_por.get_full_name|default:"Sistema" }}</small>
                     </div>
+                    {% empty %}
+                    <p class="text-muted">Nenhum aviso no momento.</p>
                     {% endfor %}
                 </div>
             </div>
@@ -59,23 +62,19 @@
                     {% for evento in eventos %}
                     <div class="d-flex align-items-start mb-4">
                         <div class="me-3 text-center bg-senai-red text-white p-2 rounded" style="width: 60px;">
-                            <small class="d-block fw-bold">{{ evento.data|date:"d" }}</small>
-                            <small>{{ evento.data|date:"M" }}</small>
+                            <small class="d-block fw-bold">{{ evento.data_evento|date:"d" }}</small>
+                            <small>{{ evento.data_evento|date:"M" }}</small>
                         </div>
                         <div>
                             <h6 class="mb-1">{{ evento.titulo }}</h6>
                             <p class="mb-1 small text-muted">{{ evento.descricao }}</p>
                             <div class="d-flex align-items-center small text-muted">
-                                <i class="fas fa-clock me-1"></i> {{ evento.hora_inicio }} - {{ evento.hora_fim }}
-                                <i class="fas fa-map-marker-alt ms-3 me-1"></i> {{ evento.local }}
+                                <i class="fas fa-map-marker-alt me-1"></i> {{ evento.local|default:"Local não definido" }}
                             </div>
-                            {% if evento.link_inscricao %}
-                            <a href="{{ evento.link_inscricao }}" class="btn btn-sm btn-outline-danger mt-2">
-                                Inscrever-se
-                            </a>
-                            {% endif %}
                         </div>
                     </div>
+                    {% empty %}
+                    <p class="text-muted">Nenhum evento próximo.</p>
                     {% endfor %}
                 </div>
                 <div class="card-footer bg-light">

@@ -4,139 +4,9 @@
 {% block title %}Coordenação - Comunicação{% endblock %}
 
 {% block content %}
-<div class="layout-wrapper d-flex">
-    {% include 'includes/sidebar.html' %}
-    
-    <div id="main-content" class="flex-grow-1 transition-all">
-        
-        <header class="header-modern sticky-top shadow-sm py-3 px-4">
-            <div class="d-flex justify-content-between align-items-center">
-                <div class="d-flex align-items-center gap-3">
-                    <button class="btn btn-light d-md-none shadow-sm" id="sidebarToggle">
-                        <i class="fas fa-bars"></i>
-                    </button>
-                    <div>
-                        <div class="header-breadcrumb">
-                            <i class="fas fa-layer-group me-1"></i> Coordenação Acadêmica
-                        </div>
-                        <h1 class="header-title mb-0">Comunicação</h1>
-                    </div>
-                </div>
-                
-                <div class="d-flex align-items-center gap-3">
-                    <div class="d-none d-lg-block text-end me-2">
-                        <small class="text-muted d-block" style="font-size: 0.7rem;">HOJE</small>
-                        <span class="fw-bold text-dark small">{% now "d \d\e F \d\e Y" %}</span>
-                    </div>
-
-                    <div class="header-profile-box d-flex align-items-center gap-3 cursor-pointer">
-                        <div class="text-end d-none d-sm-block" style="line-height: 1.1;">
-                            <p class="mb-0 fw-bold text-dark small">{{ user.first_name|default:'Usuário' }}</p>
-                            <p class="mb-0 text-muted" style="font-size: 0.7rem;">Coordenador</p>
-                        </div>
-                        <div class="rounded-circle bg-white d-flex align-items-center justify-content-center shadow-sm" style="width: 38px; height: 38px; border: 2px solid var(--primary-color);">
-                            <i class="fas fa-user text-senai-red"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </header>
-
-        <div class="container-fluid p-4">
-            
-            <ul class="nav nav-tabs mb-4" role="tablist">
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link active fw-bold" id="tab-mensagens" data-bs-toggle="tab" data-bs-target="#content-mensagens" type="button" role="tab">
-                        <i class="fas fa-inbox me-2"></i>Mensagens <span class="badge bg-danger ms-2">3</span>
-                    </button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link fw-bold" id="tab-avisos" data-bs-toggle="tab" data-bs-target="#content-avisos" type="button" role="tab">
-                        <i class="fas fa-bullhorn me-2"></i>Avisos e Comunicados
-                    </button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link fw-bold" id="tab-eventos" data-bs-toggle="tab" data-bs-target="#content-eventos" type="button" role="tab">
-                        <i class="fas fa-calendar me-2"></i>Eventos
-                    </button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link fw-bold" id="tab-notificacoes" data-bs-toggle="tab" data-bs-target="#content-notificacoes" type="button" role="tab">
-                        <i class="fas fa-bell me-2"></i>Notificações
-                    </button>
-                </li>
-            </ul>
 
             <div class="tab-content">
-                
-                <div class="tab-pane fade show active" id="content-mensagens" role="tabpanel">
-                    <div class="row g-3">
-                        <div class="col-lg-4">
-                            <div class="card shadow-sm border-0">
-                                <div class="card-header bg-white border-bottom py-3">
-                                    <h6 class="mb-0 fw-bold text-dark">
-                                        <i class="fas fa-list text-senai-red me-2"></i>Conversas
-                                    </h6>
-                                </div>
-                                <div class="card-body p-0" style="max-height: 600px; overflow-y: auto;">
-                                    <div class="list-group list-group-flush" id="messagemList">
-                                        <button class="list-group-item list-group-item-action active text-start py-3 px-3 border-0">
-                                            <h6 class="mb-1 fw-bold">Secretária Geral</h6>
-                                            <p class="small text-muted mb-0">Últimas atualizações sobre...</p>
-                                        </button>
-                                        <button class="list-group-item list-group-item-action text-start py-3 px-3 border-0">
-                                            <h6 class="mb-1 fw-bold">Prof. João Silva</h6>
-                                            <p class="small text-muted mb-0">Questões sobre a turma...</p>
-                                        </button>
-                                        <button class="list-group-item list-group-item-action text-start py-3 px-3 border-0">
-                                            <h6 class="mb-1 fw-bold">Diretoria</h6>
-                                            <p class="small text-muted mb-0">Agenda de reunião...</p>
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-lg-8">
-                            <div class="card shadow-sm border-0">
-                                <div class="card-header bg-white border-bottom py-3">
-                                    <h6 class="mb-0 fw-bold text-dark">
-                                        <i class="fas fa-comments text-senai-red me-2"></i>Secretária Geral
-                                    </h6>
-                                </div>
-                                <div class="card-body" style="height: 400px; overflow-y: auto;">
-                                    <div class="mb-3">
-                                        <div class="d-flex gap-2 mb-2">
-                                            <i class="fas fa-user-circle text-senai-red"></i>
-                                            <div>
-                                                <small class="text-muted">Secretária Geral • 14:30</small>
-                                                <p class="small bg-light p-2 rounded mt-1">Bom dia! Temos 3 alunos novos que precisam ser matriculados.</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="mb-3">
-                                        <div class="d-flex gap-2 mb-2 justify-content-end">
-                                            <div class="text-end">
-                                                <small class="text-muted">Você • 14:45</small>
-                                                <p class="small bg-senai-red text-white p-2 rounded mt-1">Certo! Vou processar as matrículas hoje.</p>
-                                            </div>
-                                            <i class="fas fa-user-circle text-success"></i>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="card-footer bg-white border-top">
-                                    <div class="input-group">
-                                        <input type="text" class="form-control form-control-sm" placeholder="Digite uma mensagem...">
-                                        <button class="btn btn-senai-red btn-sm" type="button">
-                                            <i class="fas fa-paper-plane"></i>
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="tab-pane fade" id="content-avisos" role="tabpanel">
+                <div class="tab-pane fade show active" id="content-avisos" role="tabpanel">
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <h6 class="fw-bold mb-0">Avisos e Comunicados</h6>
                         <button class="btn btn-sm btn-senai-red" id="btnNovoAviso">
@@ -144,42 +14,7 @@
                         </button>
                     </div>
                     <div class="row g-3" id="avisosContainer">
-                        <div class="col-lg-4">
-                            <div class="card shadow-sm border-0 border-top border-4 border-danger">
-                                <div class="card-body">
-                                    <div class="d-flex justify-content-between align-items-start mb-2">
-                                        <h6 class="fw-bold mb-0">Reunião Importante</h6>
-                                        <span class="badge bg-danger">Urgente</span>
-                                    </div>
-                                    <p class="small text-muted mb-2">Reunião com coordenadores está marcada para...</p>
-                                    <small class="text-muted">11/11/2025 • 10:00</small>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-lg-4">
-                            <div class="card shadow-sm border-0 border-top border-4 border-warning">
-                                <div class="card-body">
-                                    <div class="d-flex justify-content-between align-items-start mb-2">
-                                        <h6 class="fw-bold mb-0">Atualização de Calendário</h6>
-                                        <span class="badge bg-warning text-dark">Aviso</span>
-                                    </div>
-                                    <p class="small text-muted mb-2">O calendário acadêmico foi alterado...</p>
-                                    <small class="text-muted">10/11/2025 • 15:30</small>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-lg-4">
-                            <div class="card shadow-sm border-0 border-top border-4 border-success">
-                                <div class="card-body">
-                                    <div class="d-flex justify-content-between align-items-start mb-2">
-                                        <h6 class="fw-bold mb-0">Resultado de Processos</h6>
-                                        <span class="badge bg-success">Info</span>
-                                    </div>
-                                    <p class="small text-muted mb-2">Os resultados de seleção foram publicados...</p>
-                                    <small class="text-muted">09/11/2025 • 09:00</small>
-                                </div>
-                            </div>
-                        </div>
+                        <!-- Conteúdo carregado via fetch /dashboards/api/avisos-eventos/ -->
                     </div>
                 </div>
 
@@ -191,8 +26,24 @@
                         </button>
                     </div>
                     <div class="table-responsive">
-                        <table class="table table-hover">
+                        <table class="table table-hover" id="tabelaEventos">
                             <thead class="table-light">
+                                <tr>
+                                    <th>Evento</th>
+                                    <th>Data</th>
+                                    <th>Hora</th>
+                                    <th>Local</th>
+                                    <th class="text-end">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="eventosTBody">
+                                <!-- Carregado dinamicamente por JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
                                 <tr>
                                     <th>Evento</th>
                                     <th>Data</th>

@@ -23,7 +23,10 @@ from .views import (
     api_coordenacao_atividades,
     save_aluno_view,
     delete_aluno_view,
-    aluno_financeiro_view
+    aluno_financeiro_view,
+    criar_aviso,
+    criar_evento,
+    api_avisos_eventos
 )
 
 urlpatterns = [
@@ -66,4 +69,9 @@ urlpatterns = [
     path('api/coordenacao/desempenho/', api_coordenacao_desempenho, name='api_coordenacao_desempenho'),
     path('api/coordenacao/aprovacao/', api_coordenacao_aprovacao, name='api_coordenacao_aprovacao'),
     path('api/coordenacao/atividades/', api_coordenacao_atividades, name='api_coordenacao_atividades'),
+
+    # Avisos e Eventos
+    path('api/avisos/criar/', criar_aviso, name='criar_aviso'),
+    path('api/eventos/criar/', criar_evento, name='criar_evento'),
+    path('api/avisos-eventos/', api_avisos_eventos, name='api_avisos_eventos'),
 ]

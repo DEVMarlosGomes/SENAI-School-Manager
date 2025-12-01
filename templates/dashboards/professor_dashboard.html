@@ -18,7 +18,7 @@
                     </div>
                 </div>
                 <div class="d-flex align-items-center gap-3">
-                    <a href="{% url 'relatorio_professor_geral_pdf' %}" class="btn btn-dark btn-sm shadow-sm" target="_blank">
+                    <a href="{% url 'preview_relatorio_professor' %}" class="btn btn-dark btn-sm shadow-sm" target="_blank">
                         <i class="fas fa-file-alt me-2"></i>Relatório Geral
                     </a>
 
@@ -146,12 +146,13 @@
     </div>
 </div>
 
-{{ dashboard_data_json|json_script:"dashboard-data" }}
+{{ dashboard_data_obj|json_script:"dashboard-data" }}
 
 <div class="overlay"></div>
 {% endblock %}
 
 {% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script src="{% static 'js/dashboard.js' %}"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
@@ -176,4 +177,87 @@
         }
     });
 </script>
+<script src="{% static 'js/coordenacao-comunicacao.js' %}"></script>
+
+<!-- Modals para criação rápida (Aviso / Evento) disponíveis para professores -->
+<div class="modal fade" id="modalAviso" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-light border-bottom">
+                <h5 class="modal-title fw-bold text-dark" id="modalAvisoTitle">Novo Aviso</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4">
+                <form id="formAviso">
+                    <div class="row g-3">
+                        <div class="col-md-8">
+                            <label class="form-label fw-bold">Título do Aviso *</label>
+                            <input type="text" class="form-control" id="inputAvisoTitulo" placeholder="Digite o título" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">Tipo *</label>
+                            <select class="form-select" id="inputAvisoTipo" required>
+                                <option value="">Selecionar...</option>
+                                <option value="Urgente">Urgente</option>
+                                <option value="Importante">Importante</option>
+                                <option value="Geral">Geral</option>
+                                <option value="Informativo">Informativo</option>
+                            </select>
+                        </div>
+                        <div class="col-md-12">
+                            <label class="form-label fw-bold">Conteúdo *</label>
+                            <textarea class="form-control" id="inputAvisoConteudo" rows="4" placeholder="Digite o conteúdo do aviso" required></textarea>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer border-top">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-senai-red" id="btnSalvarAviso" onclick="salvarAviso()">Publicar Aviso</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalEvento" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-light border-bottom">
+                <h5 class="modal-title fw-bold text-dark" id="modalEventoTitle">Novo Evento</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4">
+                <form id="formEvento">
+                    <div class="row g-3">
+                        <div class="col-md-8">
+                            <label class="form-label fw-bold">Nome do Evento *</label>
+                            <input type="text" class="form-control" id="inputEventoTitulo" placeholder="Digite o nome do evento" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Data do Evento *</label>
+                            <input type="date" class="form-control" id="inputEventoDataEvento" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Hora do Evento *</label>
+                            <input type="time" class="form-control" id="inputEventoHoraEvento" required>
+                        </div>
+                        <div class="col-md-12">
+                            <label class="form-label fw-bold">Local do Evento *</label>
+                            <input type="text" class="form-control" id="inputEventoLocal" placeholder="Digite o local do evento" required>
+                        </div>
+                        <div class="col-md-12">
+                            <label class="form-label fw-bold">Descrição (opcional)</label>
+                            <textarea class="form-control" id="inputEventoDescricao" rows="3" placeholder="Digite a descrição do evento (opcional)"></textarea>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer border-top">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-senai-red" id="btnSalvarEvento" onclick="salvarEvento()">Criar Evento</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 {% endblock %}
