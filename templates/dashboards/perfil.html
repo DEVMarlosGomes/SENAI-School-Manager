@@ -1,157 +1,227 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Meu Perfil{% endblock %}
+{% block title %}Meu Perfil | SENAI School Manager{% endblock %}
 
 {% block content %}
 <div class="layout-wrapper d-flex bg-light">
     {% include 'includes/sidebar.html' %}
     
     <div id="main-content" class="flex-grow-1 transition-all">
-        <!-- Header -->
-        <header class="bg-white shadow-sm py-3 px-4 border-bottom">
-            <div class="d-flex align-items-center gap-3">
-                <button class="btn btn-light d-md-none shadow-sm" id="sidebarToggle"><i class="fas fa-bars"></i></button>
-                <h4 class="fw-bold text-dark mb-0">Meu Perfil</h4>
+        <header class="bg-white sticky-top shadow-sm py-3 px-4 mb-4">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="header-title mb-0 h4"><i class="fas fa-id-card me-2 text-primary"></i>Meu Perfil</h1>
+                    <p class="text-muted small mb-0">Gerencie suas informações pessoais e de acesso</p>
+                </div>
             </div>
         </header>
 
-        <div class="container-fluid p-4">
+        <div class="container-fluid px-4 pb-5">
+            
+            {% if erro_perfil %}
+            <div class="alert alert-warning shadow-sm border-0 rounded-3 mb-4">
+                <i class="fas fa-exclamation-triangle me-2"></i> {{ erro_perfil }}
+            </div>
+            {% endif %}
+
             <div class="row g-4">
-                <!-- Cartão de Identificação (Esquerda) -->
                 <div class="col-lg-4">
-                    <div class="card border-0 shadow-sm rounded-3 text-center h-100">
-                        <div class="card-body p-5">
-                            <div class="position-relative d-inline-block mb-4">
-                                <div class="bg-senai-red text-white rounded-circle d-flex align-items-center justify-content-center mx-auto shadow" style="width: 120px; height: 120px; font-size: 3rem;">
-                                    {{ user.first_name|first|default:"U" }}
-                                </div>
-                                <span class="position-absolute bottom-0 end-0 bg-success border border-white rounded-circle p-2" title="Ativo">
-                                    <span class="visually-hidden">Ativo</span>
-                                </span>
+                    <div class="card border-0 shadow-sm rounded-4 overflow-hidden h-100">
+                        <div class="bg-primary position-relative" style="height: 100px; background: linear-gradient(135deg, #0056b3 0%, #004494 100%);">
+                        </div>
+                        
+                        <div class="card-body text-center pt-0 position-relative">
+                            <div class="position-absolute top-0 start-50 translate-middle">
+                                {% if user.profile.foto %}
+                                    <img src="{{ user.profile.foto.url }}" class="rounded-circle border border-4 border-white shadow" width="120" height="120" alt="Foto de {{ user.get_full_name }}" style="object-fit: cover;">
+                                {% else %}
+                                    <div class="rounded-circle border border-4 border-white shadow bg-secondary text-white d-flex align-items-center justify-content-center" style="width: 120px; height: 120px; font-size: 3rem;">
+                                        {{ user.first_name|first }}
+                                    </div>
+                                {% endif %}
                             </div>
-                            
-                            <h4 class="fw-bold text-dark mb-1">{{ user.get_full_name|default:user.username }}</h4>
-                            <p class="text-muted mb-3 text-uppercase small fw-bold">{{ profile.get_tipo_display }}</p>
-                            
-                            <div class="d-flex justify-content-center gap-2 mb-4">
-                                <span class="badge bg-light text-dark border px-3 py-2">
-                                    <i class="fas fa-id-card me-1"></i> 
-                                    {% if dados_academicos.RA_aluno %}
-                                        RA: {{ dados_academicos.RA_aluno }}
-                                    {% elif dados_academicos.registro_funcional %}
-                                        ID: {{ dados_academicos.registro_funcional }}
-                                    {% else %}
-                                        ID: {{ user.id }}
-                                    {% endif %}
+
+                            <div class="mt-5 pt-4">
+                                <h4 class="fw-bold text-dark mb-1">{{ user.get_full_name }}</h4>
+                                <p class="text-muted mb-2">{{ user.email }}</p>
+                                
+                                <span class="badge rounded-pill 
+                                    {% if tipo_usuario == 'aluno' %}bg-primary
+                                    {% elif tipo_usuario == 'professor' %}bg-success
+                                    {% elif tipo_usuario == 'coordenacao' %}bg-purple
+                                    {% else %}bg-secondary{% endif %} px-3 py-2 text-uppercase" style="letter-spacing: 0.5px;">
+                                    {{ user.profile.get_tipo_display|default:tipo_usuario }}
                                 </span>
                             </div>
 
-                            <hr class="my-4">
-                            
-                            <div class="text-start">
-                                <p class="mb-2 text-muted small"><i class="fas fa-envelope me-2 width-20"></i> {{ user.email }}</p>
-                                <p class="mb-2 text-muted small"><i class="fas fa-phone me-2 width-20"></i> {{ profile.telefone|default:"Não informado" }}</p>
-                                <p class="mb-0 text-muted small"><i class="fas fa-map-marker-alt me-2 width-20"></i> {{ profile.cidade|default:"-" }}/{{ profile.estado|default:"-" }}</p>
+                            <hr class="my-4 text-muted opacity-25">
+
+                            <div class="d-flex justify-content-around text-start">
+                                <div>
+                                    <small class="text-uppercase text-muted fw-bold" style="font-size: 0.7rem;">Status</small>
+                                    <div class="fw-bold text-success"><i class="fas fa-check-circle me-1"></i> Ativo</div>
+                                </div>
+                                <div>
+                                    <small class="text-uppercase text-muted fw-bold" style="font-size: 0.7rem;">Entrou em</small>
+                                    <div class="fw-bold text-dark">{{ user.date_joined|date:"d/m/Y" }}</div>
+                                </div>
                             </div>
-                        </div>
-                        <div class="card-footer bg-white border-top-0 pb-4">
-                            <button class="btn btn-outline-danger w-100" disabled title="Edição bloqueada pelo administrador">
-                                <i class="fas fa-edit me-2"></i>Solicitar Alteração
-                            </button>
                         </div>
                     </div>
                 </div>
 
-                <!-- Detalhes (Direita) -->
                 <div class="col-lg-8">
-                    <div class="card border-0 shadow-sm rounded-3 mb-4">
-                        <div class="card-header bg-white py-3 border-bottom">
-                            <h6 class="fw-bold text-dark mb-0"><i class="fas fa-info-circle me-2 text-primary"></i>Dados Cadastrais</h6>
+                    <div class="card border-0 shadow-sm rounded-4 h-100">
+                        <div class="card-header bg-white border-bottom py-3">
+                            <ul class="nav nav-pills card-header-pills" id="perfilTabs" role="tablist">
+                                <li class="nav-item">
+                                    <button class="nav-link active rounded-pill fw-bold" id="dados-tab" data-bs-toggle="tab" data-bs-target="#dados" type="button"><i class="fas fa-user me-2"></i>Dados Pessoais</button>
+                                </li>
+                                {% if tipo_usuario == 'aluno' or tipo_usuario == 'professor' %}
+                                <li class="nav-item ms-2">
+                                    <button class="nav-link rounded-pill fw-bold" id="academico-tab" data-bs-toggle="tab" data-bs-target="#academico" type="button"><i class="fas fa-graduation-cap me-2"></i>Vida Acadêmica</button>
+                                </li>
+                                {% endif %}
+                                <li class="nav-item ms-2">
+                                    <button class="nav-link rounded-pill fw-bold" id="seguranca-tab" data-bs-toggle="tab" data-bs-target="#seguranca" type="button"><i class="fas fa-lock me-2"></i>Segurança</button>
+                                </li>
+                            </ul>
                         </div>
+                        
                         <div class="card-body p-4">
-                            <div class="row g-4">
-                                <div class="col-md-6">
-                                    <label class="small text-muted fw-bold mb-1">CPF</label>
-                                    <div class="form-control bg-light border-0">{{ profile.cpf|default:"-" }}</div>
+                            <div class="tab-content" id="perfilTabsContent">
+                                
+                                <div class="tab-pane fade show active" id="dados" role="tabpanel">
+                                    <h5 class="fw-bold mb-4 text-primary">Informações Básicas</h5>
+                                    
+                                    <div class="row g-4">
+                                        <div class="col-md-6">
+                                            <label class="form-label text-muted small text-uppercase fw-bold">Nome Completo</label>
+                                            <div class="p-3 bg-light rounded-3 border fw-medium text-dark">
+                                                {{ user.get_full_name }}
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label text-muted small text-uppercase fw-bold">E-mail de Acesso</label>
+                                            <div class="p-3 bg-light rounded-3 border fw-medium text-dark">
+                                                {{ user.email }}
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label text-muted small text-uppercase fw-bold">Telefone / Celular</label>
+                                            <div class="p-3 bg-light rounded-3 border fw-medium text-dark">
+                                                {{ user.profile.telefone|default:"Não informado" }}
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label text-muted small text-uppercase fw-bold">CPF</label>
+                                            <div class="p-3 bg-light rounded-3 border fw-medium text-dark">
+                                                {{ user.profile.cpf|default:"***.***.***-**" }}
+                                            </div>
+                                        </div>
+                                        <div class="col-12">
+                                            <label class="form-label text-muted small text-uppercase fw-bold">Endereço</label>
+                                            <div class="p-3 bg-light rounded-3 border fw-medium text-dark">
+                                                {% if user.profile.bairro %}
+                                                    {{ user.profile.bairro }} - {{ user.profile.cidade }}/{{ user.profile.estado }} - CEP: {{ user.profile.cep }}
+                                                {% else %}
+                                                    <span class="text-muted fst-italic">Endereço não cadastrado</span>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                        <div class="col-12">
+                                            <label class="form-label text-muted small text-uppercase fw-bold">Biografia / Sobre</label>
+                                            <div class="p-3 bg-light rounded-3 border fw-medium text-dark">
+                                                {{ user.profile.bio|default:"Sem biografia." }}
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="col-md-6">
-                                    <label class="small text-muted fw-bold mb-1">Data de Nascimento</label>
-                                    <div class="form-control bg-light border-0">{{ profile.data_nascimento|date:"d/m/Y"|default:"-" }}</div>
-                                </div>
-                                <div class="col-md-12">
-                                    <label class="small text-muted fw-bold mb-1">Endereço Completo</label>
-                                    <div class="form-control bg-light border-0">
-                                        {% if profile.logradouro %}
-                                            {{ profile.logradouro }}, {{ profile.numero }} - {{ profile.bairro }} - CEP: {{ profile.cep }}
-                                        {% else %}
-                                            Endereço não cadastrado.
+
+                                {% if tipo_usuario == 'aluno' or tipo_usuario == 'professor' %}
+                                <div class="tab-pane fade" id="academico" role="tabpanel">
+                                    <h5 class="fw-bold mb-4 text-primary">
+                                        {% if tipo_usuario == 'aluno' %}Dados do Curso{% else %}Dados Funcionais{% endif %}
+                                    </h5>
+
+                                    <div class="row g-4">
+                                        {% if tipo_usuario == 'aluno' %}
+                                            <div class="col-md-6">
+                                                <div class="card bg-primary bg-opacity-10 border-0 h-100">
+                                                    <div class="card-body">
+                                                        <h6 class="text-primary fw-bold mb-1">RA (Registro Acadêmico)</h6>
+                                                        <p class="h4 mb-0 text-dark">{{ perfil_dado.RA_aluno }}</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="card bg-success bg-opacity-10 border-0 h-100">
+                                                    <div class="card-body">
+                                                        <h6 class="text-success fw-bold mb-1">Situação de Matrícula</h6>
+                                                        <p class="h4 mb-0 text-dark">{{ perfil_dado.status_matricula|default:"Ativo" }}</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-12">
+                                                <label class="form-label text-muted small text-uppercase fw-bold">Curso Atual</label>
+                                                <div class="p-3 bg-white border rounded-3 shadow-sm d-flex align-items-center">
+                                                    <div class="bg-primary text-white rounded p-2 me-3">
+                                                        <i class="fas fa-book fa-lg"></i>
+                                                    </div>
+                                                    <div>
+                                                        <h6 class="mb-0 fw-bold">{{ curso.nome_curso|default:"Curso não atribuído" }}</h6>
+                                                        <small class="text-muted">Turma: {{ turma.nome|default:"--" }}</small>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        {% elif tipo_usuario == 'professor' %}
+                                            <div class="col-md-6">
+                                                <label class="form-label text-muted small text-uppercase fw-bold">Registro Funcional</label>
+                                                <div class="p-3 bg-light rounded-3 border fw-bold text-dark font-monospace">
+                                                    {{ perfil_dado.registro_funcional }}
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label text-muted small text-uppercase fw-bold">Turmas Atribuídas</label>
+                                                <div class="p-3 bg-light rounded-3 border fw-bold text-dark">
+                                                    {{ qtd_turmas }} turmas ativas
+                                                </div>
+                                            </div>
                                         {% endif %}
                                     </div>
                                 </div>
-                            </div>
-                        </div>
-                    </div>
+                                {% endif %}
 
-                    <!-- Dados Específicos -->
-                    {% if profile.tipo == 'aluno' %}
-                    <div class="card border-0 shadow-sm rounded-3">
-                        <div class="card-header bg-white py-3 border-bottom">
-                            <h6 class="fw-bold text-dark mb-0"><i class="fas fa-graduation-cap me-2 text-success"></i>Informações Acadêmicas</h6>
-                        </div>
-                        <div class="card-body p-4">
-                            <div class="row g-4">
-                                <div class="col-md-6">
-                                    <label class="small text-muted fw-bold mb-1">Curso</label>
-                                    <div class="fw-bold text-dark">{{ dados_academicos.turma_atual.id_curso.nome_curso|default:"-" }}</div>
+                                <div class="tab-pane fade" id="seguranca" role="tabpanel">
+                                    <div class="text-center py-5">
+                                        <div class="mb-3 text-muted">
+                                            <i class="fas fa-shield-alt fa-3x"></i>
+                                        </div>
+                                        <h5 class="fw-bold">Alterar Senha</h5>
+                                        <p class="text-muted">Para garantir a segurança dos seus dados, recomendamos alterar sua senha periodicamente.</p>
+                                        <button class="btn btn-outline-primary rounded-pill px-4">
+                                            <i class="fas fa-key me-2"></i>Redefinir Senha
+                                        </button>
+                                        <p class="small text-muted mt-3">Entre em contato com a secretaria caso precise alterar seu e-mail de login.</p>
+                                    </div>
                                 </div>
-                                <div class="col-md-6">
-                                    <label class="small text-muted fw-bold mb-1">Turma Atual</label>
-                                    <div class="fw-bold text-dark">{{ dados_academicos.turma_atual.nome|default:"-" }}</div>
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="small text-muted fw-bold mb-1">Data de Matrícula</label>
-                                    <div>{{ dados_academicos.data_matricula|date:"d/m/Y" }}</div>
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="small text-muted fw-bold mb-1">Situação</label>
-                                    <div><span class="badge bg-success">Ativo</span></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    {% endif %}
 
-                    {% if profile.tipo == 'professor' %}
-                    <div class="card border-0 shadow-sm rounded-3">
-                        <div class="card-header bg-white py-3 border-bottom">
-                            <h6 class="fw-bold text-dark mb-0"><i class="fas fa-briefcase me-2 text-info"></i>Dados Funcionais</h6>
-                        </div>
-                        <div class="card-body p-4">
-                            <div class="row g-4">
-                                <div class="col-md-6">
-                                    <label class="small text-muted fw-bold mb-1">Registro Funcional</label>
-                                    <div class="fw-bold">{{ dados_academicos.registro_funcional }}</div>
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="small text-muted fw-bold mb-1">Departamento</label>
-                                    <div class="fw-bold">{{ dados_academicos.cod_departamento.nome_departamento }}</div>
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="small text-muted fw-bold mb-1">Formação</label>
-                                    <div>{{ dados_academicos.formacao }}</div>
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="small text-muted fw-bold mb-1">Vínculo</label>
-                                    <div>{{ dados_academicos.tipo_vinculo }}</div>
-                                </div>
                             </div>
                         </div>
                     </div>
-                    {% endif %}
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<style>
+    /* Estilos específicos para o perfil */
+    .bg-purple { background-color: #6f42c1; color: white; }
+    .header-breadcrumb { font-size: 0.85rem; color: #6c757d; }
+    .nav-pills .nav-link { color: #6c757d; transition: all 0.2s; }
+    .nav-pills .nav-link:hover { background-color: #f8f9fa; color: #0056b3; }
+    .nav-pills .nav-link.active { background-color: #0056b3; color: white; box-shadow: 0 4px 6px rgba(0,86,179,0.2); }
+</style>
 {% endblock %}

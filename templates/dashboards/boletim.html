@@ -1,143 +1,164 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Boletim Escolar - SENAI{% endblock %}
+{% block title %}Boletim Escolar | SENAI{% endblock %}
 
 {% block content %}
-<div class="d-flex" id="wrapper">
-    <!-- Sidebar -->
+<div class="layout-wrapper d-flex bg-light">
     {% include 'includes/sidebar.html' %}
 
-    <!-- Page Content -->
-    <div id="page-content-wrapper" class="w-100 bg-light">
-        {% include 'includes/navbar.html' %}
-
-        <div class="container-fluid px-4 py-4">
-            
-            <!-- Cabeçalho do Boletim -->
-            <div class="row mb-4">
-                <div class="col-md-8">
-                    <h2 class="fw-bold text-senai-blue">
-                        <i class="fas fa-file-invoice me-2"></i>Boletim Escolar
-                    </h2>
-                    <p class="text-muted">Acompanhe seu desempenho acadêmico detalhado por período.</p>
-                </div>
-                <div class="col-md-4 text-end d-none d-md-block">
-                    <button onclick="window.print()" class="btn btn-outline-secondary">
-                        <i class="fas fa-print me-2"></i>Imprimir Boletim
-                    </button>
+    <div id="main-content" class="flex-grow-1 transition-all">
+        
+        <header class="bg-white sticky-top shadow-sm py-3 px-4 d-print-none">
+            <div class="d-flex align-items-center gap-3">
+                <button class="btn btn-light d-md-none shadow-sm" id="sidebarToggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div>
+                    <h1 class="header-title mb-0 h5"><i class="fas fa-file-invoice me-2 text-primary"></i>Boletim Escolar</h1>
                 </div>
             </div>
+        </header>
 
-            <!-- Card de Informações do Aluno -->
-            <div class="card shadow-sm border-0 mb-4 rounded-3">
-                <div class="card-body p-4">
-                    <div class="row align-items-center">
-                        <div class="col-md-1 text-center mb-3 mb-md-0">
-                            <div class="avatar-circle bg-senai-red text-white fs-2 d-flex align-items-center justify-content-center mx-auto" style="width: 60px; height: 60px; border-radius: 50%;">
-                                {{ aluno.user.first_name|slice:":1" }}
+        <div class="container-fluid p-4">
+            
+            <div class="card border-0 shadow-sm rounded-4 mb-4 overflow-hidden">
+                <div class="card-body p-0">
+                    <div class="row g-0">
+                        <div class="col-md-2 bg-primary text-white d-flex flex-column align-items-center justify-content-center p-4 text-center">
+                            <div class="rounded-circle bg-white text-primary d-flex align-items-center justify-content-center shadow-sm mb-3" style="width: 80px; height: 80px; font-size: 2rem; fw-bold">
+                                {{ aluno.user.first_name|first }}
+                            </div>
+                            <small class="opacity-75 text-uppercase" style="letter-spacing: 1px;">Aluno</small>
+                        </div>
+                        
+                        <div class="col-md-7 p-4 d-flex flex-column justify-content-center">
+                            <h3 class="fw-bold text-dark mb-1">{{ aluno.user.get_full_name }}</h3>
+                            <div class="d-flex flex-wrap gap-4 mt-2 text-muted">
+                                <div><i class="fas fa-id-card me-2 text-primary"></i>RA: <strong>{{ aluno.RA_aluno }}</strong></div>
+                                <div><i class="fas fa-graduation-cap me-2 text-primary"></i>Curso: <strong>{{ aluno.turma_atual.id_curso.nome_curso }}</strong></div>
+                                <div><i class="fas fa-users me-2 text-primary"></i>Turma: <strong>{{ aluno.turma_atual.nome }}</strong></div>
                             </div>
                         </div>
-                        <div class="col-md-7">
-                            <h4 class="mb-1">{{ aluno.user.get_full_name }}</h4>
-                            <div class="d-flex flex-wrap gap-3 text-muted small">
-                                <span><i class="fas fa-id-card me-1"></i> RA: <strong>{{ aluno.RA_aluno }}</strong></span>
-                                <span><i class="fas fa-graduation-cap me-1"></i> Curso: <strong>{{ aluno.turma_atual.id_curso.nome_curso }}</strong></span>
-                                <span><i class="fas fa-users me-1"></i> Turma: <strong>{{ aluno.turma_atual.nome }}</strong></span>
+
+                        <div class="col-md-3 bg-light border-start p-4 d-flex flex-column align-items-center justify-content-center">
+                            <small class="text-uppercase text-muted fw-bold mb-1" style="font-size: 0.75rem;">Coeficiente (CR)</small>
+                            <div class="display-5 fw-bold {% if cr_geral >= 7 %}text-success{% elif cr_geral >= 5 %}text-warning{% else %}text-danger{% endif %}">
+                                {{ cr_geral|floatformat:1 }}
                             </div>
-                        </div>
-                        <div class="col-md-4 text-center text-md-end mt-3 mt-md-0 border-start-md">
-                            <div class="d-inline-block text-center px-3">
-                                <small class="text-uppercase text-muted fw-bold" style="font-size: 0.7rem;">Coeficiente de Rendimento</small>
-                                <div class="display-6 fw-bold text-senai-blue">{{ cr_geral }}</div>
-                            </div>
+                            <small class="text-muted text-center" style="font-size: 0.7rem;">Média Global</small>
                         </div>
                     </div>
                 </div>
             </div>
 
             {% if boletim_por_periodo %}
-                {% for periodo, historicos in boletim_por_periodo.items %}
-                <div class="card shadow-sm border-0 mb-4 rounded-3 overflow-hidden">
-                    <div class="card-header bg-white py-3 border-bottom border-light d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0 fw-bold text-senai-blue">
-                            <i class="fas fa-calendar-alt me-2 text-senai-red"></i>Período Letivo: {{ periodo }}
-                        </h5>
-                        <span class="badge bg-light text-dark border">{{ historicos|length }} Disciplinas</span>
+                <div class="card border-0 shadow-sm rounded-4">
+                    <div class="card-header bg-white border-bottom pt-3 pb-0 px-4">
+                        <ul class="nav nav-tabs card-header-tabs" id="boletimTabs" role="tablist">
+                            {% for periodo in boletim_por_periodo.keys %}
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link {% if forloop.last %}active{% endif %} fw-bold" 
+                                        id="tab-{{ periodo|slugify }}" 
+                                        data-bs-toggle="tab" 
+                                        data-bs-target="#content-{{ periodo|slugify }}" 
+                                        type="button" 
+                                        role="tab">
+                                    {{ periodo }}
+                                </button>
+                            </li>
+                            {% endfor %}
+                        </ul>
                     </div>
-                    <div class="table-responsive">
-                        <table class="table table-hover align-middle mb-0">
-                            <thead class="bg-light text-secondary">
-                                <tr>
-                                    <th scope="col" class="ps-4" style="width: 35%;">Disciplina</th>
-                                    <th scope="col">Professor</th>
-                                    <th scope="col" class="text-center">Faltas</th>
-                                    <th scope="col" class="text-center">Frequência</th>
-                                    <th scope="col" class="text-center">Média Final</th>
-                                    <th scope="col" class="text-center pe-4">Situação</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for h in historicos %}
-                                <tr>
-                                    <td class="ps-4 fw-bold text-dark">
-                                        {{ h.disciplina_nome }}
-                                    </td>
-                                    <td class="text-muted small">
-                                        {{ h.professor_nome }}
-                                    </td>
-                                    <td class="text-center">
-                                        {{ h.total_faltas|default:"0" }}
-                                    </td>
-                                    <td class="text-center">
-                                        {% if h.frequencia_percentual %}
-                                            <div class="d-flex align-items-center justify-content-center">
-                                                <div class="progress" style="height: 6px; width: 60px;">
-                                                    <div class="progress-bar bg-{% if h.frequencia_percentual < 75 %}danger{% else %}success{% endif %}" 
-                                                         role="progressbar" 
-                                                         style="width: {{ h.frequencia_percentual }}%">
-                                                    </div>
-                                                </div>
-                                                <span class="ms-2 small">{{ h.frequencia_percentual|floatformat:0 }}%</span>
-                                            </div>
-                                        {% else %}
-                                            <span class="text-muted">-</span>
-                                        {% endif %}
-                                    </td>
-                                    <td class="text-center">
-                                        {% if h.media_final is not None %}
-                                            <span class="badge bg-{{ h.cor_status }} fs-6 fw-normal px-3">
-                                                {{ h.media_final|floatformat:1 }}
-                                            </span>
-                                        {% else %}
-                                            <span class="text-muted fst-italic">Em curso</span>
-                                        {% endif %}
-                                    </td>
-                                    <td class="text-center pe-4">
-                                        {% if h.status_aprovacao %}
-                                            {% if h.status_aprovacao == 'Aprovado' %}
-                                                <span class="text-success fw-bold"><i class="fas fa-check-circle me-1"></i>Aprovado</span>
-                                            {% elif h.status_aprovacao == 'Reprovado' %}
-                                                <span class="text-danger fw-bold"><i class="fas fa-times-circle me-1"></i>Reprovado</span>
-                                            {% else %}
-                                                <span class="text-warning fw-bold">{{ h.status_aprovacao }}</span>
-                                            {% endif %}
-                                        {% else %}
-                                            <span class="text-muted small">Cursando</span>
-                                        {% endif %}
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
+
+                    <div class="card-body p-0">
+                        <div class="tab-content" id="boletimTabsContent">
+                            {% for periodo, historicos in boletim_por_periodo.items %}
+                            <div class="tab-pane fade {% if forloop.last %}show active{% endif %}" id="content-{{ periodo|slugify }}" role="tabpanel">
+                                
+                                <div class="table-responsive">
+                                    <table class="table table-hover align-middle mb-0">
+                                        <thead class="bg-light text-secondary small text-uppercase">
+                                            <tr>
+                                                <th class="ps-4 py-3">Disciplina</th>
+                                                <th class="py-3">Professor</th>
+                                                <th class="text-center py-3" style="width: 100px;">Faltas</th>
+                                                <th class="text-center py-3" style="width: 150px;">Frequência</th>
+                                                <th class="text-center py-3" style="width: 120px;">Nota Final</th>
+                                                <th class="text-end pe-4 py-3" style="width: 140px;">Situação</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for h in historicos %}
+                                            <tr>
+                                                <td class="ps-4">
+                                                    <div class="fw-bold text-dark">{{ h.disciplina_nome }}</div>
+                                                </td>
+                                                <td class="text-muted small">
+                                                    {{ h.professor_nome }}
+                                                </td>
+                                                <td class="text-center text-muted fw-medium">
+                                                    {{ h.total_faltas|default:"0" }}
+                                                </td>
+                                                <td class="text-center">
+                                                    {% if h.frequencia_percentual is not None %}
+                                                        <div class="d-flex flex-column align-items-center">
+                                                            <div class="progress rounded-pill w-100 mb-1" style="height: 6px; background-color: #e9ecef;">
+                                                                <div class="progress-bar rounded-pill bg-{% if h.frequencia_percentual < 75 %}danger{% else %}success{% endif %}" 
+                                                                     role="progressbar" 
+                                                                     style="width: {{ h.frequencia_percentual|floatformat:0 }}%">
+                                                                </div>
+                                                            </div>
+                                                            <small class="fw-bold {% if h.frequencia_percentual < 75 %}text-danger{% else %}text-success{% endif %}" style="font-size: 0.75rem;">
+                                                                {{ h.frequencia_percentual|floatformat:0 }}%
+                                                            </small>
+                                                        </div>
+                                                    {% else %}
+                                                        <span class="text-muted">-</span>
+                                                    {% endif %}
+                                                </td>
+                                                <td class="text-center">
+                                                    {% if h.media_final is not None %}
+                                                        <span class="badge rounded-pill bg-{{ h.cor_status }} px-3 py-2 fs-6 fw-normal shadow-sm">
+                                                            {{ h.media_final|floatformat:1 }}
+                                                        </span>
+                                                    {% else %}
+                                                        <span class="badge bg-light text-muted border">--</span>
+                                                    {% endif %}
+                                                </td>
+                                                <td class="text-end pe-4">
+                                                    {% if h.media_final is not None %}
+                                                        {% if h.media_final >= 7 and h.frequencia_percentual >= 75 %}
+                                                            <span class="text-success fw-bold small"><i class="fas fa-check-circle me-1"></i>Aprovado</span>
+                                                        {% elif h.media_final >= 5 %}
+                                                            <span class="text-warning fw-bold small"><i class="fas fa-exclamation-circle me-1"></i>Recuperação</span>
+                                                        {% else %}
+                                                            <span class="text-danger fw-bold small"><i class="fas fa-times-circle me-1"></i>Reprovado</span>
+                                                        {% endif %}
+                                                    {% else %}
+                                                        <span class="text-primary fw-bold small"><i class="fas fa-spinner fa-spin me-1"></i>Cursando</span>
+                                                    {% endif %}
+                                                </td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div class="bg-light border-top p-3 text-end text-muted small">
+                                    <span class="me-3">Disciplinas no período: <strong>{{ historicos|length }}</strong></span>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
                     </div>
                 </div>
-                {% endfor %}
             {% else %}
                 <div class="text-center py-5">
-                    <img src="{% static 'img/senai-logo.png' %}" alt="Sem dados" class="mb-4 opacity-25" style="max-width: 150px; filter: grayscale(100%);">
-                    <h4 class="text-muted">Nenhum registro acadêmico encontrado.</h4>
-                    <p class="text-muted">Se você acredita que isso é um erro, entre em contato com a secretaria.</p>
+                    <div class="mb-3 opacity-25">
+                        <i class="fas fa-file-alt fa-4x text-muted"></i>
+                    </div>
+                    <h5 class="text-muted fw-bold">Nenhum registro acadêmico disponível</h5>
+                    <p class="text-muted small">Suas notas e faltas aparecerão aqui assim que forem lançadas pelos professores.</p>
                 </div>
             {% endif %}
 
@@ -146,36 +167,17 @@
 </div>
 
 <style>
-    /* Ajustes específicos para impressão */
+    /* Estilos de Impressão */
     @media print {
-        #sidebar-wrapper, .navbar, .btn-print, footer, .chatbot-toggler {
-            display: none !important;
-        }
-        #page-content-wrapper {
-            margin: 0 !important;
-            padding: 0 !important;
-            background: white !important;
-        }
-        .card {
-            border: none !important;
-            box-shadow: none !important;
-        }
-        .badge {
-            border: 1px solid #000;
-            color: #000 !important;
-            background: none !important;
-        }
-    }
-    
-    .border-start-md {
-        border-left: 1px solid #dee2e6;
-    }
-    @media (max-width: 768px) {
-        .border-start-md {
-            border-left: none;
-            border-top: 1px solid #dee2e6;
-            padding-top: 1rem;
-        }
+        @page { size: landscape; margin: 1cm; }
+        body { background: white !important; -webkit-print-color-adjust: exact; }
+        #sidebar, .d-print-none, .btn { display: none !important; }
+        #main-content { margin: 0 !important; padding: 0 !important; width: 100% !important; }
+        .card { border: none !important; box-shadow: none !important; }
+        .tab-content > .tab-pane { display: block !important; opacity: 1 !important; margin-bottom: 2rem; page-break-inside: avoid; }
+        .nav-tabs { display: none !important; } /* Esconde as abas e mostra conteúdo sequencial */
+        .progress { border: 1px solid #ccc; }
+        .badge { border: 1px solid #000; color: #000 !important; background: none !important; }
     }
 </style>
 {% endblock %}

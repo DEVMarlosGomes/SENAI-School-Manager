@@ -582,8 +582,42 @@ def criar_evento(request):
     )
     return JsonResponse({'success': True, 'evento': {'id': evento.id}})
 
+# Em apps/dashboards/views.py
+
 @login_required
-def perfil_view(request): return render(request, "dashboards/perfil.html")
+def perfil_view(request):
+    context = {}
+    user = request.user
+    
+    # Verifica se existe profile
+    if hasattr(user, 'profile'):
+        tipo = user.profile.tipo
+        context['tipo_usuario'] = tipo
+        
+        try:
+            if tipo == 'aluno':
+                aluno = Aluno.objects.select_related('turma_atual', 'turma_atual__id_curso').get(user=user)
+                context['perfil_dado'] = aluno
+                context['turma'] = aluno.turma_atual
+                context['curso'] = aluno.turma_atual.id_curso if aluno.turma_atual else None
+                
+            elif tipo == 'professor':
+                professor = Professor.objects.get(user=user)
+                context['perfil_dado'] = professor
+                context['qtd_turmas'] = TurmaDisciplinaProfessor.objects.filter(professor=professor).count()
+                
+            elif tipo == 'secretaria':
+                secretaria = Secretaria.objects.get(user=user)
+                context['perfil_dado'] = secretaria
+                
+            elif tipo == 'coordenacao':
+                coordenacao = Coordenacao.objects.get(user=user)
+                context['perfil_dado'] = coordenacao
+                
+        except (Aluno.DoesNotExist, Professor.DoesNotExist, Secretaria.DoesNotExist, Coordenacao.DoesNotExist):
+            context['erro_perfil'] = "Perfil incompleto ou não vinculado corretamente."
+
+    return render(request, "dashboards/perfil.html", context)
 
 @require_http_methods(["POST"])
 @login_required 
