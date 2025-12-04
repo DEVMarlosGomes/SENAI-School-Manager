@@ -9,28 +9,32 @@ import os
 from pathlib import Path
 from dotenv import load_dotenv
 
-# carregar .env (se existir) para facilitar desenvolvimento local
-load_dotenv()
 # Caminho base do projeto
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Carregar variáveis de ambiente do arquivo .env na raiz
+load_dotenv(BASE_DIR / '.env')
 
 # ==============================
 # Configurações básicas
 # ==============================
 
-SECRET_KEY = 'django-insecure-7q()hy)04l-36t=dzf+k%@d9p^bh4#z_hdoqmx9-317*)v#wk#'
-DEBUG = True
+SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-7q()hy)04l-36t=dzf+k%@d9p^bh4#z_hdoqmx9-317*)v#wk#')
+DEBUG = os.getenv('DEBUG', 'True') == 'True'
 ALLOWED_HOSTS = ['romulofamiglietti.pythonanywhere.com', '127.0.0.1', 'localhost']
 
 # ==============================
 # Configurações do Stripe
 # ==============================
-# As chaves você pega no Dashboard do Stripe (Developers > API keys)
+STRIPE_PUBLISHABLE_KEY = os.getenv('STRIPE_PUBLISHABLE_KEY', 'pk_test_51SZC0Z13heh5oTSzLZKZbWaX9UlDU0tDkngjbnFg4QIGvEnYHMYC7Fncq9sFXdOGXYdtxZaae8vBGpRwW2qJcxF300LPOkDja4')
+STRIPE_SECRET_KEY = os.getenv('STRIPE_SECRET_KEY', 'sk_test_51SZC0Z13heh5oTSzVtxQbxTrtzRyOqpiXnyb23TOjUYzUNnBaqdvQID5ltjrFHBFYZlSnnZIJuPg0zKzrIa0GltA00bfbODh1p')
+STRIPE_WEBHOOK_SECRET = os.getenv('STRIPE_WEBHOOK_SECRET', 'whsec_teste_local_12345')
 
-# CORREÇÃO: Atribuindo as strings diretamente (Hardcoded) para garantir que funcionem
-STRIPE_PUBLISHABLE_KEY = 'pk_test_51SZC0Z13heh5oTSzLZKZbWaX9UlDU0tDkngjbnFg4QIGvEnYHMYC7Fncq9sFXdOGXYdtxZaae8vBGpRwW2qJcxF300LPOkDja4'
-STRIPE_SECRET_KEY = 'sk_test_51SZC0Z13heh5oTSzVtxQbxTrtzRyOqpiXnyb23TOjUYzUNnBaqdvQID5ltjrFHBFYZlSnnZIJuPg0zKzrIa0GltA00bfbODh1p'
-STRIPE_WEBHOOK_SECRET = 'whsec_teste_local_12345' # Para validar segurança
+# ==============================
+# Configurações do Gemini AI
+# ==============================
+# A chave será lida do arquivo .env
+GEMINI_API_KEY = os.getenv('GEMINI_API_KEY')
 
 # ==============================
 # Aplicações
@@ -138,29 +142,30 @@ LOGOUT_REDIRECT_URL = 'home'
 LOGIN_URL = 'login'
 
 # ==============================
-# Configurações de Sessão (ATUALIZADO)
+# Configurações de Sessão
 # ==============================
 
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 SESSION_COOKIE_AGE = 86400  # 24 horas
-SESSION_SAVE_EVERY_REQUEST = False  # Não salvar a cada request
-SESSION_EXPIRE_AT_BROWSER_CLOSE = False  # Manter sessão após fechar navegador
-SESSION_COOKIE_HTTPONLY = True  # Segurança: JS não acessa cookie
-SESSION_COOKIE_SAMESITE = 'Lax'  # Proteção contra CSRF
-SESSION_COOKIE_SECURE = False  # Mudar para True em produção com HTTPS
+SESSION_SAVE_EVERY_REQUEST = False
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False
+SESSION_COOKIE_HTTPONLY = True
+SESSION_COOKIE_SAMESITE = 'Lax'
+SESSION_COOKIE_SECURE = False  # Mudar para True em produção
 
 # ==============================
-# Configurações de CSRF (NOVO)
+# Configurações de CSRF
 # ==============================
 
-CSRF_COOKIE_AGE = 31449600  # 1 ano (365 dias)
-CSRF_USE_SESSIONS = False  # Usar cookie ao invés de sessão
-CSRF_COOKIE_HTTPONLY = False  # JavaScript precisa ler o token
-CSRF_COOKIE_SAMESITE = 'Lax'  # Proteção contra ataques CSRF
-CSRF_COOKIE_SECURE = False  # Mudar para True em produção com HTTPS
+CSRF_COOKIE_AGE = 31449600
+CSRF_USE_SESSIONS = False
+CSRF_COOKIE_HTTPONLY = False
+CSRF_COOKIE_SAMESITE = 'Lax'
+CSRF_COOKIE_SECURE = False
 CSRF_TRUSTED_ORIGINS = [
     'http://127.0.0.1:8000',
     'http://localhost:8000',
+    'https://romulofamiglietti.pythonanywhere.com',
 ]
 
 # ==============================
@@ -198,20 +203,7 @@ AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
         'OPTIONS': {
-            'min_length': 4,  # Mínimo 4 caracteres para testes
+            'min_length': 4,
         }
     },
 ]
-
-# ==============================
-# Limpeza Automática de Sessões
-# ==============================
-
-# Limpar sessões expiradas automaticamente
-SESSION_SAVE_EVERY_REQUEST = False
-SESSION_COOKIE_AGE = 86400  # 24 horas
-
-# Configuração adicional para debug
-if DEBUG:
-    # Em desenvolvimento, limitar vida útil da sessão
-    SESSION_COOKIE_AGE = 3600  # 1 hora

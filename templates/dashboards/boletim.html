@@ -1,128 +1,130 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Boletim Escolar - {{ aluno.user.first_name }}{% endblock %}
+{% block title %}Boletim Escolar - SENAI{% endblock %}
 
 {% block content %}
-<div class="layout-wrapper d-flex bg-light">
+<div class="d-flex" id="wrapper">
+    <!-- Sidebar -->
     {% include 'includes/sidebar.html' %}
-    
-    <div id="main-content" class="flex-grow-1 transition-all">
-        
-        <!-- Header -->
-        <header class="bg-white shadow-sm py-3 px-4 border-bottom">
-            <div class="d-flex justify-content-between align-items-center">
-                <div class="d-flex align-items-center gap-3">
-                    <button class="btn btn-light d-md-none shadow-sm" id="sidebarToggle">
-                        <i class="fas fa-bars"></i>
-                    </button>
-                    <div>
-                        <h4 class="fw-bold text-dark mb-0">Boletim Escolar</h4>
-                        <p class="text-muted small mb-0">Acompanhamento de desempenho acadêmico</p>
-                    </div>
+
+    <!-- Page Content -->
+    <div id="page-content-wrapper" class="w-100 bg-light">
+        {% include 'includes/navbar.html' %}
+
+        <div class="container-fluid px-4 py-4">
+            
+            <!-- Cabeçalho do Boletim -->
+            <div class="row mb-4">
+                <div class="col-md-8">
+                    <h2 class="fw-bold text-senai-blue">
+                        <i class="fas fa-file-invoice me-2"></i>Boletim Escolar
+                    </h2>
+                    <p class="text-muted">Acompanhe seu desempenho acadêmico detalhado por período.</p>
                 </div>
-                <div class="d-flex gap-2">
-                    <button class="btn btn-outline-secondary btn-sm" onclick="window.print()">
-                        <i class="fas fa-print me-2"></i>Imprimir
+                <div class="col-md-4 text-end d-none d-md-block">
+                    <button onclick="window.print()" class="btn btn-outline-secondary">
+                        <i class="fas fa-print me-2"></i>Imprimir Boletim
                     </button>
-                    <a href="{% url 'emitir_boletim_meu' %}" target="_blank" class="btn btn-danger btn-sm">
-                        <i class="fas fa-file-pdf me-2"></i>Baixar PDF
-                    </a>
                 </div>
             </div>
-        </header>
 
-        <div class="container-fluid p-4">
-            
-            <!-- Cabeçalho do Aluno -->
-            <div class="card border-0 shadow-sm mb-4">
+            <!-- Card de Informações do Aluno -->
+            <div class="card shadow-sm border-0 mb-4 rounded-3">
                 <div class="card-body p-4">
                     <div class="row align-items-center">
-                        <div class="col-md-2 text-center mb-3 mb-md-0">
-                            <div class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
-                                <i class="fas fa-user-graduate fa-2x text-senai-red"></i>
+                        <div class="col-md-1 text-center mb-3 mb-md-0">
+                            <div class="avatar-circle bg-senai-red text-white fs-2 d-flex align-items-center justify-content-center mx-auto" style="width: 60px; height: 60px; border-radius: 50%;">
+                                {{ aluno.user.first_name|slice:":1" }}
                             </div>
                         </div>
-                        <div class="col-md-10">
-                            <div class="row g-3">
-                                <div class="col-md-4">
-                                    <label class="small text-muted fw-bold">ALUNO</label>
-                                    <h5 class="text-dark fw-bold mb-0">{{ aluno.user.get_full_name }}</h5>
-                                </div>
-                                <div class="col-md-2">
-                                    <label class="small text-muted fw-bold">R.A.</label>
-                                    <p class="text-dark mb-0 font-monospace">{{ aluno.RA_aluno }}</p>
-                                </div>
-                                <div class="col-md-3">
-                                    <label class="small text-muted fw-bold">CURSO</label>
-                                    <p class="text-dark mb-0">{{ aluno.turma_atual.id_curso.nome_curso|default:"-" }}</p>
-                                </div>
-                                <div class="col-md-3">
-                                    <label class="small text-muted fw-bold">TURMA</label>
-                                    <p class="text-dark mb-0">{{ aluno.turma_atual.nome|default:"-" }}</p>
-                                </div>
+                        <div class="col-md-7">
+                            <h4 class="mb-1">{{ aluno.user.get_full_name }}</h4>
+                            <div class="d-flex flex-wrap gap-3 text-muted small">
+                                <span><i class="fas fa-id-card me-1"></i> RA: <strong>{{ aluno.RA_aluno }}</strong></span>
+                                <span><i class="fas fa-graduation-cap me-1"></i> Curso: <strong>{{ aluno.turma_atual.id_curso.nome_curso }}</strong></span>
+                                <span><i class="fas fa-users me-1"></i> Turma: <strong>{{ aluno.turma_atual.nome }}</strong></span>
+                            </div>
+                        </div>
+                        <div class="col-md-4 text-center text-md-end mt-3 mt-md-0 border-start-md">
+                            <div class="d-inline-block text-center px-3">
+                                <small class="text-uppercase text-muted fw-bold" style="font-size: 0.7rem;">Coeficiente de Rendimento</small>
+                                <div class="display-6 fw-bold text-senai-blue">{{ cr_geral }}</div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Boletim por Períodos -->
-            {% if boletim_agrupado %}
-                {% for periodo_data in boletim_agrupado %}
-                <div class="card border-0 shadow-sm mb-4 overflow-hidden">
-                    <div class="card-header bg-senai-dark text-white py-3 d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0"><i class="fas fa-calendar-alt me-2"></i> Período Letivo: {{ periodo_data.periodo }}</h5>
-                        <span class="badge bg-white text-dark">Média Geral: {{ periodo_data.media_geral }}</span>
+            {% if boletim_por_periodo %}
+                {% for periodo, historicos in boletim_por_periodo.items %}
+                <div class="card shadow-sm border-0 mb-4 rounded-3 overflow-hidden">
+                    <div class="card-header bg-white py-3 border-bottom border-light d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0 fw-bold text-senai-blue">
+                            <i class="fas fa-calendar-alt me-2 text-senai-red"></i>Período Letivo: {{ periodo }}
+                        </h5>
+                        <span class="badge bg-light text-dark border">{{ historicos|length }} Disciplinas</span>
                     </div>
                     <div class="table-responsive">
                         <table class="table table-hover align-middle mb-0">
-                            <thead class="bg-light">
+                            <thead class="bg-light text-secondary">
                                 <tr>
-                                    <th class="ps-4 py-3" style="width: 35%;">DISCIPLINA</th>
-                                    <th class="py-3 text-center">C.H.</th>
-                                    <th class="py-3 text-center">NOTA FINAL</th>
-                                    <th class="py-3 text-center">FREQ. (%)</th>
-                                    <th class="py-3 text-center">FALTAS</th>
-                                    <th class="pe-4 py-3 text-end">SITUAÇÃO</th>
+                                    <th scope="col" class="ps-4" style="width: 35%;">Disciplina</th>
+                                    <th scope="col">Professor</th>
+                                    <th scope="col" class="text-center">Faltas</th>
+                                    <th scope="col" class="text-center">Frequência</th>
+                                    <th scope="col" class="text-center">Média Final</th>
+                                    <th scope="col" class="text-center pe-4">Situação</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {% for item in periodo_data.disciplinas %}
+                                {% for h in historicos %}
                                 <tr>
-                                    <td class="ps-4">
-                                        <div class="fw-bold text-dark">{{ item.disciplina }}</div>
-                                        <small class="text-muted">Prof. {{ item.professor }}</small>
+                                    <td class="ps-4 fw-bold text-dark">
+                                        {{ h.disciplina_nome }}
                                     </td>
-                                    <td class="text-center text-muted small">{{ item.carga_horaria }}h</td>
-                                    <td class="text-center">
-                                        {% if item.nota is not None %}
-                                            <span class="fw-bold fs-5 {% if item.nota >= 7 %}text-success{% elif item.nota < 5 %}text-danger{% else %}text-warning{% endif %}">
-                                                {{ item.nota|floatformat:1 }}
-                                            </span>
-                                        {% else %}
-                                            <span class="text-muted">-</span>
-                                        {% endif %}
+                                    <td class="text-muted small">
+                                        {{ h.professor_nome }}
                                     </td>
                                     <td class="text-center">
-                                        {% if item.frequencia is not None %}
-                                            <div class="d-flex flex-column align-items-center">
-                                                <span class="small fw-bold {% if item.frequencia < 75 %}text-danger{% else %}text-success{% endif %}">
-                                                    {{ item.frequencia|floatformat:0 }}%
-                                                </span>
-                                                <div class="progress" style="height: 4px; width: 60px;">
-                                                    <div class="progress-bar {% if item.frequencia < 75 %}bg-danger{% else %}bg-success{% endif %}" role="progressbar" style="width: {{ item.frequencia }}%"></div>
+                                        {{ h.total_faltas|default:"0" }}
+                                    </td>
+                                    <td class="text-center">
+                                        {% if h.frequencia_percentual %}
+                                            <div class="d-flex align-items-center justify-content-center">
+                                                <div class="progress" style="height: 6px; width: 60px;">
+                                                    <div class="progress-bar bg-{% if h.frequencia_percentual < 75 %}danger{% else %}success{% endif %}" 
+                                                         role="progressbar" 
+                                                         style="width: {{ h.frequencia_percentual }}%">
+                                                    </div>
                                                 </div>
+                                                <span class="ms-2 small">{{ h.frequencia_percentual|floatformat:0 }}%</span>
                                             </div>
                                         {% else %}
                                             <span class="text-muted">-</span>
                                         {% endif %}
                                     </td>
-                                    <td class="text-center text-muted">{{ item.faltas|default:"0" }}</td>
-                                    <td class="pe-4 text-end">
-                                        <span class="badge bg-{{ item.cor_status }} rounded-pill px-3">
-                                            {{ item.status }}
-                                        </span>
+                                    <td class="text-center">
+                                        {% if h.media_final is not None %}
+                                            <span class="badge bg-{{ h.cor_status }} fs-6 fw-normal px-3">
+                                                {{ h.media_final|floatformat:1 }}
+                                            </span>
+                                        {% else %}
+                                            <span class="text-muted fst-italic">Em curso</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-center pe-4">
+                                        {% if h.status_aprovacao %}
+                                            {% if h.status_aprovacao == 'Aprovado' %}
+                                                <span class="text-success fw-bold"><i class="fas fa-check-circle me-1"></i>Aprovado</span>
+                                            {% elif h.status_aprovacao == 'Reprovado' %}
+                                                <span class="text-danger fw-bold"><i class="fas fa-times-circle me-1"></i>Reprovado</span>
+                                            {% else %}
+                                                <span class="text-warning fw-bold">{{ h.status_aprovacao }}</span>
+                                            {% endif %}
+                                        {% else %}
+                                            <span class="text-muted small">Cursando</span>
+                                        {% endif %}
                                     </td>
                                 </tr>
                                 {% endfor %}
@@ -133,36 +135,47 @@
                 {% endfor %}
             {% else %}
                 <div class="text-center py-5">
-                    <div class="mb-3">
-                        <i class="fas fa-book-open fa-4x text-muted opacity-25"></i>
-                    </div>
-                    <h5 class="text-muted">Nenhum registro acadêmico encontrado.</h5>
-                    <p class="text-muted small">Se você acredita que isso é um erro, contate a secretaria.</p>
+                    <img src="{% static 'img/senai-logo.png' %}" alt="Sem dados" class="mb-4 opacity-25" style="max-width: 150px; filter: grayscale(100%);">
+                    <h4 class="text-muted">Nenhum registro acadêmico encontrado.</h4>
+                    <p class="text-muted">Se você acredita que isso é um erro, entre em contato com a secretaria.</p>
                 </div>
             {% endif %}
-
-            <!-- Legenda -->
-            <div class="card border-0 shadow-sm bg-white mt-4">
-                <div class="card-body p-3">
-                    <h6 class="text-muted small fw-bold text-uppercase mb-3">Legenda de Situação</h6>
-                    <div class="d-flex flex-wrap gap-3">
-                        <div class="d-flex align-items-center small">
-                            <span class="badge bg-success rounded-circle p-1 me-2"> </span> Aprovado (Nota ≥ 7.0 e Freq. ≥ 75%)
-                        </div>
-                        <div class="d-flex align-items-center small">
-                            <span class="badge bg-warning rounded-circle p-1 me-2"> </span> Recuperação (5.0 ≤ Nota < 7.0)
-                        </div>
-                        <div class="d-flex align-items-center small">
-                            <span class="badge bg-danger rounded-circle p-1 me-2"> </span> Reprovado (Nota < 5.0 ou Freq. < 75%)
-                        </div>
-                        <div class="d-flex align-items-center small">
-                            <span class="badge bg-info rounded-circle p-1 me-2"> </span> Cursando (Em andamento)
-                        </div>
-                    </div>
-                </div>
-            </div>
 
         </div>
     </div>
 </div>
+
+<style>
+    /* Ajustes específicos para impressão */
+    @media print {
+        #sidebar-wrapper, .navbar, .btn-print, footer, .chatbot-toggler {
+            display: none !important;
+        }
+        #page-content-wrapper {
+            margin: 0 !important;
+            padding: 0 !important;
+            background: white !important;
+        }
+        .card {
+            border: none !important;
+            box-shadow: none !important;
+        }
+        .badge {
+            border: 1px solid #000;
+            color: #000 !important;
+            background: none !important;
+        }
+    }
+    
+    .border-start-md {
+        border-left: 1px solid #dee2e6;
+    }
+    @media (max-width: 768px) {
+        .border-start-md {
+            border-left: none;
+            border-top: 1px solid #dee2e6;
+            padding-top: 1rem;
+        }
+    }
+</style>
 {% endblock %}

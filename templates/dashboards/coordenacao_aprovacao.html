@@ -1,154 +1,232 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Aprovação de Usuários{% endblock %}
+{% block title %}Aprovações Pendentes - Coordenação{% endblock %}
 
 {% block content %}
-<div class="layout-wrapper d-flex bg-light">
+<div class="d-flex" id="wrapper">
+    <!-- Sidebar -->
     {% include 'includes/sidebar.html' %}
-    
-    <div id="main-content" class="flex-grow-1 transition-all">
-        <!-- Header -->
-        <header class="bg-white shadow-sm py-3 px-4 border-bottom sticky-top">
-            <div class="d-flex align-items-center gap-3">
-                <a href="{% url 'coordenacao_gestao' %}" class="btn btn-light border btn-sm rounded-circle"><i class="fas fa-arrow-left"></i></a>
-                <h4 class="fw-bold text-dark mb-0">Aprovação de Cadastros</h4>
-            </div>
-        </header>
 
-        <div class="container-fluid p-4">
+    <!-- Page Content -->
+    <div id="page-content-wrapper" class="w-100 bg-light">
+        {% include 'includes/navbar.html' %}
+
+        <div class="container-fluid px-4 py-4">
             
-            <!-- Alertas -->
+            <!-- Mensagens de Sucesso/Erro -->
             {% if messages %}
-                {% for message in messages %}
-                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show shadow-sm" role="alert">
-                        {{ message }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                <div class="row mb-3">
+                    <div class="col-12">
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        {% endfor %}
                     </div>
-                {% endfor %}
+                </div>
             {% endif %}
-
-            <!-- Pendentes -->
-            <div class="card border-0 shadow-sm mb-4">
-                <div class="card-header bg-warning bg-opacity-10 border-0 py-3">
-                    <h6 class="fw-bold text-warning-emphasis mb-0"><i class="fas fa-clock me-2"></i>Solicitações Pendentes ({{ pendentes.count }})</h6>
+            
+            <div class="row mb-4">
+                <div class="col-12">
+                    <h3 class="fw-bold text-senai-blue">
+                        <i class="fas fa-check-double me-2"></i>Central de Aprovações
+                    </h3>
+                    <p class="text-muted">Gerencie solicitações de cadastro e criação de turmas pendentes.</p>
                 </div>
-                <div class="card-body p-0">
-                    <div class="table-responsive">
-                        <table class="table table-hover align-middle mb-0">
-                            <thead class="bg-light">
-                                <tr>
-                                    <th class="ps-4">Data</th>
-                                    <th>Nome Completo</th>
-                                    <th>Email / Usuário</th>
-                                    <th>Perfil Solicitado</th>
-                                    <th>CPF</th>
-                                    <th class="text-end pe-4">Ações</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for req in pendentes %}
-                                <tr>
-                                    <td class="ps-4 text-muted small">{{ req.data_solicitacao|date:"d/m/Y H:i" }}</td>
-                                    <td class="fw-bold">{{ req.primeiro_nome }} {{ req.sobrenome }}</td>
-                                    <td>
-                                        <div>{{ req.email }}</div>
-                                        <small class="text-muted">{{ req.username }}</small>
-                                    </td>
-                                    <td>
-                                        <span class="badge bg-primary">{{ req.get_tipo_solicitado_display }}</span>
-                                    </td>
-                                    <td class="font-monospace text-muted">{{ req.cpf|default:"-" }}</td>
-                                    <td class="text-end pe-4">
-                                        <div class="d-flex justify-content-end gap-2">
-                                            <form action="{% url 'aprovar_registro' req.id %}" method="post">
-                                                {% csrf_token %}
-                                                <button type="submit" class="btn btn-success btn-sm" title="Aprovar">
-                                                    <i class="fas fa-check"></i>
-                                                </button>
-                                            </form>
-                                            <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#rejectModal{{ req.id }}" title="Rejeitar">
-                                                <i class="fas fa-times"></i>
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
+            </div>
 
-                                <!-- Modal Rejeição -->
-                                <div class="modal fade" id="rejectModal{{ req.id }}" tabindex="-1">
-                                    <div class="modal-dialog modal-dialog-centered">
-                                        <div class="modal-content">
-                                            <form action="{% url 'rejeitar_registro' req.id %}" method="post">
-                                                {% csrf_token %}
-                                                <div class="modal-header bg-danger text-white">
-                                                    <h5 class="modal-title">Rejeitar Solicitação</h5>
-                                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            <!-- Tabs de Navegação -->
+            <ul class="nav nav-tabs mb-4" id="approvalTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="users-tab" data-bs-toggle="tab" data-bs-target="#users" type="button" role="tab">
+                        <i class="fas fa-user-plus me-2"></i>Novos Usuários 
+                        {% if registros_pendentes %}
+                            <span class="badge bg-danger rounded-pill ms-2">{{ registros_pendentes.count }}</span>
+                        {% endif %}
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="classes-tab" data-bs-toggle="tab" data-bs-target="#classes" type="button" role="tab">
+                        <i class="fas fa-chalkboard-teacher me-2"></i>Turmas Pendentes
+                        {% if turmas_pendentes %}
+                            <span class="badge bg-warning text-dark rounded-pill ms-2">{{ turmas_pendentes.count }}</span>
+                        {% endif %}
+                    </button>
+                </li>
+            </ul>
+
+            <div class="tab-content" id="approvalTabsContent">
+                
+                <!-- ABA 1: USUÁRIOS -->
+                <div class="tab-pane fade show active" id="users" role="tabpanel">
+                    <div class="card shadow-sm border-0 rounded-3">
+                        <div class="card-body p-0">
+                            {% if registros_pendentes %}
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle mb-0">
+                                    <thead class="bg-light">
+                                        <tr>
+                                            <th class="ps-4">Solicitante</th>
+                                            <th>Perfil</th>
+                                            <th>CPF</th>
+                                            <th>Data Solicitação</th>
+                                            <th class="text-end pe-4">Ações</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for reg in registros_pendentes %}
+                                        <tr>
+                                            <td class="ps-4">
+                                                <div class="d-flex flex-column">
+                                                    <span class="fw-bold">{{ reg.get_nome_completo }}</span>
+                                                    <small class="text-muted">{{ reg.email }}</small>
                                                 </div>
-                                                <div class="modal-body">
-                                                    <p>Deseja rejeitar o cadastro de <strong>{{ req.primeiro_nome }}</strong>?</p>
-                                                    <div class="mb-3">
-                                                        <label class="form-label">Motivo (opcional)</label>
-                                                        <textarea name="motivo" class="form-control" rows="3" placeholder="Explique o motivo da rejeição..."></textarea>
-                                                    </div>
+                                            </td>
+                                            <td>
+                                                {% if reg.tipo_solicitado == 'aluno' %}
+                                                    <span class="badge bg-primary">Aluno</span>
+                                                {% elif reg.tipo_solicitado == 'professor' %}
+                                                    <span class="badge bg-info text-dark">Professor</span>
+                                                {% else %}
+                                                    <span class="badge bg-secondary">{{ reg.get_tipo_solicitado_display }}</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>{{ reg.cpf|default:"-" }}</td>
+                                            <td>{{ reg.data_solicitacao|date:"d/m/Y H:i" }}</td>
+                                            <td class="text-end pe-4">
+                                                <div class="btn-group">
+                                                    <!-- Botão Aprovar -->
+                                                    <form method="POST" action="{% url 'coordenacao_aprovacao' %}" class="d-inline">
+                                                        {% csrf_token %}
+                                                        <input type="hidden" name="action" value="approve_user">
+                                                        <input type="hidden" name="item_id" value="{{ reg.id }}">
+                                                        <button type="submit" class="btn btn-success btn-sm" title="Aprovar">
+                                                            <i class="fas fa-check me-1"></i>Aprovar
+                                                        </button>
+                                                    </form>
+                                                    
+                                                    <!-- Botão Rejeitar (Abre Modal) -->
+                                                    <button type="button" class="btn btn-outline-danger btn-sm ms-1" onclick="rejectUser('{{ reg.id }}', '{{ reg.get_nome_completo }}')" title="Rejeitar">
+                                                        <i class="fas fa-times"></i>
+                                                    </button>
                                                 </div>
-                                                <div class="modal-footer">
-                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                                                    <button type="submit" class="btn btn-danger">Confirmar Rejeição</button>
-                                                </div>
-                                            </form>
-                                        </div>
-                                    </div>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                            {% else %}
+                                <div class="text-center py-5">
+                                    <i class="fas fa-user-check fa-3x text-muted mb-3 opacity-25"></i>
+                                    <h5 class="text-muted">Nenhuma solicitação de cadastro pendente.</h5>
                                 </div>
-                                {% empty %}
-                                <tr>
-                                    <td colspan="6" class="text-center py-5 text-muted">
-                                        <i class="fas fa-check-circle fa-3x mb-3 text-success opacity-25"></i>
-                                        <p class="mb-0">Nenhuma solicitação pendente no momento.</p>
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
+                            {% endif %}
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Histórico Recente -->
-            <h6 class="text-muted fw-bold text-uppercase small mb-3 ps-1">Histórico Recente</h6>
-            <div class="card border-0 shadow-sm">
-                <div class="card-body p-0">
-                    <div class="table-responsive">
-                        <table class="table align-middle mb-0">
-                            <tbody>
-                                {% for hist in historico %}
-                                <tr class="{% if hist.status == 'rejeitado' %}bg-danger bg-opacity-10{% endif %}">
-                                    <td class="ps-4 py-3">
-                                        <strong>{{ hist.primeiro_nome }} {{ hist.sobrenome }}</strong><br>
-                                        <small class="text-muted">{{ hist.email }}</small>
-                                    </td>
-                                    <td>{{ hist.get_tipo_solicitado_display }}</td>
-                                    <td>
-                                        {% if hist.status == 'aprovado' %}
-                                            <span class="badge bg-success">Aprovado</span>
-                                        {% else %}
-                                            <span class="badge bg-danger">Rejeitado</span>
-                                        {% endif %}
-                                    </td>
-                                    <td class="text-muted small">
-                                        <i class="fas fa-user-shield me-1"></i> {{ hist.aprovado_por.first_name|default:"Sistema" }}<br>
-                                        {{ hist.data_aprovacao|date:"d/m/Y H:i" }}
-                                    </td>
-                                </tr>
-                                {% empty %}
-                                <tr><td colspan="4" class="text-center p-3 text-muted">Sem histórico recente.</td></tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
+                <!-- ABA 2: TURMAS -->
+                <div class="tab-pane fade" id="classes" role="tabpanel">
+                    <div class="card shadow-sm border-0 rounded-3">
+                        <div class="card-body p-0">
+                            {% if turmas_pendentes %}
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle mb-0">
+                                    <thead class="bg-light">
+                                        <tr>
+                                            <th class="ps-4">Turma</th>
+                                            <th>Curso</th>
+                                            <th>Período/Turno</th>
+                                            <th>Início</th>
+                                            <th class="text-end pe-4">Ações</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for turma in turmas_pendentes %}
+                                        <tr>
+                                            <td class="ps-4 fw-bold">{{ turma.nome }}</td>
+                                            <td>{{ turma.id_curso.nome_curso }}</td>
+                                            <td>{{ turma.periodo }} / {{ turma.id_curso.turno }}</td>
+                                            <td>{{ turma.data_inicio|date:"d/m/Y" }}</td>
+                                            <td class="text-end pe-4">
+                                                <div class="btn-group">
+                                                    <!-- Botão Aprovar -->
+                                                    <form method="POST" action="{% url 'coordenacao_aprovacao' %}" class="d-inline">
+                                                        {% csrf_token %}
+                                                        <input type="hidden" name="action" value="approve_turma">
+                                                        <input type="hidden" name="item_id" value="{{ turma.id }}">
+                                                        <button type="submit" class="btn btn-success btn-sm" title="Aprovar">
+                                                            <i class="fas fa-check me-1"></i>Aprovar
+                                                        </button>
+                                                    </form>
+
+                                                    <!-- Botão Rejeitar -->
+                                                    <form method="POST" action="{% url 'coordenacao_aprovacao' %}" class="d-inline">
+                                                        {% csrf_token %}
+                                                        <input type="hidden" name="action" value="reject_turma">
+                                                        <input type="hidden" name="item_id" value="{{ turma.id }}">
+                                                        <button type="submit" class="btn btn-outline-danger btn-sm ms-1" onclick="return confirm('Tem certeza que deseja rejeitar esta turma?')" title="Rejeitar">
+                                                            <i class="fas fa-times"></i>
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                            {% else %}
+                                <div class="text-center py-5">
+                                    <i class="fas fa-clipboard-check fa-3x text-muted mb-3 opacity-25"></i>
+                                    <h5 class="text-muted">Nenhuma turma aguardando aprovação.</h5>
+                                </div>
+                            {% endif %}
+                        </div>
                     </div>
                 </div>
-            </div>
 
+            </div>
         </div>
     </div>
 </div>
+
+<!-- Modal de Rejeição de Usuário (Apenas para Rejeição de Usuários) -->
+<div class="modal fade" id="rejectModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Rejeitar Cadastro</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" action="{% url 'coordenacao_aprovacao' %}">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <p>Tem certeza que deseja rejeitar o cadastro de <strong id="rejectUserName"></strong>?</p>
+                    <input type="hidden" name="action" value="reject_user">
+                    <input type="hidden" name="item_id" id="rejectUserId">
+                    <div class="mb-3">
+                        <label class="form-label">Motivo da Rejeição (Opcional):</label>
+                        <textarea class="form-control" name="motivo_rejeicao" rows="3" placeholder="Ex: CPF inválido, dados incompletos..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-danger">Confirmar Rejeição</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    function rejectUser(id, name) {
+        document.getElementById('rejectUserId').value = id;
+        document.getElementById('rejectUserName').textContent = name;
+        new bootstrap.Modal(document.getElementById('rejectModal')).show();
+    }
+</script>
 {% endblock %}
