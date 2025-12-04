@@ -26,7 +26,9 @@ from .views import (
     aluno_financeiro_view,
     criar_aviso,
     criar_evento,
-    api_avisos_eventos
+    api_avisos_eventos,
+    chat_gemini,
+    coordenacao_aprovacao_view # Adicionar importação
 )
 
 urlpatterns = [
@@ -44,6 +46,9 @@ urlpatterns = [
     path('coordenacao/gestao/', coordenacao_gestao_view, name='coordenacao_gestao'),
     path('coordenacao/comunicacao/', coordenacao_comunicacao_view, name='coordenacao_comunicacao'),
     path('coordenacao/relatorios/', coordenacao_relatorios_view, name='coordenacao_relatorios'),
+    
+    # CORREÇÃO: Adicionando a rota que faltava
+    path('coordenacao/aprovacao/', coordenacao_aprovacao_view, name='coordenacao_aprovacao'),
 
     # APIs para Gestão de Alunos (Salvar e Deletar)
     path('api/gestao/aluno/save/', save_aluno_view, name='save_aluno'),
@@ -74,4 +79,7 @@ urlpatterns = [
     path('api/avisos/criar/', criar_aviso, name='criar_aviso'),
     path('api/eventos/criar/', criar_evento, name='criar_evento'),
     path('api/avisos-eventos/', api_avisos_eventos, name='api_avisos_eventos'),
+
+    # Nova Rota do Chatbot
+    path('api/chat-gemini/', chat_gemini, name='chat_gemini'),
 ]

@@ -1,0 +1,232 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Aprovações Pendentes - Coordenação{% endblock %}
+
+{% block content %}
+<div class="d-flex" id="wrapper">
+    <!-- Sidebar -->
+    {% include 'includes/sidebar.html' %}
+
+    <!-- Page Content -->
+    <div id="page-content-wrapper" class="w-100 bg-light">
+        {% include 'includes/navbar.html' %}
+
+        <div class="container-fluid px-4 py-4">
+            
+            <!-- Mensagens de Sucesso/Erro -->
+            {% if messages %}
+                <div class="row mb-3">
+                    <div class="col-12">
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
+            
+            <div class="row mb-4">
+                <div class="col-12">
+                    <h3 class="fw-bold text-senai-blue">
+                        <i class="fas fa-check-double me-2"></i>Central de Aprovações
+                    </h3>
+                    <p class="text-muted">Gerencie solicitações de cadastro e criação de turmas pendentes.</p>
+                </div>
+            </div>
+
+            <!-- Tabs de Navegação -->
+            <ul class="nav nav-tabs mb-4" id="approvalTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="users-tab" data-bs-toggle="tab" data-bs-target="#users" type="button" role="tab">
+                        <i class="fas fa-user-plus me-2"></i>Novos Usuários 
+                        {% if registros_pendentes %}
+                            <span class="badge bg-danger rounded-pill ms-2">{{ registros_pendentes.count }}</span>
+                        {% endif %}
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="classes-tab" data-bs-toggle="tab" data-bs-target="#classes" type="button" role="tab">
+                        <i class="fas fa-chalkboard-teacher me-2"></i>Turmas Pendentes
+                        {% if turmas_pendentes %}
+                            <span class="badge bg-warning text-dark rounded-pill ms-2">{{ turmas_pendentes.count }}</span>
+                        {% endif %}
+                    </button>
+                </li>
+            </ul>
+
+            <div class="tab-content" id="approvalTabsContent">
+                
+                <!-- ABA 1: USUÁRIOS -->
+                <div class="tab-pane fade show active" id="users" role="tabpanel">
+                    <div class="card shadow-sm border-0 rounded-3">
+                        <div class="card-body p-0">
+                            {% if registros_pendentes %}
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle mb-0">
+                                    <thead class="bg-light">
+                                        <tr>
+                                            <th class="ps-4">Solicitante</th>
+                                            <th>Perfil</th>
+                                            <th>CPF</th>
+                                            <th>Data Solicitação</th>
+                                            <th class="text-end pe-4">Ações</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for reg in registros_pendentes %}
+                                        <tr>
+                                            <td class="ps-4">
+                                                <div class="d-flex flex-column">
+                                                    <span class="fw-bold">{{ reg.get_nome_completo }}</span>
+                                                    <small class="text-muted">{{ reg.email }}</small>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                {% if reg.tipo_solicitado == 'aluno' %}
+                                                    <span class="badge bg-primary">Aluno</span>
+                                                {% elif reg.tipo_solicitado == 'professor' %}
+                                                    <span class="badge bg-info text-dark">Professor</span>
+                                                {% else %}
+                                                    <span class="badge bg-secondary">{{ reg.get_tipo_solicitado_display }}</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>{{ reg.cpf|default:"-" }}</td>
+                                            <td>{{ reg.data_solicitacao|date:"d/m/Y H:i" }}</td>
+                                            <td class="text-end pe-4">
+                                                <div class="btn-group">
+                                                    <!-- Botão Aprovar -->
+                                                    <form method="POST" action="{% url 'coordenacao_aprovacao' %}" class="d-inline">
+                                                        {% csrf_token %}
+                                                        <input type="hidden" name="action" value="approve_user">
+                                                        <input type="hidden" name="item_id" value="{{ reg.id }}">
+                                                        <button type="submit" class="btn btn-success btn-sm" title="Aprovar">
+                                                            <i class="fas fa-check me-1"></i>Aprovar
+                                                        </button>
+                                                    </form>
+                                                    
+                                                    <!-- Botão Rejeitar (Abre Modal) -->
+                                                    <button type="button" class="btn btn-outline-danger btn-sm ms-1" onclick="rejectUser('{{ reg.id }}', '{{ reg.get_nome_completo }}')" title="Rejeitar">
+                                                        <i class="fas fa-times"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                            {% else %}
+                                <div class="text-center py-5">
+                                    <i class="fas fa-user-check fa-3x text-muted mb-3 opacity-25"></i>
+                                    <h5 class="text-muted">Nenhuma solicitação de cadastro pendente.</h5>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ABA 2: TURMAS -->
+                <div class="tab-pane fade" id="classes" role="tabpanel">
+                    <div class="card shadow-sm border-0 rounded-3">
+                        <div class="card-body p-0">
+                            {% if turmas_pendentes %}
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle mb-0">
+                                    <thead class="bg-light">
+                                        <tr>
+                                            <th class="ps-4">Turma</th>
+                                            <th>Curso</th>
+                                            <th>Período/Turno</th>
+                                            <th>Início</th>
+                                            <th class="text-end pe-4">Ações</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for turma in turmas_pendentes %}
+                                        <tr>
+                                            <td class="ps-4 fw-bold">{{ turma.nome }}</td>
+                                            <td>{{ turma.id_curso.nome_curso }}</td>
+                                            <td>{{ turma.periodo }} / {{ turma.id_curso.turno }}</td>
+                                            <td>{{ turma.data_inicio|date:"d/m/Y" }}</td>
+                                            <td class="text-end pe-4">
+                                                <div class="btn-group">
+                                                    <!-- Botão Aprovar -->
+                                                    <form method="POST" action="{% url 'coordenacao_aprovacao' %}" class="d-inline">
+                                                        {% csrf_token %}
+                                                        <input type="hidden" name="action" value="approve_turma">
+                                                        <input type="hidden" name="item_id" value="{{ turma.id }}">
+                                                        <button type="submit" class="btn btn-success btn-sm" title="Aprovar">
+                                                            <i class="fas fa-check me-1"></i>Aprovar
+                                                        </button>
+                                                    </form>
+
+                                                    <!-- Botão Rejeitar -->
+                                                    <form method="POST" action="{% url 'coordenacao_aprovacao' %}" class="d-inline">
+                                                        {% csrf_token %}
+                                                        <input type="hidden" name="action" value="reject_turma">
+                                                        <input type="hidden" name="item_id" value="{{ turma.id }}">
+                                                        <button type="submit" class="btn btn-outline-danger btn-sm ms-1" onclick="return confirm('Tem certeza que deseja rejeitar esta turma?')" title="Rejeitar">
+                                                            <i class="fas fa-times"></i>
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                            {% else %}
+                                <div class="text-center py-5">
+                                    <i class="fas fa-clipboard-check fa-3x text-muted mb-3 opacity-25"></i>
+                                    <h5 class="text-muted">Nenhuma turma aguardando aprovação.</h5>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Rejeição de Usuário (Apenas para Rejeição de Usuários) -->
+<div class="modal fade" id="rejectModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Rejeitar Cadastro</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" action="{% url 'coordenacao_aprovacao' %}">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <p>Tem certeza que deseja rejeitar o cadastro de <strong id="rejectUserName"></strong>?</p>
+                    <input type="hidden" name="action" value="reject_user">
+                    <input type="hidden" name="item_id" id="rejectUserId">
+                    <div class="mb-3">
+                        <label class="form-label">Motivo da Rejeição (Opcional):</label>
+                        <textarea class="form-control" name="motivo_rejeicao" rows="3" placeholder="Ex: CPF inválido, dados incompletos..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-danger">Confirmar Rejeição</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    function rejectUser(id, name) {
+        document.getElementById('rejectUserId').value = id;
+        document.getElementById('rejectUserName').textContent = name;
+        new bootstrap.Modal(document.getElementById('rejectModal')).show();
+    }
+</script>
+{% endblock %}

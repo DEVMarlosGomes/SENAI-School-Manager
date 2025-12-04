@@ -26,9 +26,7 @@
             <li class="{% if request.resolver_match.url_name == 'gestao_documentos' %}active{% endif %}">
                 <a href="{% url 'gestao_documentos' %}" class="d-flex align-items-center"><i class="fas fa-file-contract me-3"></i> Documentos</a>
             </li>
-            <li class="{% if request.resolver_match.url_name == 'coordenacao_comunicacao' %}active{% endif %}">
-                <a href="{% url 'coordenacao_comunicacao' %}" class="d-flex align-items-center"><i class="fas fa-bullhorn me-3"></i> Comunicação</a>
-            </li>
+            <!-- Comunicação removida -->
         {% endif %}
 
         {% if user.profile.tipo == 'secretaria' %}
@@ -45,9 +43,7 @@
             <li class="{% if request.resolver_match.url_name == 'gestao_documentos' %}active{% endif %}">
                 <a href="{% url 'gestao_documentos' %}" class="d-flex align-items-center"><i class="fas fa-file-contract me-3"></i> Documentos</a>
             </li>
-            <li class="{% if request.resolver_match.url_name == 'comunicacao_secretaria' %}active{% endif %}">
-                <a href="{% url 'comunicacao_secretaria' %}" class="d-flex align-items-center"><i class="fas fa-comments me-3"></i> Comunicação</a>
-            </li>
+            <!-- Comunicação removida -->
         {% endif %}
 
         {% if user.profile.tipo == 'professor' %}
@@ -74,15 +70,10 @@
             <li class="{% if request.resolver_match.url_name == 'boletim' %}active{% endif %}">
                 <a href="{% url 'boletim' %}" class="d-flex align-items-center"><i class="fas fa-book-open me-3"></i> Boletim</a>
             </li>
-            <li class="{% if request.resolver_match.url_name == 'calendario' %}active{% endif %}">
-                <a href="{% url 'calendario' %}" class="d-flex align-items-center"><i class="fas fa-calendar-alt me-3"></i> Calendário</a>
-            </li>
-            <li class="{% if request.resolver_match.url_name == 'avisos_eventos' %}active{% endif %}">
-                <a href="{% url 'avisos_eventos' %}" class="d-flex align-items-center"><i class="fas fa-bell me-3"></i> Avisos</a>
-            </li>
             <li class="{% if request.resolver_match.url_name == 'aluno_financeiro' %}active{% endif %}">
                 <a href="{% url 'aluno_financeiro' %}" class="d-flex align-items-center"><i class="fas fa-wallet me-3"></i> Financeiro</a>
             </li>
+            <!-- Calendário e Avisos removidos -->
         {% endif %}
 
         <hr class="mx-3 border-secondary opacity-50">
