@@ -9,24 +9,22 @@ from .views import (
     coordenacao_gestao_view,
     coordenacao_comunicacao_view,
     coordenacao_relatorios_view,
+    coordenacao_aprovacao_view, # Nova
+    aprovar_registro, # Nova
+    rejeitar_registro, # Nova
     gestao_alunos_view,
     controle_financeiro_view,
     gestao_documentos_view,
     comunicacao_secretaria_view,
     perfil_view,
     boletim_view,
-    calendario_view,
-    avisos_eventos_view,
     api_coordenacao_kpis,
     api_coordenacao_desempenho,
     api_coordenacao_aprovacao,
     api_coordenacao_atividades,
     save_aluno_view,
     delete_aluno_view,
-    aluno_financeiro_view,
-    criar_aviso,
-    criar_evento,
-    api_avisos_eventos
+    aluno_financeiro_view
 )
 
 urlpatterns = [
@@ -44,6 +42,11 @@ urlpatterns = [
     path('coordenacao/gestao/', coordenacao_gestao_view, name='coordenacao_gestao'),
     path('coordenacao/comunicacao/', coordenacao_comunicacao_view, name='coordenacao_comunicacao'),
     path('coordenacao/relatorios/', coordenacao_relatorios_view, name='coordenacao_relatorios'),
+    
+    # Sistema de Aprovação (Novo)
+    path('coordenacao/aprovacao/', coordenacao_aprovacao_view, name='coordenacao_aprovacao'),
+    path('coordenacao/aprovacao/aprovar/<int:pk>/', aprovar_registro, name='aprovar_registro'),
+    path('coordenacao/aprovacao/rejeitar/<int:pk>/', rejeitar_registro, name='rejeitar_registro'),
 
     # APIs para Gestão de Alunos (Salvar e Deletar)
     path('api/gestao/aluno/save/', save_aluno_view, name='save_aluno'),
@@ -51,8 +54,6 @@ urlpatterns = [
 
     # Funcionalidades do aluno
     path('aluno/boletim/', boletim_view, name='boletim'),
-    path('aluno/calendario/', calendario_view, name='calendario'),
-    path('aluno/avisos-eventos/', avisos_eventos_view, name='avisos_eventos'),
     path('aluno/financeiro/', aluno_financeiro_view, name='aluno_financeiro'),
 
     # Funções administrativas
@@ -69,9 +70,4 @@ urlpatterns = [
     path('api/coordenacao/desempenho/', api_coordenacao_desempenho, name='api_coordenacao_desempenho'),
     path('api/coordenacao/aprovacao/', api_coordenacao_aprovacao, name='api_coordenacao_aprovacao'),
     path('api/coordenacao/atividades/', api_coordenacao_atividades, name='api_coordenacao_atividades'),
-
-    # Avisos e Eventos
-    path('api/avisos/criar/', criar_aviso, name='criar_aviso'),
-    path('api/eventos/criar/', criar_evento, name='criar_evento'),
-    path('api/avisos-eventos/', api_avisos_eventos, name='api_avisos_eventos'),
 ]

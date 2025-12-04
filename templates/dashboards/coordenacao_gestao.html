@@ -20,140 +20,122 @@
                         <small class="text-muted">Controle administrativo do SENAI School</small>
                     </div>
                 </div>
-                <div>
-                     <button class="btn btn-primary d-flex align-items-center gap-2 shadow-sm">
-                        <i class="fas fa-plus"></i>
-                        <span class="d-none d-sm-inline">Novo Cadastro</span>
-                     </button>
+                <div class="d-flex gap-2">
+                     <a href="{% url 'coordenacao_aprovacao' %}" class="btn btn-warning text-dark d-flex align-items-center gap-2 shadow-sm">
+                        <i class="fas fa-user-check"></i>
+                        <span class="d-none d-sm-inline">Aprovações Pendentes</span>
+                     </a>
                 </div>
             </div>
         </header>
 
+        <!-- ... (Estrutura de abas mantém a mesma) ... -->
         <div class="flex-grow-1 d-flex overflow-hidden">
             
             <aside class="w-25 bg-light border-end d-none d-lg-flex flex-column p-3 overflow-auto" style="min-width: 250px; max-width: 300px;">
-                <p class="text-uppercase text-muted fw-bold mb-3 small px-2" style="font-size: 0.7rem; letter-spacing: 1px;">Diretórios</p>
-                
+                <!-- Sidebar interna igual ao original -->
                 <div class="nav flex-column nav-pills gap-1" id="v-pills-tab" role="tablist" aria-orientation="vertical">
-                    <button class="nav-link active d-flex align-items-center justify-content-between px-3 py-2 text-start mb-1" id="v-pills-alunos-tab" data-bs-toggle="pill" data-bs-target="#v-pills-alunos" type="button" role="tab">
-                        <span class="d-flex align-items-center gap-3">
-                            <i class="fas fa-user-graduate w-20px text-center"></i> Alunos
-                        </span>
-                        <span class="badge bg-white text-secondary border rounded-pill" id="badge-alunos-count">0</span>
+                    <button class="nav-link active d-flex align-items-center justify-content-between px-3 py-2 text-start mb-1" id="v-pills-alunos-tab" data-bs-toggle="pill" data-bs-target="#v-pills-alunos" type="button">
+                        <span><i class="fas fa-user-graduate w-20px text-center me-2"></i> Alunos</span>
                     </button>
-                    
-                    <button class="nav-link d-flex align-items-center justify-content-between px-3 py-2 text-start mb-1" id="v-pills-turmas-tab" data-bs-toggle="pill" data-bs-target="#v-pills-turmas" type="button" role="tab">
-                        <span class="d-flex align-items-center gap-3">
-                            <i class="fas fa-users w-20px text-center"></i> Turmas
-                        </span>
-                        <span class="badge bg-white text-secondary border rounded-pill" id="badge-turmas-count">0</span>
+                    <button class="nav-link d-flex align-items-center justify-content-between px-3 py-2 text-start mb-1" id="v-pills-turmas-tab" data-bs-toggle="pill" data-bs-target="#v-pills-turmas" type="button">
+                        <span><i class="fas fa-users w-20px text-center me-2"></i> Turmas</span>
                     </button>
-                    
-                    <button class="nav-link d-flex align-items-center justify-content-between px-3 py-2 text-start mb-1" id="v-pills-professores-tab" data-bs-toggle="pill" data-bs-target="#v-pills-professores" type="button" role="tab">
-                        <span class="d-flex align-items-center gap-3">
-                            <i class="fas fa-chalkboard-teacher w-20px text-center"></i> Professores
-                        </span>
-                        <span class="badge bg-white text-secondary border rounded-pill" id="badge-prof-count">0</span>
+                    <button class="nav-link d-flex align-items-center justify-content-between px-3 py-2 text-start mb-1" id="v-pills-professores-tab" data-bs-toggle="pill" data-bs-target="#v-pills-professores" type="button">
+                        <span><i class="fas fa-chalkboard-teacher w-20px text-center me-2"></i> Professores</span>
                     </button>
-
-                    <button class="nav-link d-flex align-items-center justify-content-between px-3 py-2 text-start mb-1" id="v-pills-disciplinas-tab" data-bs-toggle="pill" data-bs-target="#v-pills-disciplinas" type="button" role="tab">
-                        <span class="d-flex align-items-center gap-3">
-                            <i class="fas fa-book w-20px text-center"></i> Disciplinas
-                        </span>
-                        <span class="badge bg-white text-secondary border rounded-pill" id="badge-disc-count">0</span>
+                    <button class="nav-link d-flex align-items-center justify-content-between px-3 py-2 text-start mb-1" id="v-pills-disciplinas-tab" data-bs-toggle="pill" data-bs-target="#v-pills-disciplinas" type="button">
+                        <span><i class="fas fa-book w-20px text-center me-2"></i> Disciplinas</span>
                     </button>
-                </div>
-
-                <div class="mt-auto pt-4 border-top">
-                    <div class="card bg-white border shadow-sm">
-                        <div class="card-body p-3">
-                            <h6 class="fw-bold text-dark small mb-2"><i class="fas fa-lightbulb text-warning me-1"></i> Dica Rápida</h6>
-                            <p class="text-muted small mb-0 lh-sm">
-                                Use a barra de busca no topo da tabela para filtrar registros rapidamente em qualquer categoria.
-                            </p>
-                        </div>
-                    </div>
                 </div>
             </aside>
 
             <main class="flex-grow-1 bg-white p-0 d-flex flex-column h-100 overflow-hidden position-relative">
                 
-                <div class="border-bottom p-3 d-flex gap-2 bg-light bg-opacity-50">
-                    <div class="position-relative flex-grow-1" style="max-width: 400px;">
-                        <i class="fas fa-search position-absolute top-50 start-0 translate-middle-y ms-3 text-muted"></i>
-                        <input type="text" id="globalSearch" class="form-control ps-5 rounded-pill border-secondary border-opacity-25" placeholder="Filtrar nesta lista...">
-                    </div>
-                    <div class="ms-auto d-flex gap-2">
-                        <button class="btn btn-white border rounded-circle" title="Atualizar"><i class="fas fa-sync-alt text-muted"></i></button>
-                        <button class="btn btn-white border rounded-circle" title="Exportar"><i class="fas fa-download text-muted"></i></button>
-                    </div>
-                </div>
-
                 <div class="tab-content flex-grow-1 overflow-auto p-0" id="v-pills-tabContent">
                     
+                    <!-- ABA ALUNOS -->
                     <div class="tab-pane fade show active h-100" id="v-pills-alunos" role="tabpanel">
+                        <div class="p-3 border-bottom bg-light d-flex justify-content-between">
+                             <h6 class="mb-0 lh-base fw-bold text-muted">Catálogo de Alunos</h6>
+                             <!-- Botão Adicionar que leva ao Admin -->
+                             <a href="{{ url_novo_aluno }}" target="_blank" class="btn btn-sm btn-success"><i class="fas fa-plus me-1"></i> Novo Aluno</a>
+                        </div>
                         <div class="table-responsive">
                             <table class="table table-hover align-middle mb-0 custom-table" id="tableAlunos">
-                                <thead class="bg-light sticky-top" style="z-index: 5;">
+                                <thead class="bg-white sticky-top border-bottom">
                                     <tr>
-                                        <th class="ps-4 py-3 text-secondary text-uppercase small fw-bold">Aluno</th>
-                                        <th class="py-3 text-secondary text-uppercase small fw-bold">Matrícula</th>
-                                        <th class="py-3 text-secondary text-uppercase small fw-bold">Turma</th>
-                                        <th class="py-3 text-secondary text-uppercase small fw-bold">Status</th>
-                                        <th class="pe-4 py-3 text-end text-secondary text-uppercase small fw-bold">Opções</th>
+                                        <th class="ps-4">Nome</th>
+                                        <th>Matrícula</th>
+                                        <th>Turma</th>
+                                        <th>Status</th>
+                                        <th class="text-end pe-4">Ação</th>
                                     </tr>
                                 </thead>
-                                <tbody></tbody>
+                                <tbody><!-- JS preenche --></tbody>
                             </table>
                         </div>
                     </div>
 
+                    <!-- ABA TURMAS -->
                     <div class="tab-pane fade h-100" id="v-pills-turmas" role="tabpanel">
+                        <div class="p-3 border-bottom bg-light d-flex justify-content-between">
+                             <h6 class="mb-0 lh-base fw-bold text-muted">Catálogo de Turmas</h6>
+                             <a href="{{ url_nova_turma }}" target="_blank" class="btn btn-sm btn-success"><i class="fas fa-plus me-1"></i> Nova Turma</a>
+                        </div>
                         <div class="table-responsive">
                             <table class="table table-hover align-middle mb-0 custom-table" id="tableTurmas">
-                                <thead class="bg-light sticky-top" style="z-index: 5;">
+                                <thead class="bg-white sticky-top border-bottom">
                                     <tr>
-                                        <th class="ps-4 py-3 text-secondary text-uppercase small fw-bold">Código</th>
-                                        <th class="py-3 text-secondary text-uppercase small fw-bold">Curso</th>
-                                        <th class="py-3 text-secondary text-uppercase small fw-bold">Professor Titular</th>
-                                        <th class="py-3 text-secondary text-uppercase small fw-bold" style="min-width: 150px;">Ocupação</th>
-                                        <th class="pe-4 py-3 text-end text-secondary text-uppercase small fw-bold">Opções</th>
+                                        <th class="ps-4">Código</th>
+                                        <th>Curso</th>
+                                        <th>Matriculados</th>
+                                        <th class="text-end pe-4">Ação</th>
                                     </tr>
                                 </thead>
-                                <tbody></tbody>
+                                <tbody><!-- JS preenche --></tbody>
                             </table>
                         </div>
                     </div>
 
+                    <!-- ABA PROFESSORES -->
                     <div class="tab-pane fade h-100" id="v-pills-professores" role="tabpanel">
-                         <div class="table-responsive">
+                        <div class="p-3 border-bottom bg-light d-flex justify-content-between">
+                             <h6 class="mb-0 lh-base fw-bold text-muted">Corpo Docente</h6>
+                             <a href="{{ url_novo_professor }}" target="_blank" class="btn btn-sm btn-success"><i class="fas fa-plus me-1"></i> Novo Professor</a>
+                        </div>
+                        <div class="table-responsive">
                             <table class="table table-hover align-middle mb-0 custom-table" id="tableProfessores">
-                                <thead class="bg-light sticky-top" style="z-index: 5;">
+                                <thead class="bg-white sticky-top border-bottom">
                                     <tr>
-                                        <th class="ps-4 py-3 text-secondary text-uppercase small fw-bold">Docente</th>
-                                        <th class="py-3 text-secondary text-uppercase small fw-bold">Contato</th>
-                                        <th class="py-3 text-secondary text-uppercase small fw-bold">Carga</th>
-                                        <th class="pe-4 py-3 text-end text-secondary text-uppercase small fw-bold">Opções</th>
+                                        <th class="ps-4">Nome</th>
+                                        <th>E-mail</th>
+                                        <th>Turmas Ativas</th>
+                                        <th class="text-end pe-4">Ação</th>
                                     </tr>
                                 </thead>
-                                <tbody></tbody>
+                                <tbody><!-- JS preenche --></tbody>
                             </table>
                         </div>
                     </div>
 
+                    <!-- ABA DISCIPLINAS -->
                     <div class="tab-pane fade h-100" id="v-pills-disciplinas" role="tabpanel">
+                         <div class="p-3 border-bottom bg-light d-flex justify-content-between">
+                             <h6 class="mb-0 lh-base fw-bold text-muted">Matriz Curricular</h6>
+                             <a href="{{ url_nova_disciplina }}" target="_blank" class="btn btn-sm btn-success"><i class="fas fa-plus me-1"></i> Nova Disciplina</a>
+                        </div>
                          <div class="table-responsive">
                             <table class="table table-hover align-middle mb-0 custom-table" id="tableDisciplinas">
-                                <thead class="bg-light sticky-top" style="z-index: 5;">
+                                <thead class="bg-white sticky-top border-bottom">
                                     <tr>
-                                        <th class="ps-4 py-3 text-secondary text-uppercase small fw-bold">Código</th>
-                                        <th class="py-3 text-secondary text-uppercase small fw-bold">Nome da Disciplina</th>
-                                        <th class="py-3 text-secondary text-uppercase small fw-bold">Carga Horária</th>
-                                        <th class="py-3 text-secondary text-uppercase small fw-bold">Uso</th>
-                                        <th class="pe-4 py-3 text-end text-secondary text-uppercase small fw-bold">Opções</th>
+                                        <th class="ps-4">Código</th>
+                                        <th>Nome</th>
+                                        <th>Carga Horária</th>
+                                        <th class="text-end pe-4">Ação</th>
                                     </tr>
                                 </thead>
-                                <tbody></tbody>
+                                <tbody><!-- JS preenche --></tbody>
                             </table>
                         </div>
                     </div>
@@ -164,144 +146,49 @@
     </div>
 </div>
 
-<div class="d-lg-none position-fixed bottom-0 start-0 w-100 bg-white border-top shadow-lg p-2 d-flex justify-content-around" style="z-index: 1050;">
-    <button class="btn btn-link text-decoration-none text-dark active-tab-mobile" onclick="$('#v-pills-alunos-tab').tab('show')">
-        <i class="fas fa-user-graduate d-block h5 mb-0"></i> <small style="font-size: 0.6rem;">Alunos</small>
-    </button>
-    <button class="btn btn-link text-decoration-none text-muted" onclick="$('#v-pills-turmas-tab').tab('show')">
-        <i class="fas fa-users d-block h5 mb-0"></i> <small style="font-size: 0.6rem;">Turmas</small>
-    </button>
-    <button class="btn btn-link text-decoration-none text-muted" onclick="$('#v-pills-professores-tab').tab('show')">
-        <i class="fas fa-chalkboard-teacher d-block h5 mb-0"></i> <small style="font-size: 0.6rem;">Profs</small>
-    </button>
-</div>
-
-<style>
-    /* Estilos Específicos para este Layout */
-    .nav-pills .nav-link {
-        color: #495057;
-        border-radius: 8px;
-        transition: all 0.2s;
-    }
-    .nav-pills .nav-link:hover {
-        background-color: #e9ecef;
-        color: #000;
-    }
-    .nav-pills .nav-link.active {
-        background-color: var(--primary-color); /* Usando variável do seu CSS */
-        color: white !important;
-        font-weight: 600;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    }
-    .nav-pills .nav-link.active .badge {
-        color: var(--primary-color) !important;
-        background-color: white !important;
-    }
-    /* Scrollbar personalizada */
-    ::-webkit-scrollbar { width: 6px; height: 6px; }
-    ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
-    ::-webkit-scrollbar-thumb:hover { background: #aaa; }
-</style>
-{% endblock %}
-
-{% block extra_js %}
 <script>
-    // Recupera dados do Django
+    // Dados injetados pelo Django
     const dadosAlunos = {{ alunos_json|safe }};
     const dadosTurmas = {{ turmas_json|safe }};
     const dadosProfessores = {{ professores_json|safe }};
     const dadosDisciplinas = {{ disciplinas_json|safe }};
 
     document.addEventListener('DOMContentLoaded', () => {
-        // Atualiza Badges de Contagem
-        document.getElementById('badge-alunos-count').textContent = dadosAlunos.length;
-        document.getElementById('badge-turmas-count').textContent = dadosTurmas.length;
-        document.getElementById('badge-prof-count').textContent = dadosProfessores.length;
-        document.getElementById('badge-disc-count').textContent = dadosDisciplinas.length;
-
         renderAlunos(dadosAlunos);
         renderTurmas(dadosTurmas);
         renderProfessores(dadosProfessores);
         renderDisciplinas(dadosDisciplinas);
-
-        // Busca Global Simples
-        const searchInput = document.getElementById('globalSearch');
-        searchInput.addEventListener('keyup', function() {
-            const term = this.value.toLowerCase();
-            // Detecta qual aba está ativa para filtrar apenas nela
-            const activeTab = document.querySelector('.tab-pane.active table tbody');
-            if(activeTab) {
-                const rows = activeTab.querySelectorAll('tr');
-                rows.forEach(row => {
-                    const text = row.innerText.toLowerCase();
-                    row.style.display = text.includes(term) ? '' : 'none';
-                });
-            }
-        });
     });
 
     function renderAlunos(data) {
         const tbody = document.querySelector('#tableAlunos tbody');
         let html = '';
         data.forEach(a => {
-            const badgeColor = a.status === 'Ativo' ? 'success' : 'secondary';
             html += `
-            <tr class="cursor-pointer">
-                <td class="ps-4">
-                    <div class="d-flex align-items-center">
-                        <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3 fw-bold" style="width: 32px; height: 32px; font-size: 0.8rem;">
-                            ${a.nome.charAt(0)}
-                        </div>
-                        <div>
-                            <div class="fw-bold text-dark">${a.nome}</div>
-                            <small class="text-muted d-lg-none">${a.matricula}</small>
-                        </div>
-                    </div>
-                </td>
-                <td class="text-muted d-none d-lg-table-cell font-monospace small">${a.matricula}</td>
-                <td><span class="badge bg-light text-dark border fw-normal">${a.turma}</span></td>
-                <td><span class="badge bg-${badgeColor} bg-opacity-10 text-${badgeColor} rounded-pill px-2 d-inline-flex align-items-center gap-1"><i class="fas fa-circle" style="font-size: 6px;"></i> ${a.status}</span></td>
-                <td class="pe-4 text-end">
-                    <div class="dropdown">
-                        <button class="btn btn-sm btn-light border-0" type="button" data-bs-toggle="dropdown"><i class="fas fa-ellipsis-v text-muted"></i></button>
-                        <ul class="dropdown-menu dropdown-menu-end border-0 shadow">
-                            <li><a class="dropdown-item small" href="#"><i class="fas fa-edit text-primary me-2"></i>Editar</a></li>
-                            <li><a class="dropdown-item small" href="#"><i class="fas fa-history text-info me-2"></i>Histórico</a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item small text-danger" href="#"><i class="fas fa-trash me-2"></i>Excluir</a></li>
-                        </ul>
-                    </div>
+            <tr>
+                <td class="ps-4 fw-bold">${a.nome}</td>
+                <td><span class="badge bg-light text-dark border font-monospace">${a.matricula}</span></td>
+                <td>${a.turma}</td>
+                <td><span class="badge bg-info bg-opacity-10 text-info">${a.status}</span></td>
+                <td class="text-end pe-4">
+                    <a href="${a.edit_url}" target="_blank" class="btn btn-sm btn-outline-secondary"><i class="fas fa-edit"></i></a>
                 </td>
             </tr>`;
         });
-        tbody.innerHTML = html || '<tr><td colspan="5" class="text-center py-5 text-muted">Nenhum aluno encontrado.</td></tr>';
+        tbody.innerHTML = html || '<tr><td colspan="5" class="text-center py-4 text-muted">Nenhum registro.</td></tr>';
     }
 
     function renderTurmas(data) {
         const tbody = document.querySelector('#tableTurmas tbody');
         let html = '';
         data.forEach(t => {
-            const percent = Math.round((t.matriculados / t.vagas) * 100);
-            let progressColor = 'primary';
-            if(percent > 90) progressColor = 'danger';
-            else if(percent < 50) progressColor = 'warning';
-
             html += `
             <tr>
-                <td class="ps-4 fw-bold text-primary font-monospace">${t.codigo}</td>
-                <td class="fw-medium">${t.nome}</td>
-                <td class="small text-muted"><i class="fas fa-user-tie me-1"></i> ${t.professor}</td>
-                <td>
-                    <div class="d-flex align-items-center" style="max-width: 150px;">
-                        <span class="small me-2 fw-bold text-muted">${t.matriculados}/${t.vagas}</span>
-                        <div class="progress flex-grow-1" style="height: 4px;">
-                            <div class="progress-bar bg-${progressColor}" style="width: ${percent}%"></div>
-                        </div>
-                    </div>
-                </td>
-                <td class="pe-4 text-end">
-                    <button class="btn btn-sm btn-light border" title="Grade Curricular"><i class="fas fa-list text-muted"></i></button>
+                <td class="ps-4 fw-bold">${t.codigo}</td>
+                <td>${t.nome}</td>
+                <td>${t.matriculados}/${t.vagas}</td>
+                <td class="text-end pe-4">
+                    <a href="${t.edit_url}" target="_blank" class="btn btn-sm btn-outline-secondary"><i class="fas fa-edit"></i></a>
                 </td>
             </tr>`;
         });
@@ -314,34 +201,28 @@
         data.forEach(p => {
             html += `
             <tr>
-                <td class="ps-4 fw-bold text-dark">${p.nome}</td>
-                <td class="text-muted small"><i class="far fa-envelope me-1"></i> ${p.email}</td>
-                <td>
-                    <div class="d-flex gap-1 flex-wrap">
-                        <span class="badge bg-light text-secondary border">Disciplinas: ${p.disciplinas.split(',').length}</span>
-                        <span class="badge bg-light text-secondary border">Turmas: ${p.turmas}</span>
-                    </div>
-                </td>
-                <td class="pe-4 text-end">
-                    <button class="btn btn-sm btn-light border"><i class="fas fa-eye text-muted"></i></button>
+                <td class="ps-4 fw-bold">${p.nome}</td>
+                <td>${p.email}</td>
+                <td><span class="badge bg-primary">${p.turmas}</span></td>
+                <td class="text-end pe-4">
+                    <a href="${p.edit_url}" target="_blank" class="btn btn-sm btn-outline-secondary"><i class="fas fa-edit"></i></a>
                 </td>
             </tr>`;
         });
         tbody.innerHTML = html;
     }
-
+    
     function renderDisciplinas(data) {
         const tbody = document.querySelector('#tableDisciplinas tbody');
         let html = '';
         data.forEach(d => {
             html += `
             <tr>
-                <td class="ps-4 font-monospace small text-muted">${d.codigo}</td>
-                <td class="fw-bold text-dark">${d.nome}</td>
-                <td><i class="far fa-clock me-1 text-muted"></i> ${d.cargaHoraria}h</td>
-                <td><span class="badge bg-info bg-opacity-10 text-info border border-info border-opacity-25">${d.turmas} Turmas Ativas</span></td>
-                <td class="pe-4 text-end">
-                    <button class="btn btn-sm btn-light border"><i class="fas fa-pen text-muted"></i></button>
+                <td class="ps-4 font-monospace text-muted">${d.codigo}</td>
+                <td class="fw-bold">${d.nome}</td>
+                <td>${d.cargaHoraria}h</td>
+                <td class="text-end pe-4">
+                    <a href="${d.edit_url}" target="_blank" class="btn btn-sm btn-outline-secondary"><i class="fas fa-edit"></i></a>
                 </td>
             </tr>`;
         });

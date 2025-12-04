@@ -1,0 +1,154 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Aprovação de Usuários{% endblock %}
+
+{% block content %}
+<div class="layout-wrapper d-flex bg-light">
+    {% include 'includes/sidebar.html' %}
+    
+    <div id="main-content" class="flex-grow-1 transition-all">
+        <!-- Header -->
+        <header class="bg-white shadow-sm py-3 px-4 border-bottom sticky-top">
+            <div class="d-flex align-items-center gap-3">
+                <a href="{% url 'coordenacao_gestao' %}" class="btn btn-light border btn-sm rounded-circle"><i class="fas fa-arrow-left"></i></a>
+                <h4 class="fw-bold text-dark mb-0">Aprovação de Cadastros</h4>
+            </div>
+        </header>
+
+        <div class="container-fluid p-4">
+            
+            <!-- Alertas -->
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show shadow-sm" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <!-- Pendentes -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-warning bg-opacity-10 border-0 py-3">
+                    <h6 class="fw-bold text-warning-emphasis mb-0"><i class="fas fa-clock me-2"></i>Solicitações Pendentes ({{ pendentes.count }})</h6>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th class="ps-4">Data</th>
+                                    <th>Nome Completo</th>
+                                    <th>Email / Usuário</th>
+                                    <th>Perfil Solicitado</th>
+                                    <th>CPF</th>
+                                    <th class="text-end pe-4">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for req in pendentes %}
+                                <tr>
+                                    <td class="ps-4 text-muted small">{{ req.data_solicitacao|date:"d/m/Y H:i" }}</td>
+                                    <td class="fw-bold">{{ req.primeiro_nome }} {{ req.sobrenome }}</td>
+                                    <td>
+                                        <div>{{ req.email }}</div>
+                                        <small class="text-muted">{{ req.username }}</small>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-primary">{{ req.get_tipo_solicitado_display }}</span>
+                                    </td>
+                                    <td class="font-monospace text-muted">{{ req.cpf|default:"-" }}</td>
+                                    <td class="text-end pe-4">
+                                        <div class="d-flex justify-content-end gap-2">
+                                            <form action="{% url 'aprovar_registro' req.id %}" method="post">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-success btn-sm" title="Aprovar">
+                                                    <i class="fas fa-check"></i>
+                                                </button>
+                                            </form>
+                                            <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#rejectModal{{ req.id }}" title="Rejeitar">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+
+                                <!-- Modal Rejeição -->
+                                <div class="modal fade" id="rejectModal{{ req.id }}" tabindex="-1">
+                                    <div class="modal-dialog modal-dialog-centered">
+                                        <div class="modal-content">
+                                            <form action="{% url 'rejeitar_registro' req.id %}" method="post">
+                                                {% csrf_token %}
+                                                <div class="modal-header bg-danger text-white">
+                                                    <h5 class="modal-title">Rejeitar Solicitação</h5>
+                                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <p>Deseja rejeitar o cadastro de <strong>{{ req.primeiro_nome }}</strong>?</p>
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Motivo (opcional)</label>
+                                                        <textarea name="motivo" class="form-control" rows="3" placeholder="Explique o motivo da rejeição..."></textarea>
+                                                    </div>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                                    <button type="submit" class="btn btn-danger">Confirmar Rejeição</button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="6" class="text-center py-5 text-muted">
+                                        <i class="fas fa-check-circle fa-3x mb-3 text-success opacity-25"></i>
+                                        <p class="mb-0">Nenhuma solicitação pendente no momento.</p>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Histórico Recente -->
+            <h6 class="text-muted fw-bold text-uppercase small mb-3 ps-1">Histórico Recente</h6>
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table align-middle mb-0">
+                            <tbody>
+                                {% for hist in historico %}
+                                <tr class="{% if hist.status == 'rejeitado' %}bg-danger bg-opacity-10{% endif %}">
+                                    <td class="ps-4 py-3">
+                                        <strong>{{ hist.primeiro_nome }} {{ hist.sobrenome }}</strong><br>
+                                        <small class="text-muted">{{ hist.email }}</small>
+                                    </td>
+                                    <td>{{ hist.get_tipo_solicitado_display }}</td>
+                                    <td>
+                                        {% if hist.status == 'aprovado' %}
+                                            <span class="badge bg-success">Aprovado</span>
+                                        {% else %}
+                                            <span class="badge bg-danger">Rejeitado</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-muted small">
+                                        <i class="fas fa-user-shield me-1"></i> {{ hist.aprovado_por.first_name|default:"Sistema" }}<br>
+                                        {{ hist.data_aprovacao|date:"d/m/Y H:i" }}
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr><td colspan="4" class="text-center p-3 text-muted">Sem histórico recente.</td></tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}

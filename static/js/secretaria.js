@@ -247,37 +247,6 @@ document.addEventListener('DOMContentLoaded', function () {
     const btnEmitir = document.getElementById('btnEmitirDoc');
     if (btnEmitir) btnEmitir.addEventListener('click', () => alert('Emitir novo documento (simulado).'));
 
-    // Mural de mensagens: nova mensagem
-    const btnNovaMsg = document.getElementById('btnNovaMensagem');
-    const modalMsgEl = document.getElementById('modalMensagem');
-    const modalMsg = modalMsgEl ? new bootstrap.Modal(modalMsgEl) : null;
-    if (btnNovaMsg) btnNovaMsg.addEventListener('click', () => modalMsg.show());
-    const btnEnviarMsg = document.getElementById('enviarMensagem');
-    if (btnEnviarMsg) btnEnviarMsg.addEventListener('click', () => {
-        const assunto = document.getElementById('mensagemAssunto').value || '(Sem assunto)';
-        const conteudo = document.getElementById('mensagemConteudo').value || '';
-        // Adiciona à lista localmente
-        const lista = document.getElementById('listaMensagens');
-        const item = document.createElement('a');
-        item.href = '#';
-        item.className = 'list-group-item list-group-item-action d-flex justify-content-between align-items-start';
-        item.innerHTML = `<div><div class="fw-bold">${assunto}</div><small class="text-muted">Enviado agora</small><div class="small">${conteudo}</div></div><div class="text-end"><span class="badge bg-danger">Não lida</span><div class="mt-2"><button class="btn btn-sm btn-outline-primary btn-responder">Responder</button> <button class="btn btn-sm btn-outline-secondary btn-arquivar">Arquivar</button></div></div>`;
-        lista.prepend(item);
-        modalMsg.hide();
-        document.getElementById('formMensagem').reset();
-    });
-
-    // Marca mensagens como lidas/arquiva/responde (simulado)
-    document.addEventListener('click', function (e) {
-        if (e.target.matches('.btn-arquivar')) {
-            const item = e.target.closest('.list-group-item');
-            item.remove();
-        }
-        if (e.target.matches('.btn-responder')) {
-            alert('Responder (simulado)');
-        }
-    });
-
     // Carregar lista inicial de alunos via API e inicializa totais
     (async function loadAlunos() {
         try {

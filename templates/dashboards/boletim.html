@@ -1,130 +1,167 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Boletim Escolar - SENAI{% endblock %}
+{% block title %}Boletim Escolar - {{ aluno.user.first_name }}{% endblock %}
 
 {% block content %}
-<div class="container-fluid">
-    <div class="card shadow-sm">
-        <div class="card-header bg-white d-flex justify-content-between align-items-center">
-            <div>
-                <a href="{% url 'aluno_dashboard' %}" class="btn btn-sm btn-outline-primary me-2">
-                    <i class="fas fa-arrow-left me-1"></i> Voltar
-                </a>
-                <a href="{% url 'home' %}" class="btn btn-sm btn-outline-secondary me-2">
-                    <i class="fas fa-home me-1"></i> Portal
-                </a>
-            </div>
-            <div>
-                <a href="?export=csv" class="btn btn-outline-secondary me-2"><i class="fas fa-file-csv me-1"></i>Exportar CSV</a>
-                <button class="btn btn-primary" onclick="window.print()"><i class="fas fa-print me-1"></i>Imprimir</button>
-            </div>
-        </div>
-        <div class="card-body">
-            <div class="row mb-4">
-                <div class="col-md-6">
-                    <h5>Dados do Aluno</h5>
-                    <p class="mb-1"><strong>Nome:</strong> {{ aluno.user.get_full_name }}</p>
-                    <p class="mb-1"><strong>Matrícula:</strong> {{ aluno.matricula }}</p>
+<div class="layout-wrapper d-flex bg-light">
+    {% include 'includes/sidebar.html' %}
+    
+    <div id="main-content" class="flex-grow-1 transition-all">
+        
+        <!-- Header -->
+        <header class="bg-white shadow-sm py-3 px-4 border-bottom">
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center gap-3">
+                    <button class="btn btn-light d-md-none shadow-sm" id="sidebarToggle">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <div>
+                        <h4 class="fw-bold text-dark mb-0">Boletim Escolar</h4>
+                        <p class="text-muted small mb-0">Acompanhamento de desempenho acadêmico</p>
+                    </div>
                 </div>
-                    <div class="col-md-6 text-md-end">
-                    <p class="mb-1"><strong>Relatório gerado em:</strong> {{ timezone.now|date:"d/m/Y H:i" }}</p>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-outline-secondary btn-sm" onclick="window.print()">
+                        <i class="fas fa-print me-2"></i>Imprimir
+                    </button>
+                    <a href="{% url 'emitir_boletim_meu' %}" target="_blank" class="btn btn-danger btn-sm">
+                        <i class="fas fa-file-pdf me-2"></i>Baixar PDF
+                    </a>
                 </div>
             </div>
+        </header>
 
-            <div class="table-responsive">
-                <table class="table table-hover">
-                    <thead class="table-light">
-                        <tr>
-                            <th>Turma</th>
-                            <th>Curso</th>
-                            <th class="text-center">Média</th>
-                            <th class="text-center">Faltas</th>
-                            <th class="text-center">Frequência</th>
-                            <th class="text-center">Status</th>
-                            <th class="text-center">Detalhes</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for item in boletim %}
-                        <tr>
-                            <td>{{ item.turma.codigo }}</td>
-                            <td>{{ item.curso.nome }}</td>
-                            <td class="text-center">
-                                {% if item.media is not None %}
-                                    <span class="fw-bold">{{ item.media }}</span>
-                                {% else %}
-                                    -
-                                {% endif %}
-                            </td>
-                            <td class="text-center">{{ item.faltas }}</td>
-                            <td class="text-center">{% if item.frequencia is not None %}{{ item.frequencia }}%{% else %}-{% endif %}</td>
-                            <td class="text-center">
-                                {% if item.status == 'Aprovado' %}
-                                    <span class="badge bg-success">{{ item.status }}</span>
-                                {% elif item.status == 'Recuperação' %}
-                                    <span class="badge bg-warning text-dark">{{ item.status }}</span>
-                                {% elif item.status == 'Reprovado' %}
-                                    <span class="badge bg-danger">{{ item.status }}</span>
-                                {% else %}
-                                    <span class="badge bg-secondary">{{ item.status }}</span>
-                                {% endif %}
-                            </td>
-                            <td class="text-center">
-                                <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#detalhesModal{{ forloop.counter }}">
-                                    <i class="fas fa-info-circle"></i>
-                                </button>
-
-                                <!-- Modal -->
-                                <div class="modal fade" id="detalhesModal{{ forloop.counter }}" tabindex="-1">
-                                    <div class="modal-dialog modal-lg">
-                                        <div class="modal-content">
-                                            <div class="modal-header">
-                                                <h5 class="modal-title">Detalhes - {{ item.turma.codigo }}</h5>
-                                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                                            </div>
-                                            <div class="modal-body">
-                                                <h6>Notas</h6>
-                                                <ul class="list-group mb-3">
-                                                    {% for n in item.notas %}
-                                                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                                                            <div>
-                                                                <strong>{{ n.descricao }}</strong>
-                                                                <div class="small text-muted">{{ n.data }}</div>
-                                                            </div>
-                                                            <span class="badge {% if n.valor|floatformat:1 >= 7 %}bg-success{% elif n.valor|floatformat:1 >= 5 %}bg-warning text-dark{% else %}bg-danger{% endif %}">{{ n.valor }}</span>
-                                                        </li>
-                                                    {% empty %}
-                                                        <li class="list-group-item">Nenhuma nota registrada</li>
-                                                    {% endfor %}
-                                                </ul>
-
-                                                <h6>Frequência (últimas aulas)</h6>
-                                                <p class="small text-muted">Total de faltas: {{ item.faltas }}</p>
-                                                <p class="small text-muted">Frequência: {% if item.frequencia is not None %}{{ item.frequencia }}%{% else %}-{% endif %}</p>
-
-                                            </div>
-                                            <div class="modal-footer">
-                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
-                                            </div>
-                                        </div>
-                                    </div>
+        <div class="container-fluid p-4">
+            
+            <!-- Cabeçalho do Aluno -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body p-4">
+                    <div class="row align-items-center">
+                        <div class="col-md-2 text-center mb-3 mb-md-0">
+                            <div class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                                <i class="fas fa-user-graduate fa-2x text-senai-red"></i>
+                            </div>
+                        </div>
+                        <div class="col-md-10">
+                            <div class="row g-3">
+                                <div class="col-md-4">
+                                    <label class="small text-muted fw-bold">ALUNO</label>
+                                    <h5 class="text-dark fw-bold mb-0">{{ aluno.user.get_full_name }}</h5>
                                 </div>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+                                <div class="col-md-2">
+                                    <label class="small text-muted fw-bold">R.A.</label>
+                                    <p class="text-dark mb-0 font-monospace">{{ aluno.RA_aluno }}</p>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="small text-muted fw-bold">CURSO</label>
+                                    <p class="text-dark mb-0">{{ aluno.turma_atual.id_curso.nome_curso|default:"-" }}</p>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="small text-muted fw-bold">TURMA</label>
+                                    <p class="text-dark mb-0">{{ aluno.turma_atual.nome|default:"-" }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            <div class="mt-4">
-                <h5>Observações</h5>
-                <ul class="small text-muted">
-                    <li>Média mínima para aprovação: 7,0</li>
-                    <li>Frequência mínima exigida: 75%</li>
-                    <li>As notas podem ser atualizadas pelos professores durante o período letivo</li>
-                </ul>
+            <!-- Boletim por Períodos -->
+            {% if boletim_agrupado %}
+                {% for periodo_data in boletim_agrupado %}
+                <div class="card border-0 shadow-sm mb-4 overflow-hidden">
+                    <div class="card-header bg-senai-dark text-white py-3 d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><i class="fas fa-calendar-alt me-2"></i> Período Letivo: {{ periodo_data.periodo }}</h5>
+                        <span class="badge bg-white text-dark">Média Geral: {{ periodo_data.media_geral }}</span>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th class="ps-4 py-3" style="width: 35%;">DISCIPLINA</th>
+                                    <th class="py-3 text-center">C.H.</th>
+                                    <th class="py-3 text-center">NOTA FINAL</th>
+                                    <th class="py-3 text-center">FREQ. (%)</th>
+                                    <th class="py-3 text-center">FALTAS</th>
+                                    <th class="pe-4 py-3 text-end">SITUAÇÃO</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in periodo_data.disciplinas %}
+                                <tr>
+                                    <td class="ps-4">
+                                        <div class="fw-bold text-dark">{{ item.disciplina }}</div>
+                                        <small class="text-muted">Prof. {{ item.professor }}</small>
+                                    </td>
+                                    <td class="text-center text-muted small">{{ item.carga_horaria }}h</td>
+                                    <td class="text-center">
+                                        {% if item.nota is not None %}
+                                            <span class="fw-bold fs-5 {% if item.nota >= 7 %}text-success{% elif item.nota < 5 %}text-danger{% else %}text-warning{% endif %}">
+                                                {{ item.nota|floatformat:1 }}
+                                            </span>
+                                        {% else %}
+                                            <span class="text-muted">-</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-center">
+                                        {% if item.frequencia is not None %}
+                                            <div class="d-flex flex-column align-items-center">
+                                                <span class="small fw-bold {% if item.frequencia < 75 %}text-danger{% else %}text-success{% endif %}">
+                                                    {{ item.frequencia|floatformat:0 }}%
+                                                </span>
+                                                <div class="progress" style="height: 4px; width: 60px;">
+                                                    <div class="progress-bar {% if item.frequencia < 75 %}bg-danger{% else %}bg-success{% endif %}" role="progressbar" style="width: {{ item.frequencia }}%"></div>
+                                                </div>
+                                            </div>
+                                        {% else %}
+                                            <span class="text-muted">-</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-center text-muted">{{ item.faltas|default:"0" }}</td>
+                                    <td class="pe-4 text-end">
+                                        <span class="badge bg-{{ item.cor_status }} rounded-pill px-3">
+                                            {{ item.status }}
+                                        </span>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="text-center py-5">
+                    <div class="mb-3">
+                        <i class="fas fa-book-open fa-4x text-muted opacity-25"></i>
+                    </div>
+                    <h5 class="text-muted">Nenhum registro acadêmico encontrado.</h5>
+                    <p class="text-muted small">Se você acredita que isso é um erro, contate a secretaria.</p>
+                </div>
+            {% endif %}
+
+            <!-- Legenda -->
+            <div class="card border-0 shadow-sm bg-white mt-4">
+                <div class="card-body p-3">
+                    <h6 class="text-muted small fw-bold text-uppercase mb-3">Legenda de Situação</h6>
+                    <div class="d-flex flex-wrap gap-3">
+                        <div class="d-flex align-items-center small">
+                            <span class="badge bg-success rounded-circle p-1 me-2"> </span> Aprovado (Nota ≥ 7.0 e Freq. ≥ 75%)
+                        </div>
+                        <div class="d-flex align-items-center small">
+                            <span class="badge bg-warning rounded-circle p-1 me-2"> </span> Recuperação (5.0 ≤ Nota < 7.0)
+                        </div>
+                        <div class="d-flex align-items-center small">
+                            <span class="badge bg-danger rounded-circle p-1 me-2"> </span> Reprovado (Nota < 5.0 ou Freq. < 75%)
+                        </div>
+                        <div class="d-flex align-items-center small">
+                            <span class="badge bg-info rounded-circle p-1 me-2"> </span> Cursando (Em andamento)
+                        </div>
+                    </div>
+                </div>
             </div>
+
         </div>
     </div>
 </div>
