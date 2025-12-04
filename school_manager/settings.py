@@ -21,7 +21,7 @@ load_dotenv(BASE_DIR / '.env')
 
 SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-7q()hy)04l-36t=dzf+k%@d9p^bh4#z_hdoqmx9-317*)v#wk#')
 DEBUG = os.getenv('DEBUG', 'True') == 'True'
-ALLOWED_HOSTS = ['romulofamiglietti.pythonanywhere.com', '127.0.0.1', 'localhost']
+ALLOWED_HOSTS = ['senaimanager.pythonanywhere.com', '127.0.0.1', 'localhost']
 
 # ==============================
 # Configurações do Stripe
