@@ -31,12 +31,6 @@ STRIPE_SECRET_KEY = os.getenv('STRIPE_SECRET_KEY', 'sk_test_51SZC0Z13heh5oTSzVtx
 STRIPE_WEBHOOK_SECRET = os.getenv('STRIPE_WEBHOOK_SECRET', 'whsec_teste_local_12345')
 
 # ==============================
-# Configurações do Gemini AI
-# ==============================
-# A chave será lida do arquivo .env
-GEMINI_API_KEY = os.getenv('GEMINI_API_KEY')
-
-# ==============================
 # Aplicações
 # ==============================
 
