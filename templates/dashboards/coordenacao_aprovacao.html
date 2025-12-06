@@ -1,76 +1,89 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Aprovações Pendentes - Coordenação{% endblock %}
+{% block title %}Central de Aprovações | Coordenação{% endblock %}
 
 {% block content %}
-<div class="d-flex" id="wrapper">
-    <!-- Sidebar -->
+<div class="layout-wrapper d-flex bg-light">
     {% include 'includes/sidebar.html' %}
-
-    <!-- Page Content -->
-    <div id="page-content-wrapper" class="w-100 bg-light">
-        {% include 'includes/navbar.html' %}
-
-        <div class="container-fluid px-4 py-4">
-            
-            <!-- Mensagens de Sucesso/Erro -->
-            {% if messages %}
-                <div class="row mb-3">
-                    <div class="col-12">
-                        {% for message in messages %}
-                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                                {{ message }}
-                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                            </div>
-                        {% endfor %}
+    
+    <div id="main-content" class="flex-grow-1 transition-all">
+        
+        <header class="bg-white sticky-top shadow-sm py-3 px-4">
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center gap-3">
+                    <button class="btn btn-light d-md-none shadow-sm" id="sidebarToggle">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <div>
+                        <div class="header-breadcrumb text-muted small"><i class="fas fa-shield-alt me-1"></i> Coordenação</div>
+                        <h1 class="header-title mb-0 h5 fw-bold">Central de Aprovações</h1>
                     </div>
                 </div>
-            {% endif %}
+            </div>
+        </header>
+
+        <div class="container-fluid p-4">
             
-            <div class="row mb-4">
-                <div class="col-12">
-                    <h3 class="fw-bold text-senai-blue">
-                        <i class="fas fa-check-double me-2"></i>Central de Aprovações
-                    </h3>
-                    <p class="text-muted">Gerencie solicitações de cadastro e criação de turmas pendentes.</p>
+            <div class="row g-4 mb-4">
+                <div class="col-md-6">
+                    <div class="card border-0 shadow-sm border-start border-4 border-warning h-100">
+                        <div class="card-body d-flex align-items-center justify-content-between">
+                            <div>
+                                <h6 class="text-uppercase text-muted small fw-bold mb-1">Usuários Pendentes</h6>
+                                <h2 class="mb-0 fw-bold text-dark">{{ registros_pendentes.count }}</h2>
+                            </div>
+                            <div class="bg-warning bg-opacity-10 text-warning rounded-circle p-3">
+                                <i class="fas fa-user-clock fa-2x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card border-0 shadow-sm border-start border-4 border-primary h-100">
+                        <div class="card-body d-flex align-items-center justify-content-between">
+                            <div>
+                                <h6 class="text-uppercase text-muted small fw-bold mb-1">Turmas a Liberar</h6>
+                                <h2 class="mb-0 fw-bold text-dark">{{ turmas_pendentes.count }}</h2>
+                            </div>
+                            <div class="bg-primary bg-opacity-10 text-primary rounded-circle p-3">
+                                <i class="fas fa-chalkboard fa-2x"></i>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <!-- Tabs de Navegação -->
-            <ul class="nav nav-tabs mb-4" id="approvalTabs" role="tablist">
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link active" id="users-tab" data-bs-toggle="tab" data-bs-target="#users" type="button" role="tab">
-                        <i class="fas fa-user-plus me-2"></i>Novos Usuários 
-                        {% if registros_pendentes %}
-                            <span class="badge bg-danger rounded-pill ms-2">{{ registros_pendentes.count }}</span>
-                        {% endif %}
-                    </button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="classes-tab" data-bs-toggle="tab" data-bs-target="#classes" type="button" role="tab">
-                        <i class="fas fa-chalkboard-teacher me-2"></i>Turmas Pendentes
-                        {% if turmas_pendentes %}
-                            <span class="badge bg-warning text-dark rounded-pill ms-2">{{ turmas_pendentes.count }}</span>
-                        {% endif %}
-                    </button>
-                </li>
-            </ul>
+            <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+                <div class="card-header bg-white border-bottom pt-3 pb-0 px-4">
+                    <ul class="nav nav-tabs card-header-tabs" id="aprovacaoTabs" role="tablist">
+                        <li class="nav-item">
+                            <button class="nav-link active fw-bold" id="usuarios-tab" data-bs-toggle="tab" data-bs-target="#usuarios" type="button" role="tab">
+                                <i class="fas fa-users me-2"></i>Cadastros de Usuários
+                                {% if registros_pendentes %}<span class="badge bg-danger rounded-pill ms-2">{{ registros_pendentes.count }}</span>{% endif %}
+                            </button>
+                        </li>
+                        <li class="nav-item">
+                            <button class="nav-link fw-bold" id="turmas-tab" data-bs-toggle="tab" data-bs-target="#turmas" type="button" role="tab">
+                                <i class="fas fa-chalkboard-teacher me-2"></i>Abertura de Turmas
+                                {% if turmas_pendentes %}<span class="badge bg-primary rounded-pill ms-2">{{ turmas_pendentes.count }}</span>{% endif %}
+                            </button>
+                        </li>
+                    </ul>
+                </div>
 
-            <div class="tab-content" id="approvalTabsContent">
-                
-                <!-- ABA 1: USUÁRIOS -->
-                <div class="tab-pane fade show active" id="users" role="tabpanel">
-                    <div class="card shadow-sm border-0 rounded-3">
-                        <div class="card-body p-0">
+                <div class="card-body p-0">
+                    <div class="tab-content" id="aprovacaoTabsContent">
+                        
+                        <div class="tab-pane fade show active" id="usuarios" role="tabpanel">
                             {% if registros_pendentes %}
                             <div class="table-responsive">
-                                <table class="table table-hover align-middle mb-0">
-                                    <thead class="bg-light">
+                                <table class="table align-middle table-hover mb-0">
+                                    <thead class="bg-light text-secondary small text-uppercase">
                                         <tr>
                                             <th class="ps-4">Solicitante</th>
-                                            <th>Perfil</th>
-                                            <th>CPF</th>
+                                            <th>Email / Contato</th>
+                                            <th>Perfil Solicitado</th>
                                             <th>Data Solicitação</th>
                                             <th class="text-end pe-4">Ações</th>
                                         </tr>
@@ -79,37 +92,34 @@
                                         {% for reg in registros_pendentes %}
                                         <tr>
                                             <td class="ps-4">
-                                                <div class="d-flex flex-column">
-                                                    <span class="fw-bold">{{ reg.get_nome_completo }}</span>
-                                                    <small class="text-muted">{{ reg.email }}</small>
-                                                </div>
+                                                <div class="fw-bold text-dark">{{ reg.primeiro_nome }} {{ reg.sobrenome }}</div>
+                                                <small class="text-muted">CPF: {{ reg.cpf }}</small>
                                             </td>
                                             <td>
-                                                {% if reg.tipo_solicitado == 'aluno' %}
-                                                    <span class="badge bg-primary">Aluno</span>
-                                                {% elif reg.tipo_solicitado == 'professor' %}
-                                                    <span class="badge bg-info text-dark">Professor</span>
+                                                <div class="text-dark">{{ reg.email }}</div>
+                                                <small class="text-muted">{{ reg.telefone }}</small>
+                                            </td>
+                                            <td>
+                                                {% if reg.tipo_solicitado == 'professor' %}
+                                                    <span class="badge bg-info text-dark bg-opacity-25 border border-info">Professor</span>
+                                                {% elif reg.tipo_solicitado == 'secretaria' %}
+                                                    <span class="badge bg-warning text-dark bg-opacity-25 border border-warning">Secretaria</span>
                                                 {% else %}
-                                                    <span class="badge bg-secondary">{{ reg.get_tipo_solicitado_display }}</span>
+                                                    <span class="badge bg-secondary">{{ reg.tipo_solicitado }}</span>
                                                 {% endif %}
                                             </td>
-                                            <td>{{ reg.cpf|default:"-" }}</td>
-                                            <td>{{ reg.data_solicitacao|date:"d/m/Y H:i" }}</td>
+                                            <td class="text-muted small">
+                                                <i class="far fa-clock me-1"></i>{{ reg.data_solicitacao|date:"d/m/Y H:i" }}
+                                            </td>
                                             <td class="text-end pe-4">
                                                 <div class="btn-group">
-                                                    <!-- Botão Aprovar -->
-                                                    <form method="POST" action="{% url 'coordenacao_aprovacao' %}" class="d-inline">
-                                                        {% csrf_token %}
-                                                        <input type="hidden" name="action" value="approve_user">
-                                                        <input type="hidden" name="item_id" value="{{ reg.id }}">
-                                                        <button type="submit" class="btn btn-success btn-sm" title="Aprovar">
-                                                            <i class="fas fa-check me-1"></i>Aprovar
-                                                        </button>
-                                                    </form>
-                                                    
-                                                    <!-- Botão Rejeitar (Abre Modal) -->
-                                                    <button type="button" class="btn btn-outline-danger btn-sm ms-1" onclick="rejectUser('{{ reg.id }}', '{{ reg.get_nome_completo }}')" title="Rejeitar">
-                                                        <i class="fas fa-times"></i>
+                                                    <button type="button" class="btn btn-outline-success btn-sm" 
+                                                            onclick="confirmarAcao('approve_user', '{{ reg.id }}', '{{ reg.primeiro_nome }}')">
+                                                        <i class="fas fa-check me-1"></i>Aprovar
+                                                    </button>
+                                                    <button type="button" class="btn btn-outline-danger btn-sm" 
+                                                            onclick="rejeitarItem('reject_user', '{{ reg.id }}', '{{ reg.primeiro_nome }}')">
+                                                        <i class="fas fa-times me-1"></i>Rejeitar
                                                     </button>
                                                 </div>
                                             </td>
@@ -119,59 +129,54 @@
                                 </table>
                             </div>
                             {% else %}
-                                <div class="text-center py-5">
-                                    <i class="fas fa-user-check fa-3x text-muted mb-3 opacity-25"></i>
-                                    <h5 class="text-muted">Nenhuma solicitação de cadastro pendente.</h5>
-                                </div>
+                            <div class="text-center py-5">
+                                <div class="mb-3 text-muted opacity-25"><i class="fas fa-check-circle fa-4x"></i></div>
+                                <h5 class="text-muted">Nenhum cadastro pendente</h5>
+                                <p class="text-muted small">Todos os usuários foram processados.</p>
+                            </div>
                             {% endif %}
                         </div>
-                    </div>
-                </div>
 
-                <!-- ABA 2: TURMAS -->
-                <div class="tab-pane fade" id="classes" role="tabpanel">
-                    <div class="card shadow-sm border-0 rounded-3">
-                        <div class="card-body p-0">
+                        <div class="tab-pane fade" id="turmas" role="tabpanel">
                             {% if turmas_pendentes %}
                             <div class="table-responsive">
-                                <table class="table table-hover align-middle mb-0">
-                                    <thead class="bg-light">
+                                <table class="table align-middle table-hover mb-0">
+                                    <thead class="bg-light text-secondary small text-uppercase">
                                         <tr>
-                                            <th class="ps-4">Turma</th>
-                                            <th>Curso</th>
-                                            <th>Período/Turno</th>
-                                            <th>Início</th>
+                                            <th class="ps-4">Turma / Curso</th>
+                                            <th>Período / Ano</th>
+                                            <th>Previsão Início</th>
+                                            <th>Vagas</th>
                                             <th class="text-end pe-4">Ações</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         {% for turma in turmas_pendentes %}
                                         <tr>
-                                            <td class="ps-4 fw-bold">{{ turma.nome }}</td>
-                                            <td>{{ turma.id_curso.nome_curso }}</td>
-                                            <td>{{ turma.periodo }} / {{ turma.id_curso.turno }}</td>
-                                            <td>{{ turma.data_inicio|date:"d/m/Y" }}</td>
+                                            <td class="ps-4">
+                                                <div class="fw-bold text-dark">{{ turma.nome }}</div>
+                                                <small class="text-primary">{{ turma.id_curso.nome_curso }}</small>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-light text-dark border">{{ turma.periodo }}</span>
+                                                <span class="ms-1 small text-muted">{{ turma.ano_letivo }}</span>
+                                            </td>
+                                            <td class="text-muted small">
+                                                <i class="far fa-calendar-alt me-1"></i>{{ turma.data_inicio|date:"d/m/Y" }}
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-secondary rounded-pill">{{ turma.capacidade_maxima }} Vagas</span>
+                                            </td>
                                             <td class="text-end pe-4">
                                                 <div class="btn-group">
-                                                    <!-- Botão Aprovar -->
-                                                    <form method="POST" action="{% url 'coordenacao_aprovacao' %}" class="d-inline">
-                                                        {% csrf_token %}
-                                                        <input type="hidden" name="action" value="approve_turma">
-                                                        <input type="hidden" name="item_id" value="{{ turma.id }}">
-                                                        <button type="submit" class="btn btn-success btn-sm" title="Aprovar">
-                                                            <i class="fas fa-check me-1"></i>Aprovar
-                                                        </button>
-                                                    </form>
-
-                                                    <!-- Botão Rejeitar -->
-                                                    <form method="POST" action="{% url 'coordenacao_aprovacao' %}" class="d-inline">
-                                                        {% csrf_token %}
-                                                        <input type="hidden" name="action" value="reject_turma">
-                                                        <input type="hidden" name="item_id" value="{{ turma.id }}">
-                                                        <button type="submit" class="btn btn-outline-danger btn-sm ms-1" onclick="return confirm('Tem certeza que deseja rejeitar esta turma?')" title="Rejeitar">
-                                                            <i class="fas fa-times"></i>
-                                                        </button>
-                                                    </form>
+                                                    <button type="button" class="btn btn-outline-success btn-sm" 
+                                                            onclick="confirmarAcao('approve_turma', '{{ turma.id }}', '{{ turma.nome }}')">
+                                                        <i class="fas fa-check me-1"></i>Liberar
+                                                    </button>
+                                                    <button type="button" class="btn btn-outline-danger btn-sm" 
+                                                            onclick="rejeitarItem('reject_turma', '{{ turma.id }}', '{{ turma.nome }}')">
+                                                        <i class="fas fa-times me-1"></i>Recusar
+                                                    </button>
                                                 </div>
                                             </td>
                                         </tr>
@@ -180,42 +185,69 @@
                                 </table>
                             </div>
                             {% else %}
-                                <div class="text-center py-5">
-                                    <i class="fas fa-clipboard-check fa-3x text-muted mb-3 opacity-25"></i>
-                                    <h5 class="text-muted">Nenhuma turma aguardando aprovação.</h5>
-                                </div>
+                            <div class="text-center py-5">
+                                <div class="mb-3 text-muted opacity-25"><i class="fas fa-chalkboard fa-4x"></i></div>
+                                <h5 class="text-muted">Nenhuma turma aguardando aprovação</h5>
+                                <p class="text-muted small">O planejamento acadêmico está em dia.</p>
+                            </div>
                             {% endif %}
                         </div>
+
                     </div>
                 </div>
-
             </div>
         </div>
     </div>
 </div>
 
-<!-- Modal de Rejeição de Usuário (Apenas para Rejeição de Usuários) -->
+<div class="modal fade" id="approveModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <form method="POST">
+                {% csrf_token %}
+                <input type="hidden" name="action" id="approveAction">
+                <input type="hidden" name="item_id" id="approveItemId">
+                
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title"><i class="fas fa-check-circle me-2"></i>Confirmar Aprovação</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body text-center py-4">
+                    <p class="mb-0 fs-5">Deseja aprovar <strong id="approveNameDisplay"></strong>?</p>
+                    <p class="text-muted small mt-2">Esta ação liberará o acesso ou o recurso imediatamente.</p>
+                </div>
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-link text-muted text-decoration-none" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-success px-4">Sim, Aprovar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <div class="modal fade" id="rejectModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Rejeitar Cadastro</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <form method="POST" action="{% url 'coordenacao_aprovacao' %}">
+            <form method="POST">
                 {% csrf_token %}
+                <input type="hidden" name="action" id="rejectAction">
+                <input type="hidden" name="item_id" id="rejectItemId">
+                
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title"><i class="fas fa-times-circle me-2"></i>Confirmar Rejeição</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
                 <div class="modal-body">
-                    <p>Tem certeza que deseja rejeitar o cadastro de <strong id="rejectUserName"></strong>?</p>
-                    <input type="hidden" name="action" value="reject_user">
-                    <input type="hidden" name="item_id" id="rejectUserId">
+                    <p>Você está prestes a rejeitar <strong id="rejectNameDisplay"></strong>.</p>
+                    
                     <div class="mb-3">
-                        <label class="form-label">Motivo da Rejeição (Opcional):</label>
-                        <textarea class="form-control" name="motivo_rejeicao" rows="3" placeholder="Ex: CPF inválido, dados incompletos..."></textarea>
+                        <label for="motivo" class="form-label fw-bold small text-uppercase">Motivo da Rejeição (Obrigatório)</label>
+                        <textarea class="form-control" name="motivo_rejeicao" id="motivo" rows="3" required placeholder="Descreva por que está rejeitando esta solicitação..."></textarea>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-danger">Confirmar Rejeição</button>
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-link text-muted text-decoration-none" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-danger px-4">Confirmar Rejeição</button>
                 </div>
             </form>
         </div>
@@ -223,10 +255,24 @@
 </div>
 
 <script>
-    function rejectUser(id, name) {
-        document.getElementById('rejectUserId').value = id;
-        document.getElementById('rejectUserName').textContent = name;
-        new bootstrap.Modal(document.getElementById('rejectModal')).show();
+    // Funções para abrir os modais com os dados corretos
+    function confirmarAcao(action, id, nome) {
+        document.getElementById('approveAction').value = action;
+        document.getElementById('approveItemId').value = id;
+        document.getElementById('approveNameDisplay').innerText = nome;
+        
+        var myModal = new bootstrap.Modal(document.getElementById('approveModal'));
+        myModal.show();
+    }
+
+    function rejeitarItem(action, id, nome) {
+        document.getElementById('rejectAction').value = action;
+        document.getElementById('rejectItemId').value = id;
+        document.getElementById('rejectNameDisplay').innerText = nome;
+        document.getElementById('motivo').value = ''; // Limpa o campo
+        
+        var myModal = new bootstrap.Modal(document.getElementById('rejectModal'));
+        myModal.show();
     }
 </script>
 {% endblock %}
