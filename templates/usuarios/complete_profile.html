@@ -1,39 +1,90 @@
-{% load static %}
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Completar Perfil</title>
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
-</head>
-<body>
-<div class="container mt-5">
-    <div class="card p-4 mx-auto" style="max-width:520px;">
-        <h4 class="mb-3">Completar Perfil</h4>
-        <p>Antes de acessar o sistema, complete seu perfil.</p>
-        <form method="post">
-            {% csrf_token %}
-            <div class="mb-3">
-                <label for="id_tipo" class="form-label">Tipo de Perfil</label>
-                <select name="tipo" id="id_tipo" class="form-control" required>
-                    <option value="aluno">Aluno</option>
-                    <option value="professor">Professor</option>
-                    <option value="secretaria">Secretaria</option>
-                    <option value="coordenacao">Coordenação</option>
-                </select>
+{% extends 'base.html' %}
+
+{% block title %}Completar Cadastro{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow-sm border-0 rounded-3">
+                <div class="card-header bg-senai-blue text-white text-center py-3">
+                    <h4 class="mb-0 fw-bold">Finalizar Cadastro</h4>
+                    <p class="mb-0 small opacity-75">Precisamos de mais algumas informações</p>
+                </div>
+                <div class="card-body p-4">
+                    
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+                        {% endfor %}
+                    {% endif %}
+
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        {% if tipo == 'aluno' %}
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Data de Nascimento *</label>
+                            <input type="date" name="data_nascimento" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">RG *</label>
+                            <input type="text" name="rg" class="form-control" placeholder="00.000.000-0" required>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Gênero *</label>
+                                <select name="genero" class="form-select" required>
+                                    <option value="">Selecione...</option>
+                                    <option value="Masculino">Masculino</option>
+                                    <option value="Feminino">Feminino</option>
+                                    <option value="Outro">Outro</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Estado Civil *</label>
+                                <select name="estado_civil" class="form-select" required>
+                                    <option value="">Selecione...</option>
+                                    <option value="Solteiro">Solteiro(a)</option>
+                                    <option value="Casado">Casado(a)</option>
+                                    <option value="Divorciado">Divorciado(a)</option>
+                                </select>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        {% if tipo == 'professor' %}
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Data de Contratação *</label>
+                            <input type="date" name="data_contratacao" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Formação Acadêmica *</label>
+                            <input type="text" name="formacao" class="form-control" placeholder="Ex: Licenciatura em Matemática" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Registro Funcional (RF)</label>
+                            <input type="text" name="registro_funcional" class="form-control" placeholder="Se possuir">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Tipo de Vínculo *</label>
+                            <select name="tipo_vinculo" class="form-select" required>
+                                <option value="CLT">CLT (Horista)</option>
+                                <option value="CLT_Mensalista">CLT (Mensalista)</option>
+                                <option value="PJ">Prestador de Serviço (PJ)</option>
+                            </select>
+                        </div>
+                        {% endif %}
+
+                        <div class="d-grid gap-2 mt-4">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                Salvar e Acessar Sistema
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
-            <div class="mb-3">
-                <label for="id_telefone" class="form-label">Telefone</label>
-                <input type="text" name="telefone" id="id_telefone" class="form-control">
-            </div>
-            <div class="mb-3">
-                <label for="id_cpf" class="form-label">CPF</label>
-                <input type="text" name="cpf" id="id_cpf" class="form-control">
-            </div>
-            <button class="btn bg-senai-red text-white">Salvar e ir para o Dashboard</button>
-        </form>
+        </div>
     </div>
 </div>
-</body>
-</html>
+{% endblock %}

@@ -49,7 +49,7 @@ class PendingRegistrationAdmin(admin.ModelAdmin):
 
     fieldsets = (
         ('Informações Pessoais', {
-            'fields': ('primeiro_nome', 'sobrenome', 'email', 'username', 'telefone', 'cpf')
+            'fields': ('primeiro_nome', 'sobrenome', 'email', 'username', 'senha', 'telefone', 'cpf')
         }),
         ('Solicitação', {
             'fields': ('tipo_solicitado', 'data_solicitacao')
@@ -113,5 +113,5 @@ class PendingRegistrationAdmin(admin.ModelAdmin):
     def get_readonly_fields(self, request, obj=None):
         if obj and obj.status != 'pendente':
             # Se não está pendente, todos os campos são readonly
-            return self.readonly_fields + ('primeiro_nome', 'sobrenome', 'email', 'username', 'telefone', 'cpf', 'tipo_solicitado')
+            return self.readonly_fields + ('primeiro_nome', 'sobrenome', 'email', 'username', 'senha', 'telefone', 'cpf', 'tipo_solicitado')
         return self.readonly_fields
