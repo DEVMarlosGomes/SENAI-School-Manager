@@ -18,7 +18,7 @@ class Endereco(models.Model):
     class Meta:
         verbose_name = 'Endereço'
         verbose_name_plural = 'Endereços'
-        db_table = 'academico_endereco' # Nome explícito da tabela
+        db_table = 'academico_endereco'
 
     def __str__(self):
         return f"{self.logradouro}, {self.numero} - {self.cidade}"
@@ -44,7 +44,6 @@ class Disciplina(models.Model):
     creditos = models.IntegerField(blank=True, null=True)
     status_curricular = models.CharField(max_length=50, blank=True, null=True)
     
-    # Auto-relacionamento (N:1)
     pre_requisito_disciplina = models.ForeignKey(
         'self', 
         on_delete=models.SET_NULL, 
@@ -65,13 +64,11 @@ class Disciplina(models.Model):
 # ### 2. Entidades de "Perfis" (Ligadas ao User)
 # #############################################################################
 
-# Nota: Usamos o 'settings.AUTH_USER_MODEL' que aponta para o 'User' do Django
-# Isso implementa a "Herança" 1:1 da sua documentação.
-
 class Coordenacao(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, primary_key=True)
-    registro_administrativo = models.CharField(max_length=50, unique=True)
-    nivel_acesso = models.CharField(max_length=50)
+    # Tornando campos opcionais para permitir criação via aprovação de cadastro
+    registro_administrativo = models.CharField(max_length=50, unique=True, blank=True, null=True)
+    nivel_acesso = models.CharField(max_length=50, blank=True, null=True)
     area_coordenacao = models.CharField(max_length=100, blank=True, null=True)
     data_inicio_funcao = models.DateField(blank=True, null=True)
     pode_finalizar_boletim = models.BooleanField(default=False)
@@ -89,8 +86,9 @@ class Coordenacao(models.Model):
 
 class Secretaria(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, primary_key=True)
-    registro_administrativo = models.CharField(max_length=50, unique=True)
-    cargo = models.CharField(max_length=50)
+    # Tornando campos opcionais
+    registro_administrativo = models.CharField(max_length=50, unique=True, blank=True, null=True)
+    cargo = models.CharField(max_length=50, blank=True, null=True)
     data_inicio_cargo = models.DateField(blank=True, null=True)
     pode_gerenciar_perfis = models.BooleanField(default=True)
     pode_acessar_relatorios_financeiros = models.BooleanField(default=False)
@@ -125,13 +123,15 @@ class Departamento(models.Model):
 
 class Professor(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, primary_key=True)
-    registro_funcional = models.CharField(max_length=50, unique=True)
-    formacao = models.CharField(max_length=100)
-    tipo_vinculo = models.CharField(max_length=50)
-    data_contratacao = models.DateField()
+    # Tornando campos opcionais
+    registro_funcional = models.CharField(max_length=50, unique=True, blank=True, null=True)
+    formacao = models.CharField(max_length=100, blank=True, null=True)
+    tipo_vinculo = models.CharField(max_length=50, blank=True, null=True)
+    data_contratacao = models.DateField(blank=True, null=True)
     status_professor = models.CharField(max_length=20, default='Ativo')
-    cod_departamento = models.ForeignKey(Departamento, on_delete=models.PROTECT) # Proteger para não apagar depto com professor
-    cod_endereco = models.ForeignKey(Endereco, on_delete=models.SET_NULL, null=True)
+    # Departamento pode ser null inicialmente
+    cod_departamento = models.ForeignKey(Departamento, on_delete=models.PROTECT, null=True, blank=True)
+    cod_endereco = models.ForeignKey(Endereco, on_delete=models.SET_NULL, null=True, blank=True)
     is_proponente_turma = models.BooleanField(default=False)
     etnia = models.CharField(max_length=50, blank=True, null=True)
     estado_civil = models.CharField(max_length=20, blank=True, null=True)
@@ -157,7 +157,6 @@ class Curso(models.Model):
     cod_departamento = models.ForeignKey(Departamento, on_delete=models.PROTECT)
     credenciamento_ativo = models.BooleanField(default=True)
     
-    # Relação N:M com Disciplina, usando a tabela 'CursoDisciplina'
     disciplinas = models.ManyToManyField(
         Disciplina, 
         through='CursoDisciplina',
@@ -179,7 +178,7 @@ class Turma(models.Model):
     data_inicio = models.DateField()
     data_fim = models.DateField(blank=True, null=True)
     capacidade_maxima = models.IntegerField(default=40)
-    alunos_matriculados = models.IntegerField(default=0) # Idealmente, isso seria contado
+    alunos_matriculados = models.IntegerField(default=0)
     id_curso = models.ForeignKey(Curso, on_delete=models.CASCADE)
     status_aprovacao = models.CharField(max_length=50, default='Pendente')
     coordenacao_aprovacao = models.ForeignKey(Coordenacao, on_delete=models.SET_NULL, null=True, blank=True)
@@ -204,7 +203,6 @@ class Responsavel(models.Model):
     responsavel_financeiro = models.BooleanField(default=False)
     cod_endereco = models.ForeignKey(Endereco, on_delete=models.SET_NULL, null=True, blank=True)
     
-    # Relação N:M com Telefone
     telefones = models.ManyToManyField(Telefone, blank=True)
 
     class Meta:
@@ -217,18 +215,21 @@ class Responsavel(models.Model):
 
 class Aluno(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, primary_key=True)
+    
+    # === CORREÇÃO: Campos obrigatórios tornados opcionais para cadastro inicial ===
     RA_aluno = models.CharField(max_length=50, unique=True)
-    RG_aluno = models.CharField(max_length=20, unique=True)
-    data_nascimento = models.DateField()
-    genero = models.CharField(max_length=20)
+    RG_aluno = models.CharField(max_length=20, unique=True, blank=True, null=True) # Opcional
+    data_nascimento = models.DateField(blank=True, null=True) # Opcional
+    genero = models.CharField(max_length=20, blank=True, null=True) # Opcional
+    estado_civil = models.CharField(max_length=20, blank=True, null=True) # Opcional
+    
     etinia = models.CharField(max_length=50, blank=True, null=True)
     deficiencia = models.CharField(max_length=100, blank=True, null=True)
-    estado_civil = models.CharField(max_length=20)
     conclusao_EM = models.DateField(blank=True, null=True)
     data_matricula = models.DateField(auto_now_add=True)
     status_matricula = models.CharField(max_length=20, default='Ativo')
     turma_atual = models.ForeignKey(Turma, on_delete=models.SET_NULL, null=True, blank=True, related_name='alunos')
-    cod_endereco = models.ForeignKey(Endereco, on_delete=models.SET_NULL, null=True)
+    cod_endereco = models.ForeignKey(Endereco, on_delete=models.SET_NULL, null=True, blank=True)
     responsavel_legal = models.ForeignKey(Responsavel, on_delete=models.SET_NULL, null=True, blank=True)
 
     class Meta:
@@ -244,7 +245,6 @@ class Aluno(models.Model):
 # #############################################################################
 
 class CursoDisciplina(models.Model):
-    """ Tabela "through" para N:M de Curso e Disciplina """
     curso = models.ForeignKey(Curso, on_delete=models.CASCADE)
     disciplina = models.ForeignKey(Disciplina, on_delete=models.CASCADE)
     periodo_curso = models.IntegerField(blank=True, null=True)
@@ -255,10 +255,9 @@ class CursoDisciplina(models.Model):
         verbose_name = 'Disciplina do Curso'
         verbose_name_plural = 'Disciplinas do Curso'
         db_table = 'academico_curso_disciplina'
-        unique_together = ('curso', 'disciplina') # Garante que a disciplina só apareça uma vez por curso
+        unique_together = ('curso', 'disciplina')
 
 class TurmaDisciplinaProfessor(models.Model):
-    """ Tabela de alocação N:M:1 """
     turma = models.ForeignKey(Turma, on_delete=models.CASCADE)
     disciplina = models.ForeignKey(Disciplina, on_delete=models.CASCADE)
     professor = models.ForeignKey(Professor, on_delete=models.SET_NULL, null=True)
@@ -268,26 +267,23 @@ class TurmaDisciplinaProfessor(models.Model):
         verbose_name = 'Alocação Professor-Turma-Disciplina'
         verbose_name_plural = 'Alocações'
         db_table = 'academico_turma_disciplina_professor'
-        unique_together = ('turma', 'disciplina') # Só pode ter um professor por disciplina na turma
+        unique_together = ('turma', 'disciplina')
 
     def __str__(self):
         return f"{self.turma.nome} - {self.disciplina.nome} - {self.professor or 'A definir'}"
 
 class Historico(models.Model):
     id_aluno = models.ForeignKey(Aluno, on_delete=models.CASCADE, related_name='historico')
-    
-    # FK para a alocação, como na doc
     turma_disciplina_professor = models.ForeignKey(
         TurmaDisciplinaProfessor, 
-        on_delete=models.PROTECT # Proteger o histórico se a alocação for apagada
+        on_delete=models.PROTECT
     )
-    
     nota_final = models.FloatField(blank=True, null=True)
     media_final = models.FloatField(blank=True, null=True)
     frequencia_percentual = models.FloatField(blank=True, null=True)
     total_faltas = models.IntegerField(blank=True, null=True)
     status_aprovacao = models.CharField(max_length=50, blank=True, null=True)
-    periodo_realizacao = models.CharField(max_length=50) # Ex: "2024.1"
+    periodo_realizacao = models.CharField(max_length=50)
     data_lancamento = models.DateTimeField(auto_now=True)
 
     class Meta:
@@ -301,7 +297,7 @@ class Historico(models.Model):
 
 class Boletim(models.Model):
     turma = models.ForeignKey(Turma, on_delete=models.CASCADE)
-    periodo_referencia = models.CharField(max_length=50) # Ex: "Bimestre 1"
+    periodo_referencia = models.CharField(max_length=50)
     data_emissao = models.DateTimeField(blank=True, null=True)
     status_boletim = models.CharField(max_length=50, default='Em Aberto')
     coordenacao_finalizou = models.ForeignKey(Coordenacao, on_delete=models.SET_NULL, null=True, blank=True)
@@ -318,9 +314,9 @@ class Boletim(models.Model):
 
 class RegistroOcorrencia(models.Model):
     aluno = models.ForeignKey(Aluno, on_delete=models.CASCADE)
-    professor = models.ForeignKey(Professor, on_delete=models.SET_NULL, null=True) # Professor que registrou
-    turma = models.ForeignKey(Turma, on_delete=models.SET_NULL, null=True, blank=True) # Turma onde ocorreu
-    tipo_ocorrencia = models.CharField(max_length=50) # Ex: "Advertência", "Observação"
+    professor = models.ForeignKey(Professor, on_delete=models.SET_NULL, null=True)
+    turma = models.ForeignKey(Turma, on_delete=models.SET_NULL, null=True, blank=True)
+    tipo_ocorrencia = models.CharField(max_length=50)
     descricao = models.TextField()
     data_registro = models.DateTimeField(auto_now_add=True)
     status_intervencao = models.CharField(max_length=50, default='Pendente')
