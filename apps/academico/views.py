@@ -403,13 +403,12 @@ def diario_classe_view(request, alocacao_id):
         return redirect('home')
 
     # 2. Garante que existam registros de Histórico para todos os alunos da turma
-    # (No mundo real, o histórico é criado na matrícula, mas isso garante que não quebre)
     alunos_turma = Aluno.objects.filter(turma_atual=alocacao.turma)
     for aluno in alunos_turma:
         Historico.objects.get_or_create(
             id_aluno=aluno,
             turma_disciplina_professor=alocacao,
-            defaults={'periodo_realizacao': '2025.1'} # Exemplo
+            defaults={'periodo_realizacao': '2025.1'}
         )
 
     # 3. Filtra os históricos desta matéria específica
@@ -431,8 +430,14 @@ def diario_classe_view(request, alocacao_id):
                 freq = ((carga_horaria_disciplina - faltas) / carga_horaria_disciplina) * 100
                 historico.frequencia_percentual = round(freq, 1)
 
-                # 2. Definir Status (Aprovado/Reprovado)
+                # 2. CORREÇÃO: Sincronizar Media Final com Nota Final
+                # O dashboard do aluno lê 'media_final', mas o professor digita 'nota_final'
+                if historico.nota_final is not None:
+                    historico.media_final = historico.nota_final
+
+                # 3. Definir Status (Aprovado/Reprovado)
                 nota = historico.nota_final or 0
+                
                 if freq < 75:
                     historico.status_aprovacao = 'Reprovado por Faltas'
                 elif nota >= 6.0:
@@ -450,9 +455,10 @@ def diario_classe_view(request, alocacao_id):
     context = {
         'formset': formset,
         'alocacao': alocacao,
-        'alunos_nomes': [h.id_aluno.user.get_full_name() for h in queryset] # Helper para template
+        'alunos_nomes': [h.id_aluno.user.get_full_name() for h in queryset] 
     }
     return render(request, 'academico/professor/diario_classe.html', context)
+
 
 @login_required
 def registrar_ocorrencia_view(request, turma_id, aluno_id):
