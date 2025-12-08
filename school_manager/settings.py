@@ -57,7 +57,7 @@ INSTALLED_APPS = [
     'apps.relatorios.apps.RelatoriosConfig',
     
     # App de pagamentos
-    'apps.payments',
+    'apps.payments.apps.PaymentsConfig',
 ]
 
 # ==============================
