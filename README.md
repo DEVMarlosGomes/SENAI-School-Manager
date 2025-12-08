@@ -162,7 +162,7 @@ O sistema estará acessível em: `http://127.0.0.1:8000/`
 
 Para detalhes técnicos sobre a modelagem de dados e regras de negócio:
 
-📘 [Notion: Documentação Oficial SENAI School Manager](link-da-documentacao-aqui)
+📘 [Notion: Documentação Oficial SENAI School Manager](https://bird-toothpaste-81f.notion.site/Documenta-o-Sistema-de-Gest-o-Escolar-Avan-ado-SENAI-School-Manager-2a595238c1de808c8d64d80f480810dc?pvs=74)
 
 ---
 
