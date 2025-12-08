@@ -51,19 +51,32 @@ Este projeto utiliza uma arquitetura MVC (Model-View-Controller) adaptada pelo D
 A lógica de negócio é segregada em aplicações específicas (`apps`) para facilitar a escalabilidade.
 
 ```bash
-SENAI-School-Manager
+SENAI-SCHOOL-MANAGER
 ├── apps/
-│   ├── academico/       # Cursos, Disciplinas, Notas e Faltas
-│   ├── dashboards/      # Painéis visuais por perfil
-│   ├── payments/        # Financeiro e Stripe
-│   ├── relatorios/      # Geração de PDF e CSV
-│   └── usuarios/        # Autenticação e Roles (RBAC)
-├── core/                # Funcionalidades globais/base
-├── school_manager/      # Configurações do projeto (Settings/URLs)
-├── static/              # Assets (CSS, JS, Imagens)
-├── templates/           # Arquivos HTML
-├── manage.py            # CLI do Django
-└── requirements.txt     # Dependências
+│   ├── academico/       # Gestão acadêmica (Notas, Cursos)
+│   ├── dashboards/      # Lógica dos painéis visuais
+│   ├── payments/        # Integração Stripe e lógica financeira
+│   ├── relatorios/      # Geradores de PDF/CSV
+│   └── usuarios/        # Gestão de usuários e autenticação
+├── core/                # Funcionalidades base/globais
+├── school_manager/      # Configurações do projeto (Settings, URLs)
+├── static/
+│   ├── css/             # Folhas de estilo
+│   ├── img/             # Imagens e assets
+│   └── js/              # Scripts JavaScript
+├── templates/
+│   ├── academico/       # Templates das views acadêmicas
+│   ├── dashboards/      # Templates dos painéis
+│   ├── includes/        # Fragmentos reutilizáveis (navbars, footers)
+│   ├── pagamentos/      # Telas de pagamento e checkout
+│   ├── registration/    # Telas de login/registro (Django Auth)
+│   ├── relatorios/      # Templates de relatórios
+│   ├── usuarios/        # Telas de perfil e gestão de usuários
+│   ├── base.html        # Template base principal
+│   ├── base_home.html   # Template da landing page
+│   └── home.html        # Página inicial
+├── manage.py            # Utilitário CLI do Django
+└── requirements.txt     # Lista de dependências
 ```
 
 ---
