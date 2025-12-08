@@ -120,16 +120,30 @@
                                                 {{ user.profile.cpf|default:"***.***.***-**" }}
                                             </div>
                                         </div>
+                                        
                                         <div class="col-12">
                                             <label class="form-label text-muted small text-uppercase fw-bold">Endereço</label>
                                             <div class="p-3 bg-light rounded-3 border fw-medium text-dark">
-                                                {% if user.profile.bairro %}
-                                                    {{ user.profile.bairro }} - {{ user.profile.cidade }}/{{ user.profile.estado }} - CEP: {{ user.profile.cep }}
+                                                {% if perfil_dado.cod_endereco %}
+                                                    {{ perfil_dado.cod_endereco.logradouro|default:"" }}{% if perfil_dado.cod_endereco.numero %}, {{ perfil_dado.cod_endereco.numero }}{% endif %}
+                                                    {% if perfil_dado.cod_endereco.complemento %} - {{ perfil_dado.cod_endereco.complemento }} {% endif %}
+                                                    <br>
+                                                    {{ perfil_dado.cod_endereco.bairro|default:"" }} - {{ perfil_dado.cod_endereco.cidade|default:"" }}/{{ perfil_dado.cod_endereco.estado|default:"" }}
+                                                    <br>
+                                                    CEP: {{ perfil_dado.cod_endereco.cep|default:"--" }}
+                                                    
+                                                {% elif user.profile.logradouro or user.profile.bairro %}
+                                                    {{ user.profile.logradouro|default:"" }}{% if user.profile.numero %}, {{ user.profile.numero }}{% endif %}
+                                                    <br>
+                                                    {{ user.profile.bairro|default:"" }} - {{ user.profile.cidade|default:"" }}/{{ user.profile.estado|default:"" }}
+                                                    <br>
+                                                    CEP: {{ user.profile.cep|default:"--" }}
                                                 {% else %}
                                                     <span class="text-muted fst-italic">Endereço não cadastrado</span>
                                                 {% endif %}
                                             </div>
                                         </div>
+
                                         <div class="col-12">
                                             <label class="form-label text-muted small text-uppercase fw-bold">Biografia / Sobre</label>
                                             <div class="p-3 bg-light rounded-3 border fw-medium text-dark">
@@ -151,7 +165,7 @@
                                                 <div class="card bg-primary bg-opacity-10 border-0 h-100">
                                                     <div class="card-body">
                                                         <h6 class="text-primary fw-bold mb-1">RA (Registro Acadêmico)</h6>
-                                                        <p class="h4 mb-0 text-dark">{{ perfil_dado.RA_aluno }}</p>
+                                                        <p class="h4 mb-0 text-dark">{{ perfil_dado.RA_aluno|default:"--" }}</p>
                                                     </div>
                                                 </div>
                                             </div>
@@ -179,13 +193,13 @@
                                             <div class="col-md-6">
                                                 <label class="form-label text-muted small text-uppercase fw-bold">Registro Funcional</label>
                                                 <div class="p-3 bg-light rounded-3 border fw-bold text-dark font-monospace">
-                                                    {{ perfil_dado.registro_funcional }}
+                                                    {{ perfil_dado.registro_funcional|default:"--" }}
                                                 </div>
                                             </div>
                                             <div class="col-md-6">
                                                 <label class="form-label text-muted small text-uppercase fw-bold">Turmas Atribuídas</label>
                                                 <div class="p-3 bg-light rounded-3 border fw-bold text-dark">
-                                                    {{ qtd_turmas }} turmas ativas
+                                                    {{ qtd_turmas|default:"0" }} turmas ativas
                                                 </div>
                                             </div>
                                         {% endif %}

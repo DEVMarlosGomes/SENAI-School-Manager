@@ -1,396 +1,256 @@
 document.addEventListener('DOMContentLoaded', function() {
     
-    // --- RECUPERAÇÃO DE DADOS DO DJANGO ---
+    // --- RECUPERAÇÃO DE DADOS ---
     const schoolData = window.SCHOOL_DATA || {};
     let mockAlunos = schoolData.alunos || [];
     let mockTurmas = schoolData.turmas || [];
     let mockProfessores = schoolData.professores || [];
     let mockDisciplinas = schoolData.disciplinas || [];
+    let cursosList = schoolData.cursos || [];
     
-    // --- CONFIGURAÇÃO TOKEN SEGURANÇA (CSRF) ---
     const csrfInput = document.querySelector('[name=csrfmiddlewaretoken]');
     const csrftoken = csrfInput ? csrfInput.value : '';
 
-    // =================================================================
-    // 1. ABA ALUNOS (COM EDIÇÃO, EXCLUSÃO E FILTROS)
-    // =================================================================
-
-    function renderAlunosTable(alunos = mockAlunos) {
-        const tbody = document.getElementById('alunosTableBody');
-        if (!tbody) return;
-        tbody.innerHTML = '';
-        
-        if (alunos.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted p-3">Nenhum aluno encontrado.</td></tr>';
-            return;
-        }
-
-        alunos.forEach(aluno => {
-            let badgeClass = 'bg-secondary';
-            // Normaliza status para evitar erros de caixa (maiúscula/minúscula)
-            const statusRaw = (aluno.status || '').toLowerCase(); 
-
-            if (statusRaw === 'ativo') badgeClass = 'bg-success';
-            else if (statusRaw === 'trancado') badgeClass = 'bg-secondary'; 
-            else if (statusRaw === 'pendente') badgeClass = 'bg-warning text-dark';
-            else if (statusRaw === 'inativo') badgeClass = 'bg-danger';
-
-            // Formata texto para exibição (Primeira letra maiúscula)
-            const statusDisplay = aluno.status ? aluno.status.charAt(0).toUpperCase() + aluno.status.slice(1) : 'Indefinido';
-
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td>${aluno.nome}</td>
-                <td><span class="badge bg-light text-dark border">${aluno.matricula}</span></td>
-                <td>${aluno.turma}</td>
-                <td><span class="badge ${badgeClass}">${statusDisplay}</span></td>
-                <td class="text-end">
-                    <button class="btn btn-sm btn-outline-primary me-1 btn-editar" data-id="${aluno.id}"><i class="fas fa-edit"></i></button>
-                    <button class="btn btn-sm btn-outline-danger btn-excluir" data-id="${aluno.id}"><i class="fas fa-trash"></i></button>
-                </td>
-            `;
-            tbody.appendChild(tr);
-        });
-
-        // Reconecta os eventos aos botões recém-criados
-        attachActionListeners();
-    }
-
-    function attachActionListeners() {
-        // Botões de Editar
-        document.querySelectorAll('.btn-editar').forEach(btn => {
-            btn.addEventListener('click', function() {
-                const id = this.getAttribute('data-id');
-                const aluno = mockAlunos.find(a => a.id == id);
-                if (aluno) {
-                    abrirModalEditar(aluno);
-                }
-            });
-        });
-
-        // Botões de Excluir
-        document.querySelectorAll('.btn-excluir').forEach(btn => {
-            btn.addEventListener('click', function() {
-                const id = this.getAttribute('data-id');
-                if (confirm('Tem certeza que deseja excluir este aluno? Essa ação apagará também o login do usuário.')) {
-                    deletarAluno(id);
-                }
-            });
-        });
-    }
-
-    // --- FILTROS DE ALUNOS ---
-    const btnFiltrar = document.getElementById('btnFiltrarAlunos');
-    if (btnFiltrar) {
-        btnFiltrar.addEventListener('click', () => {
-            const nome = document.getElementById('filterAlunoNome').value.toLowerCase();
-            const status = document.getElementById('filterAlunoStatus').value.toLowerCase();
-            const turma = document.getElementById('filterAlunoTurma').value;
-
-            const filtrados = mockAlunos.filter(a => {
-                const aStatus = (a.status || '').toLowerCase();
-                const matchNome = !nome || a.nome.toLowerCase().includes(nome) || a.matricula.includes(nome);
-                // Compara status em minúsculo (ex: "trancado" == "trancado")
-                const matchStatus = !status || aStatus === status;
-                const matchTurma = !turma || a.turma === turma;
-                return matchNome && matchStatus && matchTurma;
-            });
-            renderAlunosTable(filtrados);
-        });
-    }
-
-    // =================================================================
-    // 2. ABA TURMAS (Visualização Completa)
-    // =================================================================
-
-    function renderTurmas() {
-        const container = document.getElementById('turmasContainer');
-        if (!container) return;
-        container.innerHTML = '';
-        
-        if (mockTurmas.length === 0) {
-            container.innerHTML = '<div class="col-12 text-center text-muted p-3">Nenhuma turma cadastrada.</div>';
-            return;
-        }
-
-        mockTurmas.forEach(turma => {
-            const ocupacao = turma.vagas > 0 ? Math.round((turma.matriculados / turma.vagas) * 100) : 0;
-            let barColor = 'bg-primary';
-            if (ocupacao >= 100) barColor = 'bg-danger';
-            else if (ocupacao >= 80) barColor = 'bg-warning';
-
-            const div = document.createElement('div');
-            div.className = 'col-lg-6 col-md-12 mb-3';
-            div.innerHTML = `
-                <div class="card shadow-sm border-0 h-100 p-3">
-                    <div class="d-flex justify-content-between mb-2">
-                        <h6 class="fw-bold mb-0">${turma.codigo}</h6>
-                        <span class="badge bg-light text-dark border">${turma.matriculados}/${turma.vagas}</span>
-                    </div>
-                    <small class="text-muted d-block mb-2">${turma.nome}</small>
-                    <small class="text-muted d-block mb-2"><i class="fas fa-chalkboard-user me-1"></i> ${turma.professor}</small>
-                    <div class="progress" style="height: 6px;">
-                        <div class="progress-bar ${barColor}" style="width: ${ocupacao}%"></div>
-                    </div>
-                </div>
-            `;
-            container.appendChild(div);
-        });
-        
-        // Atualiza também os filtros de turma (na aba Alunos e no Modal)
-        updateTurmaSelects();
-    }
-
-    function updateTurmaSelects() {
-        const selectFiltro = document.getElementById('filterAlunoTurma');
-        const selectModal = document.getElementById('inputAlunoTurma');
-        
-        if (selectFiltro) selectFiltro.innerHTML = '<option value="">Todas as Turmas</option>';
-        if (selectModal) selectModal.innerHTML = '<option value="">Selecione uma turma</option>';
-
-        mockTurmas.forEach(t => {
-            if (selectFiltro) {
-                const opt = document.createElement('option');
-                opt.value = t.codigo; 
-                opt.textContent = t.codigo;
-                selectFiltro.appendChild(opt);
-            }
-            if (selectModal) {
-                const opt = document.createElement('option');
-                opt.value = t.codigo; // Backend espera o código/nome para buscar
-                opt.textContent = t.codigo + ' - ' + t.nome;
-                selectModal.appendChild(opt);
-            }
-        });
-    }
-
-    // =================================================================
-    // 3. ABA PROFESSORES
-    // =================================================================
-
-    function renderProfessores() {
-        const tbody = document.getElementById('professoresTableBody');
-        if (!tbody) return;
-        tbody.innerHTML = '';
-        
-        if (mockProfessores.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted">Nenhum professor encontrado.</td></tr>';
-            return;
-        }
-
-        mockProfessores.forEach(prof => {
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td>${prof.nome}</td>
-                <td>${prof.email}</td>
-                <td><small class="d-inline-block text-truncate" style="max-width: 250px;" title="${prof.disciplinas}">${prof.disciplinas}</small></td>
-                <td><span class="badge bg-senai-dark">${prof.turmas}</span></td>
-                <td class="text-end">
-                    <button class="btn btn-sm btn-outline-primary"><i class="fas fa-edit"></i></button>
-                </td>
-            `;
-            tbody.appendChild(tr);
-        });
-    }
-
-    // =================================================================
-    // 4. ABA DISCIPLINAS
-    // =================================================================
-
-    function renderDisciplinas() {
-        const tbody = document.getElementById('disciplinasTableBody');
-        if (!tbody) return;
-        tbody.innerHTML = '';
-        
-        if (mockDisciplinas.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted">Nenhuma disciplina encontrada.</td></tr>';
-            return;
-        }
-
-        mockDisciplinas.forEach(disc => {
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td><span class="badge bg-light text-dark border">${disc.codigo}</span></td>
-                <td>${disc.nome}</td>
-                <td>${disc.cargaHoraria}h</td>
-                <td><span class="badge bg-info text-dark">${disc.turmas}</span></td>
-                <td class="text-end">
-                    <button class="btn btn-sm btn-outline-primary"><i class="fas fa-edit"></i></button>
-                </td>
-            `;
-            tbody.appendChild(tr);
-        });
-    }
-
-    // =================================================================
-    // 5. INTEGRAÇÃO API (SALVAR/DELETAR)
-    // =================================================================
-
-    async function salvarAlunoBackend(dados) {
+    // ================= GENERIC CRUD FUNCTIONS =================
+    
+    async function genericSave(url, data) {
         try {
-            const response = await fetch('/dashboards/api/gestao/aluno/save/', {
+            const response = await fetch(url, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': csrftoken
-                },
-                body: JSON.stringify(dados)
+                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrftoken },
+                body: JSON.stringify(data)
             });
-            
             const result = await response.json();
-            
             if (result.success) {
                 alert(result.message);
-                window.location.reload(); // Recarrega para atualizar dados reais
+                window.location.reload(); 
             } else {
                 alert('Erro: ' + result.message);
             }
-        } catch (error) {
-            console.error('Erro na requisição:', error);
-            alert('Erro ao conectar com o servidor.');
-        }
+        } catch (error) { console.error(error); alert('Erro de conexão.'); }
     }
 
-    async function deletarAluno(id) {
+    async function genericDelete(url) {
+        if (!confirm('Tem certeza que deseja excluir?')) return;
         try {
-            const response = await fetch(`/dashboards/api/gestao/aluno/delete/${id}/`, {
+            const response = await fetch(url, {
                 method: 'DELETE',
-                headers: {
-                    'X-CSRFToken': csrftoken
-                }
+                headers: { 'X-CSRFToken': csrftoken }
             });
-            
             const result = await response.json();
-            
-            if (result.success) {
-                alert('Aluno excluído.');
-                window.location.reload();
-            } else {
-                alert('Erro ao excluir: ' + result.message);
-            }
-        } catch (error) {
-            console.error('Erro:', error);
-            alert('Erro ao tentar excluir.');
+            if (result.success) window.location.reload();
+            else alert('Erro ao excluir: ' + result.message);
+        } catch (error) { console.error(error); alert('Erro ao tentar excluir.'); }
+    }
+
+    // ================= 1. ALUNOS =================
+    const modalAluno = new bootstrap.Modal(document.getElementById('modalAluno'));
+    let alunoId = null;
+
+    function renderAlunos() {
+        const tbody = document.getElementById('alunosTableBody');
+        tbody.innerHTML = mockAlunos.map(a => `
+            <tr>
+                <td>${a.nome}</td>
+                <td><span class="badge bg-light text-dark border">${a.matricula}</span></td>
+                <td>${a.turma_nome}</td>
+                <td>${a.status}</td>
+                <td class="text-end">
+                    <button class="btn btn-sm btn-outline-primary btn-edit-aluno" data-id="${a.id}"><i class="fas fa-edit"></i></button>
+                    <button class="btn btn-sm btn-outline-danger btn-del-aluno" data-id="${a.id}"><i class="fas fa-trash"></i></button>
+                </td>
+            </tr>
+        `).join('');
+        
+        document.querySelectorAll('.btn-edit-aluno').forEach(b => b.addEventListener('click', () => openAlunoModal(b.dataset.id)));
+        document.querySelectorAll('.btn-del-aluno').forEach(b => b.addEventListener('click', () => genericDelete(`/dashboards/api/gestao/aluno/delete/${b.dataset.id}/`)));
+    }
+
+    function openAlunoModal(id = null) {
+        alunoId = id;
+        document.getElementById('formAluno').reset();
+        document.getElementById('modalAlunoTitle').textContent = id ? 'Editar Aluno' : 'Novo Aluno';
+        
+        // Popula Select Turmas
+        const sel = document.getElementById('inputAlunoTurma');
+        sel.innerHTML = '<option value="">Selecione...</option>' + 
+            mockTurmas.map(t => `<option value="${t.id}">${t.codigo}</option>`).join('');
+
+        if (id) {
+            const a = mockAlunos.find(x => x.id == id);
+            document.getElementById('inputAlunoNome').value = a.nome;
+            document.getElementById('inputAlunoEmail').value = a.email;
+            document.getElementById('inputAlunoMatricula').value = a.matricula;
+            document.getElementById('inputAlunoStatus').value = a.status;
+            sel.value = a.turma_id;
         }
+        modalAluno.show();
     }
 
-    // =================================================================
-    // 6. CONTROLE DE MODALS
-    // =================================================================
-
-    const modalAlunoEl = document.getElementById('modalAluno');
-    let modalAluno = null;
-    if (modalAlunoEl) modalAluno = new bootstrap.Modal(modalAlunoEl);
-
-    let alunoIdEmEdicao = null;
-
-    // Botão Novo Aluno
-    const btnNovo = document.getElementById('btnNovoAluno');
-    if (btnNovo) {
-        btnNovo.addEventListener('click', () => {
-            alunoIdEmEdicao = null;
-            const title = document.getElementById('modalAlunoTitle');
-            if(title) title.textContent = 'Novo Aluno';
-            
-            const form = document.getElementById('formAluno');
-            if(form) form.reset();
-            
-            if(modalAluno) modalAluno.show();
+    document.getElementById('btnNovoAluno').addEventListener('click', () => openAlunoModal());
+    document.getElementById('btnSalvarAluno').addEventListener('click', () => {
+        genericSave('/dashboards/api/gestao/aluno/save/', {
+            id: alunoId,
+            nome: document.getElementById('inputAlunoNome').value,
+            email: document.getElementById('inputAlunoEmail').value,
+            matricula: document.getElementById('inputAlunoMatricula').value,
+            turma: document.getElementById('inputAlunoTurma').value,
+            status: document.getElementById('inputAlunoStatus').value
         });
+    });
+
+    // ================= 2. TURMAS =================
+    const modalTurma = new bootstrap.Modal(document.getElementById('modalTurma'));
+    let turmaId = null;
+
+    function renderTurmas() {
+        const container = document.getElementById('turmasContainer');
+        if (mockTurmas.length === 0) {
+            container.innerHTML = '<div class="text-muted p-3">Nenhuma turma.</div>';
+            return;
+        }
+        container.innerHTML = mockTurmas.map(t => `
+            <div class="col-lg-6">
+                <div class="card shadow-sm border-0 h-100 p-3">
+                    <div class="d-flex justify-content-between mb-2">
+                        <h6 class="fw-bold mb-0">${t.codigo}</h6>
+                        <div>
+                             <button class="btn btn-sm btn-link p-0 me-2 btn-edit-turma" data-id="${t.id}"><i class="fas fa-edit"></i></button>
+                             <button class="btn btn-sm btn-link p-0 text-danger btn-del-turma" data-id="${t.id}"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </div>
+                    <small class="text-muted d-block">${t.curso_nome}</small>
+                    <small class="text-muted">Início: ${t.data_inicio} | Vagas: ${t.vagas}</small>
+                </div>
+            </div>
+        `).join('');
+
+        document.querySelectorAll('.btn-edit-turma').forEach(b => b.addEventListener('click', () => openTurmaModal(b.dataset.id)));
+        document.querySelectorAll('.btn-del-turma').forEach(b => b.addEventListener('click', () => genericDelete(`/dashboards/api/gestao/turma/delete/${b.dataset.id}/`)));
     }
 
-    // Abrir Edição
-    function abrirModalEditar(aluno) {
-        alunoIdEmEdicao = aluno.id;
-        const title = document.getElementById('modalAlunoTitle');
-        if(title) title.textContent = 'Editar Aluno';
+    function openTurmaModal(id = null) {
+        turmaId = id;
+        document.getElementById('formTurma').reset();
+        document.getElementById('modalTurmaTitle').textContent = id ? 'Editar Turma' : 'Nova Turma';
         
-        // Preenche formulário
-        document.getElementById('inputAlunoNome').value = aluno.nome;
-        document.getElementById('inputAlunoMatricula').value = aluno.matricula;
-        document.getElementById('inputAlunoTurma').value = aluno.turma;
-        
-        // Normaliza status para o select (Primeira letra maiúscula)
-        let st = aluno.status ? aluno.status.toLowerCase() : 'ativo';
-        st = st.charAt(0).toUpperCase() + st.slice(1);
-        // Tenta setar valor, se não existir no select, padrão é Ativo
-        const statusSelect = document.getElementById('inputAlunoStatus');
-        statusSelect.value = st; 
-        if (!statusSelect.value) statusSelect.value = 'Ativo';
+        const sel = document.getElementById('inputTurmaCurso');
+        sel.innerHTML = '<option value="">Selecione...</option>' + 
+            cursosList.map(c => `<option value="${c.id}">${c.nome_curso}</option>`).join('');
 
-        if(modalAluno) modalAluno.show();
+        if(id) {
+            const t = mockTurmas.find(x => x.id == id);
+            document.getElementById('inputTurmaCodigo').value = t.codigo;
+            sel.value = t.curso_id;
+            document.getElementById('inputTurmaInicio').value = t.data_inicio;
+            document.getElementById('inputTurmaFim').value = t.data_fim;
+            document.getElementById('inputTurmaVagas').value = t.vagas;
+        }
+        modalTurma.show();
     }
 
-    // Salvar Aluno (Click do botão no modal)
-    const btnSalvar = document.getElementById('btnSalvarAluno');
-    if (btnSalvar) {
-        btnSalvar.addEventListener('click', () => {
-            const dados = {
-                id: alunoIdEmEdicao,
-                nome: document.getElementById('inputAlunoNome').value,
-                matricula: document.getElementById('inputAlunoMatricula').value,
-                turma: document.getElementById('inputAlunoTurma').value,
-                status: document.getElementById('inputAlunoStatus').value
-            };
-            salvarAlunoBackend(dados);
+    document.getElementById('btnNovaTurma').addEventListener('click', () => openTurmaModal());
+    document.getElementById('btnSalvarTurma').addEventListener('click', () => {
+        genericSave('/dashboards/api/gestao/turma/save/', {
+            id: turmaId,
+            codigo: document.getElementById('inputTurmaCodigo').value,
+            curso: document.getElementById('inputTurmaCurso').value,
+            data_inicio: document.getElementById('inputTurmaInicio').value,
+            data_fim: document.getElementById('inputTurmaFim').value,
+            vagas: document.getElementById('inputTurmaVagas').value
         });
+    });
+
+    // ================= 3. PROFESSORES =================
+    const modalProfessor = new bootstrap.Modal(document.getElementById('modalProfessor'));
+    let profId = null;
+
+    function renderProfessores() {
+        document.getElementById('professoresTableBody').innerHTML = mockProfessores.map(p => `
+            <tr>
+                <td>${p.nome}</td>
+                <td>${p.email}</td>
+                <td>${p.registro}</td>
+                <td>${p.turmas}</td>
+                <td class="text-end">
+                    <button class="btn btn-sm btn-outline-primary btn-edit-prof" data-id="${p.id}"><i class="fas fa-edit"></i></button>
+                    <button class="btn btn-sm btn-outline-danger btn-del-prof" data-id="${p.id}"><i class="fas fa-trash"></i></button>
+                </td>
+            </tr>
+        `).join('');
+        document.querySelectorAll('.btn-edit-prof').forEach(b => b.addEventListener('click', () => openProfModal(b.dataset.id)));
+        document.querySelectorAll('.btn-del-prof').forEach(b => b.addEventListener('click', () => genericDelete(`/dashboards/api/gestao/professor/delete/${b.dataset.id}/`)));
     }
 
-    // Outros Modals (Turma, Professor, Disciplina) - Placeholders para não quebrar UI
-    const modalTurmaEl = document.getElementById('modalTurma');
-    let modalTurma = modalTurmaEl ? new bootstrap.Modal(modalTurmaEl) : null;
-    const btnNovoTurma = document.getElementById('btnNovaTurma');
-    if(btnNovoTurma && modalTurma) {
-        btnNovoTurma.addEventListener('click', () => {
-             document.getElementById('formTurma').reset();
-             modalTurma.show(); 
-        });
+    function openProfModal(id = null) {
+        profId = id;
+        document.getElementById('formProfessor').reset();
+        document.getElementById('modalProfessorTitle').textContent = id ? 'Editar Professor' : 'Novo Professor';
+        if(id) {
+            const p = mockProfessores.find(x => x.id == id);
+            document.getElementById('inputProfNome').value = p.nome;
+            document.getElementById('inputProfEmail').value = p.email;
+            document.getElementById('inputProfRegistro').value = p.registro;
+        }
+        modalProfessor.show();
     }
-
-    const modalProfEl = document.getElementById('modalProfessor');
-    let modalProfessor = modalProfEl ? new bootstrap.Modal(modalProfEl) : null;
-    const btnNovoProf = document.getElementById('btnNovoProfessor');
-    if(btnNovoProf && modalProfessor) {
-        btnNovoProf.addEventListener('click', () => {
-            document.getElementById('formProfessor').reset();
-            modalProfessor.show();
-        });
-    }
-
-    const modalDiscEl = document.getElementById('modalDisciplina');
-    let modalDisciplina = modalDiscEl ? new bootstrap.Modal(modalDiscEl) : null;
-    const btnNovoDisc = document.getElementById('btnNovaDisciplina');
-    if(btnNovoDisc && modalDisciplina) {
-        btnNovoDisc.addEventListener('click', () => {
-            document.getElementById('formDisciplina').reset();
-            modalDisciplina.show();
-        });
-    }
-
-    // =================================================================
-    // 7. INICIALIZAÇÃO DE KPIS
-    // =================================================================
     
-    function updateKPIs() {
-        const totalAlunos = mockAlunos.length;
-        const ativos = mockAlunos.filter(a => (a.status||'').toLowerCase() === 'ativo').length;
-        const pendentes = mockAlunos.filter(a => (a.status||'').toLowerCase() === 'pendente').length;
-        const inativos = totalAlunos - ativos - pendentes;
+    document.getElementById('btnNovoProfessor').addEventListener('click', () => openProfModal());
+    document.getElementById('btnSalvarProfessor').addEventListener('click', () => {
+        genericSave('/dashboards/api/gestao/professor/save/', {
+            id: profId,
+            nome: document.getElementById('inputProfNome').value,
+            email: document.getElementById('inputProfEmail').value,
+            registro: document.getElementById('inputProfRegistro').value
+        });
+    });
 
-        const setTxt = (id, val) => {
-            const el = document.getElementById(id);
-            if (el) el.textContent = val;
-        };
+    // ================= 4. DISCIPLINAS =================
+    const modalDisciplina = new bootstrap.Modal(document.getElementById('modalDisciplina'));
+    let discId = null;
 
-        setTxt('kpiTotalAlunos', totalAlunos);
-        setTxt('kpiAtivos', ativos);
-        setTxt('kpiPendentes', pendentes);
-        setTxt('kpiInativos', inativos);
+    function renderDisciplinas() {
+        document.getElementById('disciplinasTableBody').innerHTML = mockDisciplinas.map(d => `
+            <tr>
+                <td>${d.codigo}</td>
+                <td>${d.nome}</td>
+                <td>${d.carga_horaria}h</td>
+                <td class="text-end">
+                    <button class="btn btn-sm btn-outline-primary btn-edit-disc" data-id="${d.id}"><i class="fas fa-edit"></i></button>
+                    <button class="btn btn-sm btn-outline-danger btn-del-disc" data-id="${d.id}"><i class="fas fa-trash"></i></button>
+                </td>
+            </tr>
+        `).join('');
+        document.querySelectorAll('.btn-edit-disc').forEach(b => b.addEventListener('click', () => openDiscModal(b.dataset.id)));
+        document.querySelectorAll('.btn-del-disc').forEach(b => b.addEventListener('click', () => genericDelete(`/dashboards/api/gestao/disciplina/delete/${b.dataset.id}/`)));
     }
 
-    updateKPIs();
-    renderAlunosTable();
-    renderTurmas();     
+    function openDiscModal(id = null) {
+        discId = id;
+        document.getElementById('formDisciplina').reset();
+        document.getElementById('modalDisciplinaTitle').textContent = id ? 'Editar Disciplina' : 'Nova Disciplina';
+        if(id) {
+            const d = mockDisciplinas.find(x => x.id == id);
+            document.getElementById('inputDiscCodigo').value = d.codigo;
+            document.getElementById('inputDiscNome').value = d.nome;
+            document.getElementById('inputDiscCH').value = d.carga_horaria;
+        }
+        modalDisciplina.show();
+    }
+
+    document.getElementById('btnNovaDisciplina').addEventListener('click', () => openDiscModal());
+    document.getElementById('btnSalvarDisciplina').addEventListener('click', () => {
+        genericSave('/dashboards/api/gestao/disciplina/save/', {
+            id: discId,
+            codigo: document.getElementById('inputDiscCodigo').value,
+            nome: document.getElementById('inputDiscNome').value,
+            carga_horaria: document.getElementById('inputDiscCH').value
+        });
+    });
+
+    // Inicialização
+    renderAlunos();
+    renderTurmas();
     renderProfessores();
     renderDisciplinas();
 });

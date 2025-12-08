@@ -11,6 +11,8 @@ from django.contrib.auth.models import User
 from django.core.paginator import Paginator
 from django.views.decorators.csrf import csrf_exempt
 from django.conf import settings
+from django.db import transaction
+from django.urls import reverse
 import os
 
 # Imports dos modelos
@@ -54,14 +56,14 @@ def rolerequired(*roles):
     return decorator
 
 # =============================================================================
-# 2. VIEW PRINCIPAL
+# 2. VIEW PRINCIPAL (HOME)
 # =============================================================================
 
 def home(request):
     """
     Página inicial pública.
     Se o usuário estiver logado, redireciona para o dashboard.
-    Se não, mostra a landing page.
+    Se não, mostra a landing page com estatísticas.
     """
     if request.user.is_authenticated:
         if isaluno(request.user): return redirect('aluno_dashboard')
@@ -69,7 +71,26 @@ def home(request):
         elif issecretaria(request.user): return redirect('secretaria_dashboard')
         elif iscoordenacao(request.user): return redirect('coordenacao_dashboard')
     
-    return render(request, "home.html")
+    # Lógica adicionada para recuperar os dados do Dashboard Institucional
+    total_alunos = Aluno.objects.count()
+    total_professores = Professor.objects.count()
+    total_cursos = Curso.objects.count()
+
+    # Cálculo da taxa de aprovação (Baseado em históricos com média >= 6.0)
+    historicos_validos = Historico.objects.exclude(media_final__isnull=True)
+    total_notas = historicos_validos.count()
+    aprovacoes = historicos_validos.filter(media_final__gte=6.0).count()
+    
+    taxa_aprovacao = (aprovacoes / total_notas * 100) if total_notas > 0 else 0
+    
+    context = {
+        'total_alunos': total_alunos,
+        'total_professores': total_professores,
+        'total_cursos': total_cursos,
+        'taxa_aprovacao': taxa_aprovacao
+    }
+    
+    return render(request, "home.html", context)
 
 # =============================================================================
 # 3. SISTEMA DE APROVAÇÕES
@@ -87,14 +108,12 @@ def coordenacao_aprovacao_view(request):
 
         try:
             if action in ['approve_user', 'reject_user']:
-                # Busca o registro (sem filtro de status para evitar erros se já mudou)
                 registro = PendingRegistration.objects.get(id=item_id)
                 
                 if action == 'approve_user':
                     if registro.status == 'aprovado':
                          messages.warning(request, f"O usuário {registro.username} já foi aprovado.")
                     else:
-                        # O método aprovar() agora cuida de TUDO
                         novo_user = registro.aprovar(admin_user=request.user)
                         messages.success(request, f"Cadastro de {novo_user.get_full_name()} aprovado com sucesso!")
                 
@@ -240,7 +259,6 @@ def professor_dashboard_view(request):
     })
     return render(request, "dashboards/professor_dashboard.html", context)
 
-# Em apps/dashboards/views.py
 
 @rolerequired("secretaria")
 def secretaria_dashboard_view(request):
@@ -251,20 +269,11 @@ def secretaria_dashboard_view(request):
     except Secretaria.DoesNotExist:
         context['secretaria'] = None
     
-    # 1. KPIs Básicos
     total_alunos = Aluno.objects.count()
     total_turmas = Turma.objects.count()
     matriculas_ativas = Aluno.objects.filter(status_matricula='Ativo').count()
-
-    # 2. Financeiro (Valores Pendentes)
-    # Conta quantos boletos/pagamentos estão com status 'pendente'
     pgtos_pendentes_count = Pagamento.objects.filter(status='pendente').count()
     
-    # (Opcional) Se quiser mostrar a SOMA em dinheiro, descomente abaixo:
-    # total_valor_pendente = Pagamento.objects.filter(status='pendente').aggregate(Sum('valor'))['valor__sum'] or 0
-
-    # 3. Histórico de Documentos (PDFs)
-    # Busca os últimos 5 documentos emitidos, trazendo os dados do aluno junto (select_related)
     docs_recentes = DocumentoEmitido.objects.select_related(
         'aluno', 'aluno__user'
     ).order_by('-data_emissao')[:5]
@@ -273,8 +282,8 @@ def secretaria_dashboard_view(request):
         'total_alunos': total_alunos,
         'total_turmas': total_turmas,
         'matriculas_ativas': matriculas_ativas,
-        'pgtos_pendentes': pgtos_pendentes_count, # Envia a contagem para o template
-        'docs_recentes': docs_recentes,           # Envia a lista de docs para a tabela
+        'pgtos_pendentes': pgtos_pendentes_count,
+        'docs_recentes': docs_recentes,
     })
     
     return render(request, "dashboards/secretaria_dashboard.html", context)
@@ -543,77 +552,454 @@ def criar_evento(request):
     return JsonResponse({'success': True})
 
 # =============================================================================
-# VIEW CORRIGIDA: PERFIL
+# 5. PERFIL (CORRIGIDO)
 # =============================================================================
+
 @login_required
 def perfil_view(request):
     """
-    Exibe o perfil do usuário.
-    Envia a variável 'tipo_usuario' para evitar erros no template.
+    Exibe o perfil do usuário carregando os dados específicos (Aluno, Professor, etc)
+    para preencher os campos do template corretamente.
     """
     context = {}
-    if hasattr(request.user, 'profile'):
-        context['tipo_usuario'] = request.user.profile.tipo
-    else:
-        context['tipo_usuario'] = 'desconhecido'
+    
+    try:
+        # Verifica se o usuário tem perfil
+        if not hasattr(request.user, 'profile'):
+            context['tipo_usuario'] = 'desconhecido'
+            return render(request, "dashboards/perfil.html", context)
+            
+        profile = request.user.profile
+        context['tipo_usuario'] = profile.tipo
+        
+        # === Lógica para ALUNO ===
+        if profile.tipo == 'aluno':
+            try:
+                # Busca o aluno trazendo junto a turma e o curso e o endereço
+                aluno = Aluno.objects.select_related('turma_atual', 'turma_atual__id_curso', 'cod_endereco').get(user=request.user)
+                context['perfil_dado'] = aluno
+                
+                # Se o aluno tiver turma, adiciona turma e curso ao contexto
+                if aluno.turma_atual:
+                    context['turma'] = aluno.turma_atual
+                    context['curso'] = aluno.turma_atual.id_curso
+            except Aluno.DoesNotExist:
+                context['erro_perfil'] = "Registro de aluno não encontrado."
+
+        # === Lógica para PROFESSOR ===
+        elif profile.tipo == 'professor':
+            try:
+                professor = Professor.objects.select_related('cod_endereco').get(user=request.user)
+                context['perfil_dado'] = professor
+                
+                # Conta turmas onde o professor está alocado
+                qtd_turmas = TurmaDisciplinaProfessor.objects.filter(professor=professor).values('turma').distinct().count()
+                context['qtd_turmas'] = qtd_turmas
+            except Professor.DoesNotExist:
+                context['erro_perfil'] = "Registro de professor não encontrado."
+
+        # === Lógica para SECRETARIA ===
+        elif profile.tipo == 'secretaria':
+            try:
+                context['perfil_dado'] = Secretaria.objects.select_related('cod_endereco').get(user=request.user)
+            except Secretaria.DoesNotExist:
+                pass
+
+        # === Lógica para COORDENAÇÃO ===
+        elif profile.tipo == 'coordenacao':
+            try:
+                context['perfil_dado'] = Coordenacao.objects.select_related('cod_endereco').get(user=request.user)
+            except Coordenacao.DoesNotExist:
+                pass
+
+    except Exception as e:
+        context['erro_perfil'] = f"Erro inesperado ao carregar perfil: {str(e)}"
         
     return render(request, "dashboards/perfil.html", context)
 
-@require_http_methods(["POST"])
-@login_required 
-def save_aluno_view(request): return JsonResponse({'success': True})
-@require_http_methods(["DELETE", "POST"])
-@login_required
-def delete_aluno_view(request, pk): return JsonResponse({'success': True})
+# =============================================================================
+# 6. FUNÇÕES ESPECÍFICAS DE COORDENAÇÃO (CORRIGIDAS)
+# =============================================================================
 
 @rolerequired("coordenacao")
 def coordenacao_desempenho_view(request):
+    # --- 1. Dados das Turmas e Gráfico de Frequência ---
     turmas_qs = Turma.objects.all()
-    turmas = []
+    turmas_data = []
+    
+    # Listas para o gráfico de frequência (Barras)
+    freq_labels = []
+    freq_values = []
+
     for t in turmas_qs:
-        media_t = Historico.objects.filter(turma_disciplina_professor__turma=t).aggregate(media=Avg('media_final'))['media'] or 0
-        alunos_count = t.alunos_matriculados
-        turmas.append({
+        # Calcula média e frequência agregada da turma
+        stats = Historico.objects.filter(turma_disciplina_professor__turma=t).aggregate(
+            media_t=Avg('media_final'),
+            freq_t=Avg('frequencia_percentual')
+        )
+        
+        media_t = stats['media_t'] or 0
+        freq_t = stats['freq_t'] or 0
+        alunos_count = t.alunos_matriculados 
+
+        turmas_data.append({
             'codigo': t.nome,
             'alunos': alunos_count,
-            'nome': t.nome,
+            'nome': t.nome, 
             'media_geral': round(media_t, 1)
         })
 
-    desempenho = {'turmas': turmas, 'alunos': [], 'grafico_notas': {}, 'grafico_frequencia': {}}
+        freq_labels.append(t.nome)
+        freq_values.append(round(freq_t, 1))
+
+    # --- 2. Dados dos Alunos e Gráfico de Notas ---
+    alunos_qs = Aluno.objects.select_related('user', 'turma_atual').all()
+    alunos_data = []
+    
+    status_counts = {
+        'Aprovado': 0, 
+        'Recuperação': 0, 
+        'Reprovado': 0
+    }
+
+    for aluno in alunos_qs:
+        hists = Historico.objects.filter(id_aluno=aluno)
+        
+        if not hists.exists():
+            media_a = 0.0
+            freq_a = 0.0
+            situacao = 'Cursando' 
+        else:
+            agg = hists.aggregate(
+                media_a=Avg('media_final'),
+                freq_a=Avg('frequencia_percentual')
+            )
+            media_a = float(agg['media_a'] or 0.0)
+            freq_a = float(agg['freq_a'] or 0.0)
+            
+            if media_a >= 7.0 and freq_a >= 75.0:
+                situacao = 'Aprovado'
+                status_counts['Aprovado'] += 1
+            elif media_a < 5.0 or freq_a < 75.0:
+                situacao = 'Reprovado'
+                status_counts['Reprovado'] += 1
+            else:
+                situacao = 'Recuperação'
+                status_counts['Recuperação'] += 1
+
+        alunos_data.append({
+            'nome': aluno.user.get_full_name(),
+            'matricula': aluno.RA_aluno,
+            'turma': aluno.turma_atual.nome if aluno.turma_atual else 'Sem Turma',
+            'media': round(media_a, 1),
+            'frequencia': round(freq_a, 1),
+            'situacao': situacao
+        })
+
+    desempenho = {
+        'turmas': turmas_data,
+        'alunos': alunos_data,
+        'grafico_notas': status_counts, 
+        'grafico_frequencia': {
+            'labels': freq_labels,
+            'data': freq_values
+        }
+    }
+    
     context = {'desempenho_data_json': json.dumps(desempenho, cls=DjangoJSONEncoder)}
     return render(request, "dashboards/coordenacao_desempenho.html", context)
 
 @rolerequired("coordenacao")
 def coordenacao_gestao_view(request):
+    """
+    Dashboard de Gestão Acadêmica.
+    Agora prepara dados completos para manipulação via Modal/API.
+    """
+    
+    # 1. ALUNOS
     alunos_qs = Aluno.objects.select_related('user', 'turma_atual').all().order_by('user__first_name')
     alunos_json = []
     for a in alunos_qs:
         alunos_json.append({
+            'id': a.pk,
             'nome': a.user.get_full_name(),
+            'email': a.user.email,
             'matricula': a.RA_aluno,
-            'turma': a.turma_atual.nome if a.turma_atual else '',
+            'turma_id': a.turma_atual.pk if a.turma_atual else '',
+            'turma_nome': a.turma_atual.nome if a.turma_atual else 'Sem Turma',
             'status': a.status_matricula
         })
 
+    # 2. TURMAS
     turmas_qs = Turma.objects.select_related('id_curso').all().order_by('nome')
     turmas_json = []
     for t in turmas_qs:
         turmas_json.append({
+            'id': t.pk,
             'codigo': t.nome,
-            'nome': t.id_curso.nome_curso,
-            'professor': '',
+            'curso_id': t.id_curso.pk,
+            'curso_nome': t.id_curso.nome_curso,
             'matriculados': t.alunos_matriculados,
-            'vagas': t.capacidade_maxima
+            'vagas': t.capacidade_maxima,
+            'data_inicio': t.data_inicio.strftime('%Y-%m-%d') if t.data_inicio else '',
+            'data_fim': t.data_fim.strftime('%Y-%m-%d') if t.data_fim else ''
         })
+    
+    # 3. PROFESSORES
+    professores_qs = Professor.objects.select_related('user').all()
+    professores_json = []
+    for p in professores_qs:
+        qtd_turmas = TurmaDisciplinaProfessor.objects.filter(professor=p).values('turma').distinct().count()
+        professores_json.append({
+            'id': p.pk,
+            'nome': p.user.get_full_name(),
+            'email': p.user.email,
+            'registro': p.registro_funcional or '',
+            'turmas': qtd_turmas
+        })
+
+    # 4. DISCIPLINAS
+    disciplinas_qs = Disciplina.objects.all().order_by('nome')
+    disciplinas_json = []
+    for d in disciplinas_qs:
+        disciplinas_json.append({
+            'id': d.pk,
+            'codigo': d.cod_disciplina,
+            'nome': d.nome,
+            'carga_horaria': d.carga_horaria
+        })
+
+    # Listas Auxiliares
+    cursos_list = list(Curso.objects.values('id', 'nome_curso'))
 
     context = {
         'alunos_json': json.dumps(alunos_json, cls=DjangoJSONEncoder),
         'turmas_json': json.dumps(turmas_json, cls=DjangoJSONEncoder),
-        'professores_json': json.dumps([], cls=DjangoJSONEncoder),
-        'disciplinas_json': json.dumps([], cls=DjangoJSONEncoder)
+        'professores_json': json.dumps(professores_json, cls=DjangoJSONEncoder),
+        'disciplinas_json': json.dumps(disciplinas_json, cls=DjangoJSONEncoder),
+        'cursos_json': json.dumps(cursos_list, cls=DjangoJSONEncoder)
     }
+    
     return render(request, "dashboards/coordenacao_gestao.html", context)
+
+# =============================================================================
+# 7. APIS PARA GESTÃO (CRUD)
+# =============================================================================
+
+# --- ALUNO ---
+@require_http_methods(["POST"])
+@login_required
+def save_aluno_view(request):
+    try:
+        data = json.loads(request.body)
+        aluno_id = data.get('id')
+        
+        with transaction.atomic():
+            if aluno_id:
+                # Edição
+                aluno = Aluno.objects.get(pk=aluno_id)
+                user = aluno.user
+                
+                parts = data.get('nome', '').split(' ')
+                user.first_name = parts[0]
+                user.last_name = ' '.join(parts[1:]) if len(parts) > 1 else ''
+                
+                user.email = data.get('email')
+                user.save()
+                
+                aluno.RA_aluno = data.get('matricula')
+                aluno.status_matricula = data.get('status')
+                
+                turma_id = data.get('turma')
+                if turma_id:
+                    aluno.turma_atual = Turma.objects.get(pk=turma_id)
+                else:
+                    aluno.turma_atual = None
+                aluno.save()
+                msg = "Aluno atualizado com sucesso."
+            else:
+                # Criação
+                username = data.get('matricula')
+                if User.objects.filter(username=username).exists():
+                     return JsonResponse({'success': False, 'message': 'Usuário/Matrícula já existe.'})
+
+                parts = data.get('nome', '').split(' ')
+                first = parts[0]
+                last = ' '.join(parts[1:]) if len(parts) > 1 else ''
+
+                user = User.objects.create_user(
+                    username=username,
+                    email=data.get('email'),
+                    password='mudar123',
+                    first_name=first,
+                    last_name=last
+                )
+                
+                Profile.objects.create(user=user, tipo='aluno')
+
+                turma_id = data.get('turma')
+                turma_obj = Turma.objects.get(pk=turma_id) if turma_id else None
+                
+                Aluno.objects.create(
+                    user=user,
+                    RA_aluno=data.get('matricula'),
+                    status_matricula=data.get('status', 'Ativo'),
+                    turma_atual=turma_obj
+                )
+                msg = "Aluno criado com sucesso."
+
+        return JsonResponse({'success': True, 'message': msg})
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)})
+
+@require_http_methods(["DELETE"])
+@login_required
+def delete_aluno_view(request, pk):
+    try:
+        aluno = Aluno.objects.get(pk=pk)
+        aluno.user.delete()
+        return JsonResponse({'success': True})
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)})
+
+
+# --- TURMA ---
+@require_http_methods(["POST"])
+@login_required
+def save_turma_view(request):
+    try:
+        data = json.loads(request.body)
+        turma_id = data.get('id')
+        
+        curso = Curso.objects.get(pk=data.get('curso'))
+        
+        defaults = {
+            'nome': data.get('codigo'),
+            'id_curso': curso,
+            'capacidade_maxima': int(data.get('vagas', 40)),
+            'periodo': 'Noturno',
+            'ano_letivo': 2025,
+            'data_inicio': data.get('data_inicio'),
+            'data_fim': data.get('data_fim') if data.get('data_fim') else None
+        }
+
+        if turma_id:
+            Turma.objects.filter(pk=turma_id).update(**defaults)
+            msg = "Turma atualizada."
+        else:
+            Turma.objects.create(**defaults)
+            msg = "Turma criada."
+            
+        return JsonResponse({'success': True, 'message': msg})
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)})
+
+@require_http_methods(["DELETE"])
+@login_required
+def delete_turma_view(request, pk):
+    try:
+        Turma.objects.get(pk=pk).delete()
+        return JsonResponse({'success': True})
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)})
+
+
+# --- PROFESSOR ---
+@require_http_methods(["POST"])
+@login_required
+def save_professor_view(request):
+    try:
+        data = json.loads(request.body)
+        prof_id = data.get('id')
+        
+        with transaction.atomic():
+            if prof_id:
+                prof = Professor.objects.get(pk=prof_id)
+                user = prof.user
+                
+                parts = data.get('nome', '').split(' ')
+                user.first_name = parts[0]
+                user.last_name = ' '.join(parts[1:]) if len(parts) > 1 else ''
+                
+                user.email = data.get('email')
+                user.save()
+                
+                prof.registro_funcional = data.get('registro')
+                prof.save()
+                msg = "Professor atualizado."
+            else:
+                username = data.get('email').split('@')[0]
+                if User.objects.filter(username=username).exists():
+                     return JsonResponse({'success': False, 'message': 'Usuário já existe.'})
+
+                parts = data.get('nome', '').split(' ')
+                first = parts[0]
+                last = ' '.join(parts[1:]) if len(parts) > 1 else ''
+
+                user = User.objects.create_user(
+                    username=username,
+                    email=data.get('email'),
+                    password='mudar123',
+                    first_name=first,
+                    last_name=last
+                )
+                Profile.objects.create(user=user, tipo='professor')
+                
+                Professor.objects.create(user=user, registro_funcional=data.get('registro'))
+                msg = "Professor criado."
+
+        return JsonResponse({'success': True, 'message': msg})
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)})
+
+@require_http_methods(["DELETE"])
+@login_required
+def delete_professor_view(request, pk):
+    try:
+        prof = Professor.objects.get(pk=pk)
+        prof.user.delete()
+        return JsonResponse({'success': True})
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)})
+
+
+# --- DISCIPLINA ---
+@require_http_methods(["POST"])
+@login_required
+def save_disciplina_view(request):
+    try:
+        data = json.loads(request.body)
+        disc_id = data.get('id')
+        
+        defaults = {
+            'nome': data.get('nome'),
+            'cod_disciplina': data.get('codigo'),
+            'carga_horaria': int(data.get('carga_horaria', 0))
+        }
+
+        if disc_id:
+            Disciplina.objects.filter(pk=disc_id).update(**defaults)
+            msg = "Disciplina atualizada."
+        else:
+            Disciplina.objects.create(**defaults)
+            msg = "Disciplina criada."
+            
+        return JsonResponse({'success': True, 'message': msg})
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)})
+
+@require_http_methods(["DELETE"])
+@login_required
+def delete_disciplina_view(request, pk):
+    try:
+        Disciplina.objects.get(pk=pk).delete()
+        return JsonResponse({'success': True})
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)})
+
+# =============================================================================
+# 8. OUTRAS VIEWS E PLACEHOLDERS
+# =============================================================================
 
 @login_required
 def coordenacao_comunicacao_view(request): return render(request, "dashboards/coordenacao_comunicacao.html")
