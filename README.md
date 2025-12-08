@@ -1,96 +1,179 @@
-🎓 SENAI School Manager - Sistema de Gestão Escolar Avançado
+# 🎓 SENAI School Manager - Sistema de Gestão Escolar Avançado
 
-💡 Descrição do Projeto
-O SENAI School Manager é uma plataforma escolar web robusta e unificada, desenvolvida para centralizar e otimizar todas as operações administrativas, acadêmicas e financeiras da Escola SENAI. O sistema foi concebido para substituir múltiplos sistemas legados, eliminando retrabalho, inconsistência de dados e a experiência fragmentada do usuário.
+[![Python](https://img.shields.io/badge/Python-3.11+-3776AB.svg?style=flat&logo=python&logoColor=white)](https://www.python.org/)
+[![Django](https://img.shields.io/badge/Django-5.2+-092E20.svg?style=flat&logo=django&logoColor=white)](https://www.djangoproject.com/)
 
-A plataforma oferece dashboards específicos para cada perfil (Role), garantindo que alunos, professores, coordenação e secretaria tenham acesso seguro e direto às ferramentas e informações mais relevantes para suas funções.
 
-🎯 Contexto e Objetivos
-Problema a Resolver
-Atualmente, a gestão escolar descentralizada gera ineficiência. O projeto visa solucionar a fragmentação de dados (matrículas, notas, frequência, pagamentos) em diferentes sistemas, que resultam em erros, lentidão na gestão e sobrecarga de trabalho.
+> Uma plataforma escolar web robusta e unificada, desenvolvida para centralizar e otimizar todas as operações administrativas, acadêmicas e financeiras da Escola SENAI.
 
-Objetivos
-Centralização: Unificar a gestão de todos os dados acadêmicos, administrativos e financeiros em uma única plataforma.
+---
 
-Eficiência: Fornecer dashboards e ferramentas otimizadas por perfil.
+## 💡 Sobre o Projeto
 
-Relatórios: Implementar um sistema robusto de relatórios e exportações de dados acadêmicos.
+O **SENAI School Manager** foi concebido para substituir múltiplos sistemas legados, eliminando retrabalho, inconsistência de dados e a experiência fragmentada do usuário. A plataforma oferece dashboards específicos para cada perfil (Aluno, Professor, Coordenação e Secretaria), garantindo acesso seguro e direto às ferramentas mais relevantes.
 
-Integração: Oferecer uma API REST segura e integrações com serviços externos (como Stripe).
+### 🎯 Objetivos Principais
 
-⚙️ Arquitetura e Tecnologias
-O sistema segue uma arquitetura de três camadas (Frontend, Backend, Banco de Dados).
+* **Centralização:** Unificar dados de matrículas, notas, frequência e pagamentos.
+* **Eficiência:** Dashboards otimizados por perfil de usuário.
+* **Relatórios:** Sistema robusto de exportação de dados acadêmicos (PDF/CSV).
+* **Integração:** API REST segura e pagamentos via Stripe.
 
-Backend
-Componente | Tecnologia | Descrição
---- | --- | ---
-Framework | Django | Principal framework Python para desenvolvimento web.
-API | Django REST Framework | Usado para construir a API RESTful.
-Banco de Dados | PostgreSQL / SQLite | SGBD relacional (SQLite em dev, Postgres em prod).
-Pagamentos | Stripe API | Processamento de pagamentos online e webhooks.
-Drivers/Libs | psycopg2, reportlab, stripe | Conexão com banco, geração de PDFs e pagamentos.
+---
 
-Exportar para as Planilhas
-Frontend
-Componente | Tecnologia | Descrição
---- | --- | ---
-Estrutura | HTML, CSS, JavaScript | Linguagens fundamentais para a construção da interface.
-Design/Layout | Bootstrap / Tailwind CSS | Frameworks CSS para interface moderna e responsiva.
+## 🌐 Deploy
 
-Exportar para as Planilhas
-🧩 Módulos e Funcionalidades
-O sistema é dividido nos seguintes módulos principais, acessíveis de acordo com a Role do usuário:
+Você pode acessar uma versão funcional do sistema através do link abaixo:
 
-Gestão de Usuários e Perfis:
-* Cadastros e autenticação de Alunos, Professores, Coordenação e Secretaria.
-* Definição e gerenciamento de permissões (Secretaria é o nível máximo).
+👉 **[SENAI School Manager](https://leomeriva.pythonanywhere.com/)**
 
-Cadastro Escolar:
-* Gestão de Cursos, Disciplinas e Turmas (com validação da Coordenação).
+<img width="347" height="433" alt="image" src="https://github.com/user-attachments/assets/ee26a771-2e18-4af3-9408-89a1f3ac5053" />
 
-Gestão Acadêmica:
-* Lançamento de Notas, Faltas e Observações (Professores).
-* Consulta de Histórico Escolar (Alunos).
-* Finalização de Boletins (Coordenação).
+---
 
-Gestão Financeira (Novo):
-* Geração de cobranças manuais pela Secretaria.
-* Pagamento online integrado via Stripe (Checkout transparente).
-* Atualização automática de status via Webhook (Pendente → Pago).
-* Histórico de pagamentos para Alunos.
+## ⚙️ Tecnologias Utilizadas
 
-Dashboards Específicos:
-* Visão consolidada de desempenho, frequência e financeiro para Alunos.
-* Visão de turmas e relatórios para Professores.
-* Visão de validações pendentes para Coordenação.
+Este projeto utiliza uma arquitetura MVC (Model-View-Controller) adaptada pelo Django (MVT).
 
-Relatórios e Exportações:
-* Geração de relatórios acadêmicos e administrativos em formatos variados (PDF via ReportLab, CSV).
+| Componente | Tecnologia | Descrição |
+| :--- | :--- | :--- |
+| **Backend** | Python 3.11+ / Django 5.2+ | Core do sistema e lógica de negócios. |
+| **API** | Django REST Framework | API RESTful para integrações externas. |
+| **Banco de Dados** | SQLite / PostgreSQL | SQLite (Dev) e PostgreSQL/Supabase (Prod). |
+| **Frontend** | HTML5, CSS3, JS | Bootstrap/Tailwind para responsividade. |
+| **Pagamentos** | Stripe API | Processamento de pagamentos e Webhooks. |
+| **Relatórios** | ReportLab | Geração dinâmica de PDFs acadêmicos. |
 
-📊 Modelo de Dados (Visão Geral)
-O sistema é baseado em um modelo relacional que garante a integridade dos dados, com destaque para a segregação de responsabilidades entre as entidades.
+---
 
-Entidade Principal | Relacionamento Chave | Responsabilidade
---- | --- | ---
-Usuário / Perfil | 1:1 com Aluno, Professor, etc. | Define o nível de acesso e permissões (Role).
-Turma | N:1 com Curso; 1:N com Aluno. | Estrutura operacional do ensino.
-Histórico Escolar | N:1 com Aluno e Disciplina. | Armazena dados de nota, média e frequência.
-Pagamento | N:1 com Aluno. | Controle de cobranças, valores e integração Stripe.
-Boletim | N:1 com Turma. | Consolidação final de resultados.
+## 📂 Estrutura do Projeto
 
-Exportar para as Planilhas
-🤝 Colaboradores
+A lógica de negócio é segregada em aplicações específicas (`apps`) para facilitar a escalabilidade.
 
-Isabella Oliveira
+```bash
+SENAI-School-Manager
+├── apps/
+│   ├── academico/       # Cursos, Disciplinas, Notas e Faltas
+│   ├── dashboards/      # Painéis visuais por perfil
+│   ├── payments/        # Financeiro e Stripe
+│   ├── relatorios/      # Geração de PDF e CSV
+│   └── usuarios/        # Autenticação e Roles (RBAC)
+├── core/                # Funcionalidades globais/base
+├── school_manager/      # Configurações do projeto (Settings/URLs)
+├── static/              # Assets (CSS, JS, Imagens)
+├── templates/           # Arquivos HTML
+├── manage.py            # CLI do Django
+└── requirements.txt     # Dependências
+```
 
-Leonardo Silva
+---
 
-Marlos Gomes
+## 🧩 Módulos e Funcionalidades
 
-Matheus Rodrigues
+| Módulo | Acesso | Funcionalidades |
+| :--- | :--- | :--- |
+| **Usuários** | Todos | Login, Logout, Recuperação de senha, Gestão de Perfil. |
+| **Acadêmico** | Prof/Coord/Aluno | Diário de classe, lançamento de notas, frequência, grade curricular. |
+| **Dashboards** | Todos | Visão geral, gráficos de desempenho, alertas e notificações. |
+| **Payments** | Secr/Aluno | Geração de cobranças, histórico financeiro, checkout transparente. |
+| **Relatórios** | Coord/Secr | Boletins, Histórico Escolar, Lista de Presença, Relatórios Financeiros. |
 
-Romulo Famiglietti
+---
 
-Este projeto está em desenvolvimento ativo. Para contribuir, clone o repositório e consulte a Documentação Técnica e Funcional completa.
+## 🚀 Instalação e Configuração
 
-https://bird-toothpaste-81f.notion.site/Documenta-o-Sistema-de-Gest-o-Escolar-Avan-ado-SENAI-School-Manager-2a595238c1de808c8d64d80f480810dc
+Siga os passos abaixo para rodar o projeto localmente.
+
+### Pré-requisitos
+
+*   Python 3.11+
+*   Git
+
+### 1. Clonar o Repositório
+
+```bash
+git clone https://github.com/DEVMarlosGomes/SENAI-School-Manager.git
+cd SENAI-School-Manager
+```
+
+### 2. Configurar o Ambiente Virtual
+
+Recomendamos isolar as dependências do projeto.
+
+**Linux / macOS:**
+```bash
+python3 -m venv venv
+source venv/bin/activate
+```
+
+**Windows (PowerShell):**
+```powershell
+python -m venv venv
+.\venv\Scripts\Activate
+```
+
+### 3. Instalar Dependências
+
+```bash
+pip install -r requirements.txt
+```
+
+### 4. Configurar Banco de Dados
+
+Aplique as migrações para criar as tabelas no SQLite (padrão de desenvolvimento).
+
+```bash
+python manage.py migrate
+```
+
+### 5. Criar Superusuário (Admin)
+
+Crie um acesso administrativo para gerenciar o sistema.
+
+```bash
+python manage.py createsuperuser
+```
+
+### 6. Popular o Banco (Opcional)
+
+Utilize o script de seed para gerar dados de teste (alunos, cursos, notas).
+
+```bash
+python manage.py seed_database
+```
+
+### 7. Executar o Servidor
+
+```bash
+python manage.py runserver
+```
+O sistema estará acessível em: `http://127.0.0.1:8000/`
+
+---
+
+## 📸 Screenshots
+
+*   Dashboard Secretaria
+*   Portal do Aluno
+
+---
+
+## 📄 Documentação Completa
+
+Para detalhes técnicos sobre a modelagem de dados e regras de negócio:
+
+📘 [Notion: Documentação Oficial SENAI School Manager](link-da-documentacao-aqui)
+
+---
+
+## 🤝 Colaboradores
+
+Equipe responsável pelo desenvolvimento e manutenção:
+
+| Nome |
+| :--- |
+| **Isabella Oliveira** |
+| **Leonardo Silva** |
+| **Marlos Gomes** |
+| **Matheus Rodrigues** |
+| **Romulo Famiglietti** |
