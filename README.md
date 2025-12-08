@@ -164,13 +164,6 @@ O sistema estará acessível em: `http://127.0.0.1:8000/`
 
 ---
 
-## 📸 Screenshots
-
-*   Dashboard Secretaria
-*   Portal do Aluno
-
----
-
 ## 📄 Documentação Completa
 
 Para detalhes técnicos sobre a modelagem de dados e regras de negócio:
